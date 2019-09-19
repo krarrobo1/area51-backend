@@ -7,26 +7,20 @@ const Empleado = sequelize.define('empleado', {
         type: Sequelize.INTEGER,
         primaryKey: true
     },
-    id_empresa: {
-        type: Sequelize.INTEGER
-    },
-    id_cargo: {
-        type: Sequelize.INTEGER
-    },
     nombres: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING,
         allowNull: false
     },
     apellidos: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING,
         allowNull: false
     },
     ci: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING,
         allowNull: false
     },
     email: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING,
         allowNull: false
     },
     password: {

@@ -9,10 +9,9 @@ export async function crearEmpresa(req, res) {
             longitud
         }, {
             fields: ['nombre', 'latitud', 'longitud']
-        })
-        if (nuevaEmpresa) {
-            return res.json({ message: 'Empresa creada correctamente!', data: nuevaEmpresa });
-        }
+        });
+        if (nuevaEmpresa) return res.json({ ok: true, message: 'Empresa creada correctamente!', data: nuevaEmpresa });
+
     } catch (err) {
         res.status(500).json({
             ok: false,
