@@ -2,7 +2,8 @@ import Sequelize from 'sequelize';
 import { sequelize } from '../database/database';
 
 import Cargo from '../models/Cargo';
-import Empleado from '../models/Empleado';
+
+
 const Empresa = sequelize.define('empresa', {
     id: {
         type: Sequelize.INTEGER,
@@ -25,10 +26,11 @@ const Empresa = sequelize.define('empresa', {
 });
 
 
+
+
 Empresa.hasMany(Cargo, { foreignKey: 'empresaid', sourceKey: 'id' });
 Cargo.belongsTo(Empresa, { foreignKey: 'empresaid', sourceKey: 'id' });
 
-Empresa.hasMany(Empleado, { foreignKey: 'empresaid', sourceKey: 'id' });
-Empleado.belongsTo(Empresa, { foreignKey: 'empresaid', sourceKey: 'id' });
+
 
 export default Empresa;
