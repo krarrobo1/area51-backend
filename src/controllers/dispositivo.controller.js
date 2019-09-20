@@ -1,0 +1,107 @@
+import Dispositivo from '../models/Dispositivo';
+
+export async function registrarDispositivo(req, res) {
+    const { empleadoid, nombre, ip, mac, modelo } = req.body;
+    try {
+        let nuevoDispositivo = await Dispositivo.create({
+            empleadoid,
+            nombre,
+            ip,
+            mac,
+            modelo
+        }, {
+            fields: ['empleadoid', 'nombre', 'ip', 'mac', 'modelo']
+        });
+
+        return res.json({
+            ok: true,
+            data: nuevoDispositivo
+        })
+    } catch (err) {
+        return res.status(500).json({
+            ok: false,
+            err
+        });
+    }
+}
+
+export async function obtenerDispositivosPorIdEmpleado(req, res) {
+    const { id } = req.params;
+    try {
+        const dispositivos = await Dispositivo.findAll({
+            where: {
+                empleadoid: id
+            }
+        });
+
+        return res.json({
+            ok: true,
+            dispositivos
+        });
+    } catch (err) {
+        res.status(500).json({
+            ok: false,
+            err
+        });
+    }
+}
+
+export async function obtenerDispositivo(req, res) {
+    const { id } = req.params;
+
+    try {
+        let dispositivo = await Dispositivo.findOne({
+            where: {
+                id
+            }
+        });
+        if (!dispositivo) return res.status(404).json({ ok: false, message: 'Dispositivo no encontrado...' });
+        return res.json({ ok: true, dispositivo });
+    } catch (err) {
+        return res.json({ ok: false, err });
+    }
+}
+
+export async function modificarDispositivo(req, res) {
+    const { id } = req.params;
+    const { empleadoid, nombre, ip, mac, modelo } = req.body;
+
+    try {
+        await Dispositivo.update({
+            empleadoid,
+            nombre,
+            ip,
+            mac,
+            modelo
+        }, {
+            where: {
+                id
+            }
+        });
+
+        return res.json({ ok: true, message: 'Dispositivo actualizado...' });
+
+    } catch (err) {
+        return res.status(500).json({
+            ok: false,
+            err
+        });
+    }
+};
+
+export async function eliminarDispositivo(req, res) {
+    const { id } = req.params;
+    try {
+        await Dispositivo.destroy({
+            where: {
+                id
+            }
+        });
+        res.json({ ok: true, message: 'Dispositivo eliminado...' });
+    } catch (err) {
+        return res.status(500).json({
+            ok: false,
+            err
+        });
+    }
+}

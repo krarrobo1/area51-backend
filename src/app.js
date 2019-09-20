@@ -5,6 +5,8 @@ import empresaRoutes from './routes/empresa';
 import empleadoRoutes from './routes/empleado';
 import cargoRoutes from './routes/cargo';
 import periodoRoutes from './routes/periodo';
+import dispositivoRoutes from './routes/dispositivo';
+import asistenciaRoutes from './routes/asistencia';
 
 const app = express();
 
@@ -20,5 +22,7 @@ app.use('/api/empresa', empresaRoutes);
 app.use('/api/empleado', empleadoRoutes);
 app.use('/api/cargo', cargoRoutes);
 app.use('/api/periodo', periodoRoutes);
+app.use('/api/dispositivo', dispositivoRoutes);
+app.use('/api/asistencia', asistenciaRoutes);
 
 export default app;

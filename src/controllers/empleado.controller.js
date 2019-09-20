@@ -15,7 +15,7 @@ export async function crearEmpleado(req, res) {
         }, {
             fields: ['nombres', 'apellidos', 'ci', 'email', 'password', 'empresaid', 'cargoid']
         });
-
+        delete nuevoEmpleado['password'];
         return res.json({
             ok: true,
             data: nuevoEmpleado
@@ -29,8 +29,6 @@ export async function crearEmpleado(req, res) {
     }
 };
 
-// TODO: Remove password from res.
-
 export async function obtenerEmpleado(req, res) {
     const { id } = req.params;
     try {
@@ -40,9 +38,9 @@ export async function obtenerEmpleado(req, res) {
             }
         });
         if (!empleado) return res.status(404).json({ ok: false, message: 'Usuario no encontrado...' });
+        delete empleado['password'];
         return res.json({ ok: true, data: empleado });
     } catch (err) {
-        console.log(err);
         return res.status(500).json({
             ok: false,
             err
@@ -50,13 +48,45 @@ export async function obtenerEmpleado(req, res) {
     }
 }
 
-async function crypt(data) {
+export async function modificarEmpleado(req, res) {
+    const { nombres, apellidos, ci, email } = req.body;
+    const { id } = req.params;
     try {
-        const encrypted = await bcrypt.hash(data, 10);
-        console.log(encrypted);
-        return encrypted;
+        await Empleado.update({ nombres, apellidos, ci, email }, {
+            where: {
+                id
+            }
+        }, {
+            fields: ['nombres', 'apellidos', 'ci', 'email']
+        });
+        return res.json({
+            ok: true,
+            message: 'Usuario actualizado...'
+        });
     } catch (err) {
-        console.log(err);
+        return res.status(500).json({
+            ok: false,
+            err
+        });
     }
+}
 
+export async function eliminarEmpleado(req, res) {
+    const { id } = req.params;
+    try {
+        await Empleado.destroy({
+            where: {
+                id
+            }
+        });
+        return res.json({
+            ok: true,
+            message: 'Empleado eliminado correctamente'
+        })
+    } catch (err) {
+        return res.status(500).json({
+            ok: false,
+            err
+        });
+    }
 }
