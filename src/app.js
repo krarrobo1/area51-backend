@@ -7,6 +7,7 @@ import cargoRoutes from './routes/cargo';
 import periodoRoutes from './routes/periodo';
 import dispositivoRoutes from './routes/dispositivo';
 import asistenciaRoutes from './routes/asistencia';
+import detallepermiso from './routes/detallepermiso';
 
 const app = express();
 
@@ -24,5 +25,6 @@ app.use('/api/cargo', cargoRoutes);
 app.use('/api/periodo', periodoRoutes);
 app.use('/api/dispositivo', dispositivoRoutes);
 app.use('/api/asistencia', asistenciaRoutes);
+app.use('/api/permiso', detallepermiso);
 
 export default app;
