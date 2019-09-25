@@ -1,10 +1,11 @@
 import Dispositivo from '../models/Dispositivo';
 
 export async function registrarDispositivo(req, res) {
-    const { empleadoid, nombre, ip, mac, modelo } = req.body;
+    const { id } = req.data;
+    const { nombre, ip, mac, modelo } = req.body;
     try {
         let nuevoDispositivo = await Dispositivo.create({
-            empleadoid,
+            empleadoid: id,
             nombre,
             ip,
             mac,
@@ -26,7 +27,7 @@ export async function registrarDispositivo(req, res) {
 }
 
 export async function obtenerDispositivosPorIdEmpleado(req, res) {
-    const { id } = req.params;
+    const { id } = req.data;
     try {
         const dispositivos = await Dispositivo.findAll({
             where: {
@@ -36,7 +37,7 @@ export async function obtenerDispositivosPorIdEmpleado(req, res) {
 
         return res.json({
             ok: true,
-            dispositivos
+            data: dispositivos
         });
     } catch (err) {
         res.status(500).json({
@@ -56,7 +57,7 @@ export async function obtenerDispositivo(req, res) {
             }
         });
         if (!dispositivo) return res.status(404).json({ ok: false, message: 'Dispositivo no encontrado...' });
-        return res.json({ ok: true, dispositivo });
+        return res.json({ ok: true, data: dispositivo });
     } catch (err) {
         return res.json({ ok: false, err });
     }
@@ -64,7 +65,7 @@ export async function obtenerDispositivo(req, res) {
 
 export async function modificarDispositivo(req, res) {
     const { id } = req.params;
-    const { empleadoid, nombre, ip, mac, modelo } = req.body;
+    const { empleadoid, nombre, ip, mac, modelo, estado } = req.body;
 
     try {
         await Dispositivo.update({
@@ -72,7 +73,8 @@ export async function modificarDispositivo(req, res) {
             nombre,
             ip,
             mac,
-            modelo
+            modelo,
+            estado
         }, {
             where: {
                 id

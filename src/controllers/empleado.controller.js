@@ -2,26 +2,26 @@ import Empleado from '../models/Empleado';
 import bcrypt from 'bcrypt';
 
 export async function crearEmpleado(req, res) {
-    const { nombres, apellidos, ci, email, password, empresaid, cargoid } = req.body;
+    const { nombres, apellidos, ci, email, password, empresaid, cargoid, rolid } = req.body;
     try {
-        const nuevoEmpleado = await Empleado.create({
+        let nuevoEmpleado = await Empleado.create({
             nombres,
             apellidos,
             ci,
             email,
             password: await bcrypt.hash(password, 10),
             empresaid,
-            cargoid
+            cargoid,
+            rolid
         }, {
-            fields: ['nombres', 'apellidos', 'ci', 'email', 'password', 'empresaid', 'cargoid']
+            fields: ['nombres', 'apellidos', 'ci', 'email', 'password', 'empresaid', 'cargoid', 'rolid']
         });
-        delete nuevoEmpleado['password'];
+        delete nuevoEmpleado.dataValues.password;
         return res.json({
             ok: true,
             data: nuevoEmpleado
         });
     } catch (err) {
-        console.log(err);
         return res.status(500).json({
             ok: false,
             err
@@ -32,13 +32,14 @@ export async function crearEmpleado(req, res) {
 export async function obtenerEmpleado(req, res) {
     const { id } = req.params;
     try {
-        const empleado = await Empleado.findOne({
+        let empleado = await Empleado.findOne({
             where: {
                 id
-            }
+            },
+            attributes: ['nombres', 'apellidos', 'email', 'rolid', 'cargoid', 'empresaid']
         });
         if (!empleado) return res.status(404).json({ ok: false, message: 'Usuario no encontrado...' });
-        delete empleado['password'];
+        delete empleado.dataValues.password;
         return res.json({ ok: true, data: empleado });
     } catch (err) {
         return res.status(500).json({

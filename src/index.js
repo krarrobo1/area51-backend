@@ -1,8 +1,9 @@
 import app from './app';
+import { port } from './config/config'
 
 async function main() {
-    await app.listen(4000);
-    console.log('Server on port 4000');
+    await app.listen(port);
+    console.log(`Server on port ${port}`);
 }
 
 main();

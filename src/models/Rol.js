@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import { sequelize } from '../database/database';
 
-const Permiso = sequelize.define('permiso', {
+const Rol = sequelize.define('role', {
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true
@@ -13,4 +13,4 @@ const Permiso = sequelize.define('permiso', {
     timestamps: false
 });
 
-export default Permiso;
+export default Rol;

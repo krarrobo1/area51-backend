@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import { sequelize } from '../database/database';
 
-import Dia from './Dia';
+//import Dia from './Dia';
 
 
 const Periodo = sequelize.define('periodo', {
@@ -19,8 +19,7 @@ const Periodo = sequelize.define('periodo', {
     timestamps: false
 });
 
-Periodo.belongsTo(Dia, { foreignKey: 'diaid', sourceKey: 'id' });
-Dia.hasMany(Periodo, { foreignKey: 'diaid', sourceKey: 'id' });
+
 
 
 

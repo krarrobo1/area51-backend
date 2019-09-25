@@ -8,6 +8,7 @@ import periodoRoutes from './routes/periodo';
 import dispositivoRoutes from './routes/dispositivo';
 import asistenciaRoutes from './routes/asistencia';
 import detallepermiso from './routes/detallepermiso';
+import login from './routes/login';
 
 const app = express();
 
@@ -26,5 +27,6 @@ app.use('/api/periodo', periodoRoutes);
 app.use('/api/dispositivo', dispositivoRoutes);
 app.use('/api/asistencia', asistenciaRoutes);
 app.use('/api/permiso', detallepermiso);
+app.use('/api/login', login);
 
 export default app;

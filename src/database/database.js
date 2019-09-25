@@ -1,8 +1,9 @@
 import Sequelize from 'sequelize';
+import { dbdev, dbconfig } from '../config/config';
 
 
 
-export const sequelize = new Sequelize(
+/*export const sequelize = new Sequelize(
     'nueva',
     'postgres',
     '', {
@@ -16,4 +17,6 @@ export const sequelize = new Sequelize(
         },
         loggin: false
     }
-);
+);*/
+
+export const sequelize = new Sequelize(dbdev, dbconfig);

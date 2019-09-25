@@ -1,4 +1,4 @@
-import Sequelize, { INTEGER, STRING, CIDR, MACADDR } from 'sequelize';
+import Sequelize, { INTEGER, STRING, CIDR, MACADDR, BOOLEAN } from 'sequelize';
 import { sequelize } from '../database/database';
 
 import Empleado from '../models/Empleado';
@@ -9,16 +9,23 @@ const Dispositivo = sequelize.define('dispositivo', {
         primaryKey: true
     },
     nombre: {
-        type: STRING
+        type: STRING,
+        allowNull: false
     },
     ip: {
-        type: CIDR
+        type: CIDR,
+        allowNull: false
     },
     mac: {
-        type: MACADDR
+        type: MACADDR,
+        allowNull: false
     },
     modelo: {
-        type: STRING
+        type: STRING,
+        allowNull: true
+    },
+    estado: {
+        type: BOOLEAN
     }
 }, {
     timestamps: false

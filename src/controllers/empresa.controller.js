@@ -1,14 +1,15 @@
 import Empresa from '../models/Empresa';
 export async function crearEmpresa(req, res) {
-    const { nombre, latitud, longitud } = req.body;
+    const { nombre, latitud, longitud, radio } = req.body;
     try {
         let nuevaEmpresa = await
         Empresa.create({
             nombre,
             latitud,
-            longitud
+            longitud,
+            radio
         }, {
-            fields: ['nombre', 'latitud', 'longitud']
+            fields: ['nombre', 'latitud', 'longitud', 'radio']
         });
         if (nuevaEmpresa) return res.json({ ok: true, message: 'Empresa creada correctamente!', data: nuevaEmpresa });
 
@@ -24,6 +25,7 @@ export async function obtenerEmpresas(req, res) {
     const empresas = await Empresa.findAll();
     if (empresas) {
         return res.json({
+            ok: true,
             data: empresas
         });
     }
@@ -72,19 +74,18 @@ export async function eliminarEmpresa(req, res) {
         })
     } catch (err) {
         return res.json({
-            message: 'Algo salio mal...'
+            ok: false,
+            err
         });
     }
 }
 
 export async function actualizarEmpresa(req, res) {
     const { id } = req.params;
-    const { nombre, latitud, longitud, estado } = req.body;
-
-    console.log(req.body);
+    const { nombre, latitud, longitud, radio, estado } = req.body;
 
     try {
-        await Empresa.update({ nombre, latitud, longitud, estado }, {
+        await Empresa.update({ nombre, latitud, longitud, radio, estado }, {
             where: {
                 id
             }
@@ -95,7 +96,6 @@ export async function actualizarEmpresa(req, res) {
             message: 'Empresa actualizada...'
         });
     } catch (err) {
-        console.log(err);
         res.status(500).json({
             ok: false,
             err
