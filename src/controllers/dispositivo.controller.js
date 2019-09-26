@@ -65,15 +65,13 @@ export async function obtenerDispositivo(req, res) {
 
 export async function modificarDispositivo(req, res) {
     const { id } = req.params;
-    const { empleadoid, nombre, ip, mac, modelo, estado } = req.body;
+    const { nombre, ip, mac, estado } = req.body;
 
     try {
         await Dispositivo.update({
-            empleadoid,
             nombre,
             ip,
             mac,
-            modelo,
             estado
         }, {
             where: {
@@ -94,12 +92,12 @@ export async function modificarDispositivo(req, res) {
 export async function eliminarDispositivo(req, res) {
     const { id } = req.params;
     try {
-        await Dispositivo.destroy({
+        await Dispositivo.update({ estado: false }, {
             where: {
                 id
             }
         });
-        res.json({ ok: true, message: 'Dispositivo eliminado...' });
+        return res.json({ ok: true, message: 'Dispositivo eliminado...' });
     } catch (err) {
         return res.status(500).json({
             ok: false,

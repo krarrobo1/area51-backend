@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { obtenerPermiso, obtenerPermisosPorEmpleadoId, crearPermiso, modificarPermiso, eliminarPermiso } from '../controllers/detallepermiso.controller';
+import { verificarToken, verificarAdmin } from '../middleware/auth';
 
 const router = Router();
-router.get('/empleado/:id', obtenerPermisosPorEmpleadoId); // TODO arreglar esto
-router.get('/:id', obtenerPermiso); // se esta confundiendo con esta ruta!
-router.post('/', crearPermiso);
-router.put('/:id', modificarPermiso);
-router.delete('/:id', eliminarPermiso);
+router.get('/empleado/:id', verificarToken, obtenerPermisosPorEmpleadoId);
+router.get('/:id', verificarToken, obtenerPermiso);
+router.post('/', verificarToken, crearPermiso);
+router.put('/:id', [verificarToken, verificarAdmin], modificarPermiso);
+router.delete('/:id', [verificarToken, verificarAdmin], eliminarPermiso);
 
 
 export default router;

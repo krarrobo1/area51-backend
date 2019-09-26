@@ -1,4 +1,6 @@
 import Empleado from '../models/Empleado';
+import Empresa from '../models/Empresa';
+import Cargo from '../models/Cargo';
 import bcrypt from 'bcrypt';
 
 export async function crearEmpleado(req, res) {
@@ -28,6 +30,35 @@ export async function crearEmpleado(req, res) {
         });
     }
 };
+
+export async function obtenerEmpleadosPorEmpresa(req, res) {
+    const { id } = req.params;
+    try {
+
+        let empresa = await Empresa.findOne({
+            where: {
+                id
+            }
+        });
+        if (!empresa) return res.status(404).json({ ok: false, message: 'No se encontro empresa con ese ID' });
+
+        let empleados = await Empleado.findAll({ attributes: ['id', 'nombres', 'apellidos', 'email', 'ci'] }, {
+            where: {
+                empresaid: id
+            },
+            include: [
+                Cargo
+            ]
+        });
+        if (!empleados) return res.status(404).json({ ok: false, message: 'No se encontraron empleados de esa empresa' });
+        return res.json({ ok: true, data: empleados });
+    } catch (err) {
+        return res.status(500).json({
+            ok: false,
+            err
+        });
+    }
+}
 
 export async function obtenerEmpleado(req, res) {
     const { id } = req.params;
@@ -62,7 +93,7 @@ export async function modificarEmpleado(req, res) {
         });
         return res.json({
             ok: true,
-            message: 'Usuario actualizado...'
+            message: 'Empleado actualizado...'
         });
     } catch (err) {
         return res.status(500).json({

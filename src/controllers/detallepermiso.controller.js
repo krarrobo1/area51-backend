@@ -1,10 +1,11 @@
 import DetallePermiso from '../models/DetallePermiso';
 
 export async function crearPermiso(req, res) {
-    const { empleadoid, fechainicio, fechafin, permisoid } = req.body;
+    const { id } = req.data
+    const { fechainicio, fechafin, permisoid } = req.body;
     try {
         const nuevoPermiso = await DetallePermiso.create({
-            empleadoid,
+            empleadoid: id,
             fechainicio,
             fechafin,
             permisoid

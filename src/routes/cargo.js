@@ -7,7 +7,7 @@ const router = Router();
 
 // api/cargo/
 router.post('/', [verificarToken, verificarAdmin], crearCargo);
-router.get('/:empresaid', obtenerCargosPorEmpresaId);
+router.get('/:empresaid', [verificarToken, verificarAdmin], obtenerCargosPorEmpresaId);
 router.put('/:id', [verificarToken, verificarAdmin], modificarCargo);
 router.delete('/:id', [verificarToken, verificarAdmin], eliminarCargo);
 

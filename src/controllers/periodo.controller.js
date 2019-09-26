@@ -2,8 +2,6 @@ import Periodo from '../models/Periodo';
 
 export async function crearPeriodo(req, res) {
     const { cargoid, diaid, horainicio, horafin } = req.body;
-    console.log(req.body);
-
     try {
         let nuevo = await Periodo.create({
             cargoid,
@@ -13,7 +11,7 @@ export async function crearPeriodo(req, res) {
         }, {
             fields: ['cargoid', 'diaid', 'horainicio', 'horafin']
         });
-        if (nuevo) return res.json({ ok: true, message: 'Periodo creado correctamente...', data: nuevo });
+        if (nuevo) return res.json({ ok: true, data: nuevo });
     } catch (err) {
         return res.status(500).json({
             ok: false,
@@ -26,7 +24,6 @@ export async function crearPeriodo(req, res) {
 
 export async function obtenerPeriodoPorIdCargo(req, res) {
     const { id } = req.params;
-    console.log(id);
     try {
         const periodos = await Periodo.findAll({
             where: {
@@ -35,7 +32,7 @@ export async function obtenerPeriodoPorIdCargo(req, res) {
         });
         return res.json({
             ok: true,
-            periodos
+            data: periodos
         });
 
     } catch (err) {
@@ -80,7 +77,7 @@ export async function eliminarPeriodo(req, res) {
 
         return res.json({
             ok: true,
-            message: 'Periodo eliminado exitosamente...'
+            message: 'Periodo eliminado'
         })
     } catch (err) {
         res.status(500).json({
@@ -102,12 +99,12 @@ export async function obtenerPeriodo(req, res) {
         if (!periodo) {
             res.status(404).json({
                 ok: false,
-                message: 'Periodo no encontrado...'
+                message: 'Periodo no encontrado'
             });
         }
         res.json({
             ok: true,
-            periodo
+            data: periodo
         });
     } catch (err) {
         res.status(500).json({
@@ -116,14 +113,3 @@ export async function obtenerPeriodo(req, res) {
         });
     }
 };
-
-/*export async function foo(req, res) {
-    try {
-
-    } catch (err) {
-        res.status(500).json({
-            ok: false,
-            err
-        });
-    }
-};*/

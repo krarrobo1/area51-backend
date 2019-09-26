@@ -25,7 +25,10 @@ const Empleado = sequelize.define('empleado', {
     },
     email: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            isEmail: true
+        }
     },
     password: {
         type: Sequelize.TEXT,

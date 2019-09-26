@@ -118,5 +118,5 @@ CREATE TABLE IF NOT EXISTS DETALLEPERMISOS(
     fechainicio TIMESTAMP,
     fechafin TIMESTAMP,
     permisoid integer references permisos(id),
-    estado BOOLEAN
+    estado BOOLEAN DEFAULT false 
 );
