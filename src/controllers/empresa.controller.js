@@ -22,11 +22,19 @@ export async function crearEmpresa(req, res) {
 };
 
 export async function obtenerEmpresas(req, res) {
-    const empresas = await Empresa.findAll();
-    if (empresas) {
-        return res.json({
-            ok: true,
-            data: empresas
+
+    try {
+        const empresas = await Empresa.findAll();
+        if (empresas) {
+            return res.json({
+                ok: true,
+                data: empresas
+            });
+        }
+    } catch (err) {
+        res.status(500).json({
+            ok: false,
+            err
         });
     }
 }
