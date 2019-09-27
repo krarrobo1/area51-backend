@@ -8,7 +8,7 @@ const router = Router();
 
 router.post('/', [verificarToken, verificarSuperAdmin], crearEmpresa);
 //router.get('/', [verificarToken, verificarSuperAdmin], obtenerEmpresas);
-router.get('/', obtenerEmpresas);
+router.get('/all', obtenerEmpresas);
 
 // api/empresa/:id
 
