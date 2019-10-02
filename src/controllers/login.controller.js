@@ -19,7 +19,7 @@ export async function LogIn(req, res) {
                 email
             },
             include: [
-                { model: Empresa, attributes: ['nombre', 'latitud', 'longitud', 'radio'] },
+                { model: Empresa, attributes: ['id', 'nombre', 'latitud', 'longitud', 'radio'] },
                 { model: Rol, attributes: ['nombre'] },
                 { model: Cargo, attributes: ['nombre'], include: [{ model: Periodo, attributes: ['horainicio', 'horafin'], include: [{ model: Dia, attributes: ['nombre'] }] }] }
             ]
