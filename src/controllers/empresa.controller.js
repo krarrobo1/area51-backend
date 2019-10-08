@@ -14,9 +14,10 @@ export async function crearEmpresa(req, res) {
         if (nuevaEmpresa) return res.json({ ok: true, message: 'Empresa creada correctamente!', data: nuevaEmpresa });
 
     } catch (err) {
-        res.status(500).json({
+        const message = err.errors[0].message;
+        return res.status(500).json({
             ok: false,
-            err
+            err: { message: message }
         });
     }
 };
@@ -32,9 +33,10 @@ export async function obtenerEmpresas(req, res) {
             });
         }
     } catch (err) {
-        res.status(500).json({
+        const message = err.errors[0].message;
+        return res.status(500).json({
             ok: false,
-            err
+            err: { message: message }
         });
     }
 }
@@ -58,9 +60,10 @@ export async function obtenerEmpresa(req, res) {
             data: empresa
         });
     } catch (err) {
-        res.status(500).json({
+        const message = err.errors[0].message;
+        return res.status(500).json({
             ok: false,
-            err
+            err: { message: message }
         });
     }
 }
@@ -68,22 +71,22 @@ export async function obtenerEmpresa(req, res) {
 
 export async function eliminarEmpresa(req, res) {
     const { id } = req.params;
-
     try {
-        await Empresa.destroy({
+        let empresa = await Empresa.destroy({
             where: {
                 id
             }
         });
-
-        res.json({
+        if (empresa == 0) return res.status(404).json({ ok: false, err: { message: `Empresa con ID: ${id} no encontrada...` } })
+        return res.json({
             ok: true,
             message: 'Empresa eliminada...'
         })
     } catch (err) {
-        return res.json({
+        const message = err.errors[0].message;
+        return res.status(500).json({
             ok: false,
-            err
+            err: { message: message }
         });
     }
 }
@@ -104,9 +107,10 @@ export async function actualizarEmpresa(req, res) {
             message: 'Empresa actualizada...'
         });
     } catch (err) {
-        res.status(500).json({
+        const message = err.errors[0].message;
+        return res.status(500).json({
             ok: false,
-            err
+            err: { message: message }
         });
     }
 

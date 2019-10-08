@@ -28,7 +28,8 @@ const Empleado = sequelize.define('empleado', {
         allowNull: false,
         validate: {
             isEmail: true
-        }
+        },
+        unique: true
     },
     password: {
         type: Sequelize.TEXT,

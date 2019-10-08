@@ -24,38 +24,33 @@ export async function crearEmpleado(req, res) {
             data: nuevoEmpleado
         });
     } catch (err) {
+        const message = err.errors[0].message;
         return res.status(500).json({
             ok: false,
-            err
+            err: { message }
         });
     }
 };
 
 export async function obtenerEmpleadosPorEmpresa(req, res) {
     const { id } = req.params;
+    console.log(id);
     try {
-
         let empresa = await Empresa.findOne({
             where: {
                 id
             }
         });
         if (!empresa) return res.status(404).json({ ok: false, message: 'No se encontro empresa con ese ID' });
+        let empleados = await Empleado.findAll({ where: { empresaid: id }, attributes: ['id', 'nombres', 'apellidos', 'email', 'ci', 'empresaid'], include: [{ model: Cargo, attributes: ['id', 'nombre'] }] });
 
-        let empleados = await Empleado.findAll({ attributes: ['id', 'nombres', 'apellidos', 'email', 'ci'] }, {
-            where: {
-                empresaid: id
-            },
-            include: [
-                Cargo
-            ]
-        });
         if (!empleados) return res.status(404).json({ ok: false, message: 'No se encontraron empleados de esa empresa' });
         return res.json({ ok: true, data: empleados });
     } catch (err) {
+        const message = err.errors[0].message;
         return res.status(500).json({
             ok: false,
-            err
+            err: { message }
         });
     }
 }
@@ -73,9 +68,10 @@ export async function obtenerEmpleado(req, res) {
         delete empleado.dataValues.password;
         return res.json({ ok: true, data: empleado });
     } catch (err) {
+        const message = err.errors[0].message;
         return res.status(500).json({
             ok: false,
-            err
+            err: { message }
         });
     }
 }
@@ -96,9 +92,10 @@ export async function modificarEmpleado(req, res) {
             message: 'Empleado actualizado...'
         });
     } catch (err) {
+        const message = err.errors[0].message;
         return res.status(500).json({
             ok: false,
-            err
+            err: { message }
         });
     }
 }
@@ -116,9 +113,10 @@ export async function eliminarEmpleado(req, res) {
             message: 'Empleado eliminado correctamente'
         })
     } catch (err) {
+        const message = err.errors[0].message;
         return res.status(500).json({
             ok: false,
-            err
+            err: { message }
         });
     }
 }

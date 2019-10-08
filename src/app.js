@@ -30,4 +30,9 @@ app.use('/api/asistencia', asistenciaRoutes);
 app.use('/api/permiso', detallepermiso);
 app.use('/api/login', login);
 
+app.use(function(err, req, res, next) {
+    console.log(err);
+    return res.status(500).json({ ok: false, err: { message: err.message } });
+});
+
 export default app;
