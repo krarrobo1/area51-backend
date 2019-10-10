@@ -4,7 +4,7 @@ import { verificarToken } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/empleado', verificarToken, obtenerDispositivosPorIdEmpleado)
+router.get('/empleado/:id', verificarToken, obtenerDispositivosPorIdEmpleado)
 router.post('/', verificarToken, registrarDispositivo);
 router.get('/:id', verificarToken, obtenerDispositivo);
 router.put('/:id', verificarToken, modificarDispositivo);

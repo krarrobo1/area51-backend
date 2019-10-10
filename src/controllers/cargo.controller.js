@@ -44,6 +44,25 @@ export async function modificarCargo(req, res) {
     }
 }
 
+export async function obtenerCargo(req, res) {
+    const { id } = req.params;
+    try {
+        const cargo = await Cargo.findOne({
+            where: {
+                id
+            }
+        });
+        if (!cargo) return res.status(404).json({ ok: false, err: { message: `Cargo con id ${id} no encontrado...` } });
+        return res.json({ ok: true, data: cargo });
+    } catch (err) {
+        const message = err.errors[0].message;
+        return res.status(500).json({
+            ok: false,
+            err: { message }
+        });
+    }
+}
+
 export async function eliminarCargo(req, res) {
     const { id } = req.params;
     try {

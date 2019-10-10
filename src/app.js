@@ -10,6 +10,7 @@ import dispositivoRoutes from './routes/dispositivo';
 import asistenciaRoutes from './routes/asistencia';
 import detallepermiso from './routes/detallepermiso';
 import login from './routes/login';
+import rol from './routes/rol';
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/dispositivo', dispositivoRoutes);
 app.use('/api/asistencia', asistenciaRoutes);
 app.use('/api/permiso', detallepermiso);
 app.use('/api/login', login);
+app.use('/api/rol', rol);
 
 app.use(function(err, req, res, next) {
     console.log(err);

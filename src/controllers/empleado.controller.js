@@ -1,6 +1,7 @@
 import Empleado from '../models/Empleado';
 import Empresa from '../models/Empresa';
 import Cargo from '../models/Cargo';
+import Rol from '../models/Rol';
 import bcrypt from 'bcrypt';
 
 export async function crearEmpleado(req, res) {
@@ -42,7 +43,15 @@ export async function obtenerEmpleadosPorEmpresa(req, res) {
             }
         });
         if (!empresa) return res.status(404).json({ ok: false, message: 'No se encontro empresa con ese ID' });
-        let empleados = await Empleado.findAll({ where: { empresaid: id }, attributes: ['id', 'nombres', 'apellidos', 'email', 'ci', 'empresaid'], include: [{ model: Cargo, attributes: ['id', 'nombre'] }] });
+        let empleados = await Empleado.findAll({
+            where: { empresaid: id },
+            attributes: ['id', 'nombres', 'apellidos', 'email', 'ci'],
+            include: [
+                { model: Cargo, attributes: ['id', 'nombre'] },
+                { model: Empresa },
+                { model: Rol }
+            ]
+        });
 
         if (!empleados) return res.status(404).json({ ok: false, message: 'No se encontraron empleados de esa empresa' });
         return res.json({ ok: true, data: empleados });
@@ -62,7 +71,12 @@ export async function obtenerEmpleado(req, res) {
             where: {
                 id
             },
-            attributes: ['nombres', 'apellidos', 'email', 'rolid', 'cargoid', 'empresaid']
+            attributes: ['id', 'ci', 'nombres', 'apellidos', 'email'],
+            include: [
+                { model: Cargo, attributes: ['id', 'nombre'] },
+                { model: Empresa },
+                { model: Rol }
+            ]
         });
         if (!empleado) return res.status(404).json({ ok: false, message: 'Usuario no encontrado...' });
         delete empleado.dataValues.password;

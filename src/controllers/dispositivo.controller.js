@@ -1,4 +1,5 @@
 import Dispositivo from '../models/Dispositivo';
+import Empleado from '../models/Empleado';
 
 export async function registrarDispositivo(req, res) {
     const { id } = req.data;
@@ -19,27 +20,36 @@ export async function registrarDispositivo(req, res) {
             data: nuevoDispositivo
         })
     } catch (err) {
+        const message = err.errors[0].message;
         return res.status(500).json({
             ok: false,
-            err
+            err: { message }
         });
     }
 }
 
 export async function obtenerDispositivosPorIdEmpleado(req, res) {
-    const { id } = req.data;
+    const { id } = req.params;
     try {
+        let empleado = await Empleado.findOne({
+            where: {
+                id
+            }
+        });
+        if (!empleado) return res.status(404).json({ ok: false, err: { message: `No se ha encontrado empleado con id ${id}` } });
         const dispositivos = await Dispositivo.findAll({
             where: {
                 empleadoid: id
             }
         });
-
+        console.log(dispositivos.length);
+        if (dispositivos.length == 0) return res.status(404).json({ ok: false, err: { message: `El empleado con id: ${id} no tiene dispositivos registrados...` } })
         return res.json({
             ok: true,
             data: dispositivos
         });
     } catch (err) {
+        console.log(err);
         res.status(500).json({
             ok: false,
             err
