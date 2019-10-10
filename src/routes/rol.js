@@ -5,7 +5,7 @@ import { obtenerRol, obtenerRoles } from '../controllers/roles.controller';
 
 const router = Router();
 
-router.get('/', obtenerRoles);
-router.get('/:id', obtenerRol);
+router.get('/', [verificarToken, verificarAdmin], obtenerRoles);
+router.get('/:id', [verificarToken, verificarAdmin], obtenerRol);
 
 export default router;
