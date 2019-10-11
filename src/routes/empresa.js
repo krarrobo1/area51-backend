@@ -16,4 +16,5 @@ router.get('/:id', [verificarToken, verificarAdmin], obtenerEmpresa);
 router.delete('/:id', [verificarToken, verificarSuperAdmin], eliminarEmpresa);
 router.put('/:id', [verificarToken, verificarAdmin], actualizarEmpresa);
 
+
 export default router;

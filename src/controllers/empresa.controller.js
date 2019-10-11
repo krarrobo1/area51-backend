@@ -1,15 +1,18 @@
 import Empresa from '../models/Empresa';
+import { getAddress } from '../services/geo';
+
 export async function crearEmpresa(req, res) {
     const { nombre, latitud, longitud, radio } = req.body;
     try {
-        let nuevaEmpresa = await
-        Empresa.create({
+        const direccion = await getAddress(latitud, longitud);
+        let nuevaEmpresa = await Empresa.create({
             nombre,
             latitud,
             longitud,
-            radio
+            radio,
+            direccion
         }, {
-            fields: ['nombre', 'latitud', 'longitud', 'radio']
+            fields: ['nombre', 'latitud', 'longitud', 'radio', 'direccion']
         });
         if (nuevaEmpresa) return res.json({ ok: true, message: 'Empresa creada correctamente!', data: nuevaEmpresa });
 
@@ -96,7 +99,11 @@ export async function actualizarEmpresa(req, res) {
     const { nombre, latitud, longitud, radio, estado } = req.body;
 
     try {
-        await Empresa.update({ nombre, latitud, longitud, radio, estado }, {
+        let direccion;
+        if (latitud !== undefined && longitud !== undefined) {
+            direccion = await getAddress(latitud, longitud);
+        }
+        await Empresa.update({ nombre, latitud, longitud, radio, estado, direccion }, {
             where: {
                 id
             }

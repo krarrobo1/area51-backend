@@ -27,6 +27,9 @@ const Empresa = sequelize.define('empresa', {
     },
     estado: {
         type: Sequelize.BOOLEAN
+    },
+    direccion: {
+        type: Sequelize.STRING
     }
 }, {
     timestamps: false
