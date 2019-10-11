@@ -103,6 +103,7 @@ export async function actualizarEmpresa(req, res) {
         if (latitud !== undefined && longitud !== undefined) {
             direccion = await getAddress(latitud, longitud);
         }
+        console.log(direccion);
         await Empresa.update({ nombre, latitud, longitud, radio, estado, direccion }, {
             where: {
                 id
