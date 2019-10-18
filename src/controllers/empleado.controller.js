@@ -3,27 +3,41 @@ import Empresa from '../models/Empresa';
 import Cargo from '../models/Cargo';
 import Rol from '../models/Rol';
 import bcrypt from 'bcrypt';
+import shortid from 'shortid';
+import { sendEmail } from '../services/smtp';
 
 export async function crearEmpleado(req, res) {
-    const { nombres, apellidos, ci, email, password, empresaid, cargoid, rolid } = req.body;
+    const { nombres, apellidos, ci, email, empresaid, cargoid, rolid } = req.body;
     try {
+        let passresetkey = shortid.generate();
+        let tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
         let nuevoEmpleado = await Empleado.create({
             nombres,
             apellidos,
             ci,
             email,
-            password: await bcrypt.hash(password, 10),
             empresaid,
             cargoid,
-            rolid
+            rolid,
+            passresetkey,
+            passkeyexpires: tomorrow
         }, {
-            fields: ['nombres', 'apellidos', 'ci', 'email', 'password', 'empresaid', 'cargoid', 'rolid']
+            fields: ['nombres', 'apellidos', 'ci', 'email', 'empresaid', 'cargoid', 'rolid', 'passresetkey', 'passkeyexpires']
         });
-        delete nuevoEmpleado.dataValues.password;
+        delete nuevoEmpleado.dataValues.passresetkey;
+        let message = {
+            to: email,
+            subject: `Registrate | Confirmación de cuenta`,
+            text: `Porfavor ingrese al siguiente link para confirmar y configurar su cuenta.
+            http://registrate-app/api/confirm?key=${passresetkey}`
+        };
+        await sendEmail(message, res);
         return res.json({
             ok: true,
             data: nuevoEmpleado
         });
+
     } catch (err) {
         const message = err.errors[0].message;
         return res.status(500).json({
@@ -32,6 +46,8 @@ export async function crearEmpleado(req, res) {
         });
     }
 };
+
+
 
 export async function obtenerEmpleadosPorEmpresa(req, res) {
     const { id } = req.params;

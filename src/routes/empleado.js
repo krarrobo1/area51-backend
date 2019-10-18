@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { verificarToken, verificarAdmin } from '../middleware/auth';
-import { crearEmpleado, obtenerEmpleado, modificarEmpleado, eliminarEmpleado, obtenerEmpleadosPorEmpresa } from '../controllers/empleado.controller';
+import { crearEmpleado, obtenerEmpleado, modificarEmpleado, eliminarEmpleado, obtenerEmpleadosPorEmpresa, test } from '../controllers/empleado.controller';
 
 const router = Router();
 

@@ -33,7 +33,12 @@ const Empleado = sequelize.define('empleado', {
     },
     password: {
         type: Sequelize.TEXT,
-        allowNull: false
+    },
+    passresetkey: {
+        type: Sequelize.TEXT
+    },
+    passkeyexpires: {
+        type: 'TIMESTAMPTZ'
     }
 
 }, {

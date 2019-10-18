@@ -14,3 +14,12 @@ export const dbconfig = {
         idle: 10000
     }
 };
+
+export const transporterConfig = {
+    host: 'smtp.gmail.com',
+    service: 'google',
+    auth: {
+        user: process.env.MUSER || 'krac.corp@gmail.com',
+        pass: process.env.MPASS || 'krarrobo98'
+    }
+};
