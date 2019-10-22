@@ -9,9 +9,12 @@ import { sendEmail } from '../services/smtp';
 export async function crearEmpleado(req, res) {
     const { nombres, apellidos, ci, email, empresaid, cargoid, rolid } = req.body;
     try {
+        // Secret Key
         let passresetkey = shortid.generate();
+        // Key expiration date
         let tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
+
         let nuevoEmpleado = await Empleado.create({
             nombres,
             apellidos,
@@ -25,12 +28,15 @@ export async function crearEmpleado(req, res) {
         }, {
             fields: ['nombres', 'apellidos', 'ci', 'email', 'empresaid', 'cargoid', 'rolid', 'passresetkey', 'passkeyexpires']
         });
+
         delete nuevoEmpleado.dataValues.passresetkey;
+
         let message = {
             to: email,
             subject: `Registrate | Confirmación de cuenta`,
-            text: `Porfavor ingrese al siguiente link para confirmar y configurar su cuenta.
-            http://registrate-app/api/confirm?key=${passresetkey}`
+            text: `Bienvenido a Registrate App
+            Por favor ingrese al siguiente link: https://registrate-1570332821411.web.app/client?key=${passresetkey} para confirmar y configurar su cuenta.
+            `
         };
         await sendEmail(message, res);
         return res.json({
@@ -46,6 +52,39 @@ export async function crearEmpleado(req, res) {
         });
     }
 };
+
+export async function setPassword(req, res) {
+    let { password, email, key } = req.body;
+    try {
+        let empleadoDB = await Empleado.findOne({
+            where: {
+                email
+            },
+            attributes: ['id', 'passkeyexpires', 'passresetkey']
+        });
+        if (!empleadoDB) return res.status(404).json({ ok: false, err: { message: `Empleado con email ${email} no encontrado...` } });
+        let { id, passkeyexpires, passresetkey } = empleadoDB;
+        if (passresetkey !== key) return res.status(401).json({ ok: false, err: { message: `Codigo invalido...` } });
+
+        // Exceeded
+        if (passkeyexpires < now) return res.status(401).json({ ok: false, err: { message: `Lo siento, el código expiro... solicite un codigo nuevo` } });
+
+        // On time
+        let now = new Date();
+        let encrypted = await bcrypt.hash(password, 10);
+        await Empleado.update({ password: encrypted }, {
+            where: {
+                id
+            }
+        });
+        return res.json({ ok: true, message: 'password establecido correctamente...' });
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ ok: false, err });
+    }
+}
+
 
 
 

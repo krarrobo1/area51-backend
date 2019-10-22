@@ -1,4 +1,6 @@
 import DetallePermiso from '../models/DetallePermiso';
+import Empleado from '../models/Empleado';
+
 
 export async function crearPermiso(req, res) {
     const { id } = req.data
@@ -105,5 +107,35 @@ export async function obtenerPermiso(req, res) {
             ok: false,
             err
         });
+    }
+}
+
+// En caso de ser feriado
+export async function crearPermisoGeneral(req, res) {
+    // permisoid = 3 para feriados..
+    const { empresaid, fechainicio, fechafin, permisoid } = req.body;
+    try {
+        let empleados = await Empleado.findAll({
+            where: {
+                empresaid
+            },
+            attributes: ['id']
+        });
+        if (empleados.length === 0) return res.status(404).json({ ok: false, err: { message: `Empleados no encontrados..` } });
+        let permisos = empleados.map(e => {
+            let permiso = {
+                empleadoid: e.id,
+                fechainicio,
+                fechafin,
+                permisoid,
+                estado: true
+            }
+            return permiso
+        });
+        let data = await DetallePermiso.bulkCreate(permisos, { fields: ['empleadoid', 'fechainicio', 'fechafin', 'permisoid', 'estado'] });
+        return res.json({ ok: true, data });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ ok: false, error });
     }
 }
