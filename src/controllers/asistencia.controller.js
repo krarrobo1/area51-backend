@@ -50,7 +50,7 @@ export async function obtenerAsistencia(req, res) {
                 dispositivoid: id
             },
             include: [
-                { model: Dispositivo, attributes: ['id', 'nombre', 'ip', 'mac', 'modelo'], include: [{ model: Empleado, attributes: ['id', 'nombres', 'apellidos'] }] },
+                { model: Dispositivo, attributes: ['id', 'nombre', 'ip', 'mac', 'modelo'], include: [{ model: Empleado, attributes: ['id', 'nombres', 'apellidos', 'ci'] }] },
                 { model: Evento, attributes: ['nombre'] }
             ]
         });
