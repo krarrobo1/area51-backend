@@ -3,6 +3,11 @@ import Dispositivo from '../models/Dispositivo';
 import Empleado from '../models/Empleado';
 import Evento from '../models/Evento';
 
+
+import { sequelize } from '../database/database';
+import { QueryTypes } from 'sequelize';
+
+
 export async function crearAsistencia(req, res) {
     const { id } = req.data;
     const { dispositivoid, latitud, longitud, eventoid } = req.body;
@@ -43,7 +48,20 @@ export async function crearAsistencia(req, res) {
 
 export async function obtenerAsistencia(req, res) {
     const { id } = req.params;
+    let { month, year } = req.query;
     try {
+
+        /*
+        if (month) {
+            let filtered = await sequelize.query(`SELECT * FROM ASISTENCIAS WHERE DISPOSITIVOID = ${id}
+            AND EXTRACT(MONTH FROM hora) = ${month}`, { type: QueryTypes.SELECT });
+            console.log(filtered);
+            return res.json({ ok: true, filtered });
+        }
+
+        */
+
+
         const asistencias = await Asistencia.findAll({
             attributes: ['id', 'hora', 'latitud', 'longitud'],
             where: {

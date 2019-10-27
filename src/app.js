@@ -11,6 +11,7 @@ import asistenciaRoutes from './routes/asistencia';
 import detallepermiso from './routes/detallepermiso';
 import login from './routes/login';
 import rol from './routes/rol';
+import permiso from './routes/permiso';
 
 const app = express();
 
@@ -31,10 +32,11 @@ app.use('/api/asistencia', asistenciaRoutes);
 app.use('/api/permiso', detallepermiso);
 app.use('/api/login', login);
 app.use('/api/rol', rol);
+app.use('/api/permiso', permiso);
 
 app.use(function(err, req, res, next) {
-    console.log(err);
-    return res.status(500).json({ ok: false, err: { message: err.message } });
+    console.log(err.stack);
+    return res.status(500).json({ ok: false, err: { message: 'Algo salio mal...' } });
 });
 
 export default app;
