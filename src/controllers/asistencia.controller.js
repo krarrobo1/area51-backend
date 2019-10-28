@@ -64,6 +64,7 @@ export async function obtenerAsistencia(req, res) {
 
         const asistencias = await Asistencia.findAll({
             attributes: ['id', 'hora', 'latitud', 'longitud'],
+            order: ['hora'],
             where: {
                 dispositivoid: id
             },
@@ -75,6 +76,7 @@ export async function obtenerAsistencia(req, res) {
 
         return res.json({ ok: true, data: asistencias });
     } catch (err) {
-        res.status(500).json({ ok: true, err });
+        console.log(err);
+        res.status(500).json({ ok: false, err });
     }
 }

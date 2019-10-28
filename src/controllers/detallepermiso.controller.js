@@ -1,5 +1,6 @@
 import DetallePermiso from '../models/DetallePermiso';
 import Empleado from '../models/Empleado';
+import Permiso from '../models/Permiso';
 
 
 export async function crearPermiso(req, res) {
@@ -31,6 +32,8 @@ export async function modificarPermiso(req, res) {
     const { id } = req.params;
     const { fechainicio, fechafin, permisoid, estado } = req.body;
     try {
+        let perm = await DetallePermiso.findOne({ where: { id } });
+        if (!perm) return res.status(404).json({ ok: false, err: `Permiso con id ${id} no encontrado...` });
         await DetallePermiso.update({ fechainicio, fechafin, permisoid, estado }, {
             where: {
                 id
@@ -41,7 +44,7 @@ export async function modificarPermiso(req, res) {
             message: 'Permiso actualizado...'
         });
     } catch (err) {
-        return res.json({
+        return res.status(500).json({
             ok: false,
             err
         });
@@ -59,7 +62,7 @@ export async function eliminarPermiso(req, res) {
         });
         return res.json({ ok: true, message: 'Permiso eliminado...' });
     } catch (err) {
-        return res.json({
+        return res.status(500).json({
             ok: false,
             err
         });
@@ -73,7 +76,9 @@ export async function obtenerPermisosPorEmpleadoId(req, res) {
         const permisos = await DetallePermiso.findAll({
             where: {
                 empleadoid: id
-            }
+            },
+            attributes: ['id', 'fechainicio', 'fechafin', 'estado'],
+            include: { model: Permiso, attributes: ['nombre'] }
         });
 
         if (!permisos) {
@@ -81,7 +86,7 @@ export async function obtenerPermisosPorEmpleadoId(req, res) {
         }
         return res.json({ ok: true, data: permisos });
     } catch (err) {
-        return res.json({
+        return res.status(500).json({
             ok: false,
             err
         });
@@ -92,10 +97,15 @@ export async function obtenerPermisosPorEmpleadoId(req, res) {
 export async function obtenerPermiso(req, res) {
     const { id } = req.params;
     try {
-        const permisos = await DetallePermiso.findAll({
+        const permisos = await DetallePermiso.findOne({
             where: {
                 id
-            }
+            },
+            attributes: ['id', 'fechainicio', 'fechafin', 'estado'],
+            include: [
+                { model: Empleado, attributes: ['id', 'ci', 'nombres', 'apellidos'] },
+                { model: Permiso, attributes: ['nombre'] }
+            ]
         });
 
         if (!permisos) {
@@ -103,7 +113,7 @@ export async function obtenerPermiso(req, res) {
         }
         return res.json({ ok: true, data: permisos });
     } catch (err) {
-        return res.json({
+        return res.status(500).json({
             ok: false,
             err
         });
