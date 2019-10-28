@@ -81,7 +81,7 @@ export async function obtenerPermisosPorEmpleadoId(req, res) {
             include: { model: Permiso, attributes: ['nombre'] }
         });
 
-        if (!permisos) {
+        if (permisos.length === 0) {
             return res.status(404).json({ ok: false, message: 'No se han encontrado permisos' });
         }
         return res.json({ ok: true, data: permisos });
