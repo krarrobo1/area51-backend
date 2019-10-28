@@ -9,8 +9,8 @@ const DetallePermiso = sequelize.define('detallepermiso', {
         type: Sequelize.INTEGER,
         primaryKey: true
     },
-    fechainicio: {
-        type: 'TIMESTAMPTZ'
+    fechainicio: { // TODO: Cambiar condicion a not null
+        type: 'TIMESTAMPTZ',
     },
     fechafin: {
         type: 'TIMESTAMPTZ'

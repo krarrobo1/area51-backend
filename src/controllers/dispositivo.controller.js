@@ -42,8 +42,7 @@ export async function obtenerDispositivosPorIdEmpleado(req, res) {
                 empleadoid: id
             }
         });
-        console.log(dispositivos.length);
-        if (dispositivos.length == 0) return res.status(404).json({ ok: false, err: { message: `El empleado con id: ${id} no tiene dispositivos registrados...` } })
+        if (dispositivos.length == 0) return res.json({ ok: false, data: [] });
         return res.json({
             ok: true,
             data: dispositivos
