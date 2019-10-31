@@ -5,7 +5,7 @@ import { verificarToken, verificarAdmin } from '../middleware/auth';
 const router = Router();
 router.get('/empleado/:id', verificarToken, obtenerPermisosPorEmpleadoId);
 router.get('/:id', verificarToken, obtenerPermiso);
-router.get('/empresa/:empresaid', [verificarToken, verificarAdmin], obtenerPermisosPorIdEmpresa);
+router.get('/empresa/:empresaid', obtenerPermisosPorIdEmpresa);
 router.post('/', verificarToken, crearPermiso);
 router.post('/all', [verificarToken, verificarAdmin], crearPermisoGeneral);
 router.put('/:id', [verificarToken, verificarAdmin], modificarPermiso);

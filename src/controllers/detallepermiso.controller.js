@@ -165,7 +165,7 @@ export async function crearPermisoGeneral(req, res) {
 export async function obtenerPermisosPorIdEmpresa(req, res) {
     const { empresaid } = req.params;
     try {
-        let empleados = await Empleado.findAll({
+        /*let empleados = await Empleado.findAll({
             where: {
                 empresaid
             },
@@ -174,9 +174,17 @@ export async function obtenerPermisosPorIdEmpresa(req, res) {
                 { model: Cargo, attributes: ['nombre'] },
                 { model: DetallePermiso, attributes: ['id', 'fechainicio', 'fechafin', 'estado'], include: { model: Permiso, attributes: ['nombre'] } },
             ]
+        });*/
+
+        let permisos = await DetallePermiso.findAll({
+            attributes: ['id', 'fechainicio', 'fechafin', 'estado'],
+            include: [
+                { model: Permiso, attributes: ['nombre'] },
+                { model: Empleado, where: { empresaid }, attributes: ['id', 'nombres', 'apellidos', 'empresaid'] }
+            ]
         });
 
-        return res.json({ ok: true, empleados })
+        return res.json({ ok: true, data: permisos })
 
     } catch (err) {
         const message = err.errors[0].message;
