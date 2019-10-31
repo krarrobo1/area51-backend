@@ -12,6 +12,7 @@ import detallepermiso from './routes/detallepermiso';
 import login from './routes/login';
 import rol from './routes/rol';
 import permiso from './routes/permiso';
+import utils from './routes/utils';
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use('/api/permiso', detallepermiso);
 app.use('/api/login', login);
 app.use('/api/rol', rol);
 app.use('/api/permiso', permiso);
+app.use('/api/utils', utils);
 
 app.use(function(err, req, res, next) {
     console.log(err.stack);
