@@ -24,8 +24,11 @@ export async function crearPermiso(req, res) {
         })
 
     } catch (err) {
-        console.log(err);
-        res.status(500).json({ ok: false, err });
+        const message = err.errors[0].message;
+        return res.status(500).json({
+            ok: false,
+            err: { message: message }
+        });
     }
 }
 
@@ -46,9 +49,10 @@ export async function modificarPermiso(req, res) {
             message: 'Permiso actualizado...'
         });
     } catch (err) {
+        const message = err.errors[0].message;
         return res.status(500).json({
             ok: false,
-            err
+            err: { message: message }
         });
     }
 }
@@ -64,9 +68,10 @@ export async function eliminarPermiso(req, res) {
         });
         return res.json({ ok: true, message: 'Permiso eliminado...' });
     } catch (err) {
+        const message = err.errors[0].message;
         return res.status(500).json({
             ok: false,
-            err
+            err: { message: message }
         });
     }
 }
@@ -88,9 +93,10 @@ export async function obtenerPermisosPorEmpleadoId(req, res) {
         }
         return res.json({ ok: true, data: permisos });
     } catch (err) {
+        const message = err.errors[0].message;
         return res.status(500).json({
             ok: false,
-            err
+            err: { message: message }
         });
     }
 }
@@ -115,9 +121,10 @@ export async function obtenerPermiso(req, res) {
         }
         return res.json({ ok: true, data: permisos });
     } catch (err) {
+        const message = err.errors[0].message;
         return res.status(500).json({
             ok: false,
-            err
+            err: { message: message }
         });
     }
 }
@@ -147,8 +154,11 @@ export async function crearPermisoGeneral(req, res) {
         let data = await DetallePermiso.bulkCreate(permisos, { fields: ['empleadoid', 'fechainicio', 'fechafin', 'permisoid', 'estado'] });
         return res.json({ ok: true, data });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ ok: false, error });
+        const message = err.errors[0].message;
+        return res.status(500).json({
+            ok: false,
+            err: { message: message }
+        });
     }
 }
 
@@ -170,7 +180,10 @@ export async function obtenerPermisosPorIdEmpresa(req, res) {
         return res.json({ ok: true, empleados })
 
     } catch (err) {
-        console.log(err);
-        return res.status(500).json({ ok: false, err });
+        const message = err.errors[0].message;
+        return res.status(500).json({
+            ok: false,
+            err: { message: message }
+        });
     }
 }
