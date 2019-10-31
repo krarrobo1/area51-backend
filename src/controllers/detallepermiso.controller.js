@@ -164,7 +164,6 @@ export async function crearPermisoGeneral(req, res) {
 
 export async function obtenerPermisosPorIdEmpresa(req, res) {
     const { empresaid } = req.params;
-    console.log(empresaid);
     try {
         let empleados = await Empleado.findAll({
             where: {
