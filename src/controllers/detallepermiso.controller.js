@@ -1,6 +1,8 @@
 import DetallePermiso from '../models/DetallePermiso';
 import Empleado from '../models/Empleado';
 import Permiso from '../models/Permiso';
+import Sequelize from 'sequelize';
+import Cargo from '../models/Cargo';
 
 
 export async function crearPermiso(req, res) {
@@ -13,7 +15,7 @@ export async function crearPermiso(req, res) {
             fechafin,
             permisoid
         }, {
-            fields: ['empleadoid', 'fechainicio', 'fechafin', 'permisoid']
+            fields: ['empleadoid', 'fechainicio', 'fechafin', 'permisoid', 'cargoid']
         });
 
         res.json({
@@ -147,5 +149,28 @@ export async function crearPermisoGeneral(req, res) {
     } catch (error) {
         console.log(error);
         return res.status(500).json({ ok: false, error });
+    }
+}
+
+export async function obtenerPermisosPorIdEmpresa(req, res) {
+    const { empresaid } = req.params;
+    console.log(empresaid);
+    try {
+        let empleados = await Empleado.findAll({
+            where: {
+                empresaid
+            },
+            attributes: ['id', 'nombres', 'apellidos', 'empresaid'],
+            include: [
+                { model: Cargo, attributes: ['nombre'] },
+                { model: DetallePermiso, attributes: ['id', 'fechainicio', 'fechafin', 'estado'], include: { model: Permiso, attributes: ['nombre'] } },
+            ]
+        });
+
+        return res.json({ ok: true, empleados })
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ ok: false, err });
     }
 }
