@@ -4,8 +4,11 @@ import Empleado from '../models/Empleado';
 import Evento from '../models/Evento';
 
 
+import { crearExcel } from '../services/reportes';
 import { sequelize } from '../database/database';
 import { QueryTypes } from 'sequelize';
+
+import stream from 'stream';
 
 
 export async function crearAsistencia(req, res) {
@@ -42,7 +45,11 @@ export async function crearAsistencia(req, res) {
 
         res.json({ ok: true, asistencia: nuevaAsistencia });
     } catch (err) {
-        res.status(500).json({ ok: false, err });
+        const message = err.errors[0].message;
+        return res.status(500).json({
+            ok: false,
+            err: { message: message }
+        });
     }
 };
 
@@ -76,7 +83,93 @@ export async function obtenerAsistencia(req, res) {
 
         return res.json({ ok: true, data: asistencias });
     } catch (err) {
+        const message = err.errors[0].message;
+        return res.status(500).json({
+            ok: false,
+            err: { message: message }
+        });
+    }
+}
+
+export async function obtenerAsistenciaEmpleadoId(req, res) {
+    const { id } = req.params;
+
+    try {
+        let data = await sequelize.query(`Select CONCAT(emp.nombres,' ', emp.apellidos) nombres, 
+        emp.ci,
+        CONCAT(asis.latitud,',',asis.longitud) ubicacion,
+        asis.hora timest,
+        disp.nombre dispositivo, 
+        evt.nombre evento
+        FROM asistencias asis
+        INNER JOIN dispositivos disp ON asis.dispositivoid = disp.id
+        INNER JOIN empleados emp ON disp.empleadoid = emp.id
+        INNER JOIN eventos evt ON asis.eventoid = evt.id
+        WHERE emp.id = ${id}
+        ORDER BY timest;
+        `, { type: QueryTypes.SELECT });
+        return res.json({ ok: true, data })
+    } catch (err) {
+        const message = err.errors[0].message;
+        return res.status(500).json({
+            ok: false,
+            err: { message: message }
+        });
+    }
+
+    /* try {
+         let asistencias = await obtenerAsistenciasEmpleado(id);
+         return res.json({ ok: true, data: asistencias });
+     } catch (err) {
+         console.log(err);
+         return res.status(500).json({ ok: false, err });
+     }*/
+
+}
+
+
+
+
+// TODO: cambiar rutas, eliminar metodos no validos... TOmorrow es too
+// export async function descargarReporteAsistencias(req, res) {
+export async function descargarReporteAsistencias(req, res) {
+    const { id } = req.params;
+    try {
+        let registros = await sequelize.query(`Select CONCAT(emp.nombres,' ', emp.apellidos) nombres, 
+        emp.ci,
+        CONCAT(asis.latitud,',',asis.longitud) ubicacion,
+        EXTRACT(day FROM asis.hora) dia, 
+        EXTRACT (month FROM asis.hora) mes,
+        EXTRACT (year FROM asis.hora) anio,
+        CONCAT(EXTRACT (HOUR from asis.hora),':',EXTRACT(MINUTE from asis.hora),':',EXTRACT(SECOND from asis.hora))hora,
+        asis.hora timest,
+        disp.nombre dispositivo, 
+        evt.nombre evento
+        FROM asistencias asis
+        INNER JOIN dispositivos disp ON asis.dispositivoid = disp.id
+        INNER JOIN empleados emp ON disp.empleadoid = emp.id
+        INNER JOIN eventos evt ON asis.eventoid = evt.id
+        WHERE emp.id = ${id}
+        ORDER BY timest;
+        `, { type: QueryTypes.SELECT });
+        let string = JSON.stringify(registros);
+
+        let bf = await crearExcel(JSON.parse(string));
+        if (!bf) return res.status(500).json({ ok: false, err: { message: `No se pudo completar la accion...` } });
+
+        let fileContents = Buffer.from(bf, "base64");
+
+        let readStream = new stream.PassThrough();
+        readStream.end(fileContents);
+
+        let title = new Date().getMilliseconds() * 369;
+
+        res.set('Content-disposition', `attatchment; filename = registro.xlsx`);
+        res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+        return readStream.pipe(res);
+    } catch (err) {
         console.log(err);
-        res.status(500).json({ ok: false, err });
+        return res.status(500).json({ ok: false, err });
     }
 }
