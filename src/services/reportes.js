@@ -6,6 +6,8 @@ let wb = new ExcelJS.Workbook();
 
 import path from 'path';
 var appDir = path.dirname(require.main.filename);
+//let dir = path.dirname(require.main.);
+
 
 export async function crearPDF() {
 
@@ -28,9 +30,8 @@ export async function crearPDF() {
         }
  */
 export async function crearExcel(data) {
-    await wb.xlsx.readFile(`${appDir}/assets/Template.xlsx`);
+    await wb.xlsx.readFile(`${appDir}/../assets/Template.xlsx`);
     console.log('Leido');
-
     let meses = [];
     let dias = [];
     let ifilas = 6;
