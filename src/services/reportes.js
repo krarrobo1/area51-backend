@@ -30,6 +30,7 @@ export async function crearPDF() {
         }
  */
 export async function crearExcel(data) {
+    if (data.length === 0) return null;
     await wb.xlsx.readFile(`${appDir}/../assets/Template.xlsx`);
     console.log('Leido');
     let meses = [];

@@ -155,7 +155,7 @@ export async function descargarReporteAsistencias(req, res) {
         let string = JSON.stringify(registros);
 
         let bf = await crearExcel(JSON.parse(string));
-        if (!bf) return res.status(500).json({ ok: false, err: { message: `No se pudo completar la accion...` } });
+        if (!bf) return res.status(500).json({ ok: false, err: { message: `(Sin registros) No se pudo completar la accion...` } });
 
         let fileContents = Buffer.from(bf, "base64");
 
