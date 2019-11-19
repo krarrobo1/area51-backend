@@ -39,7 +39,7 @@ export async function crearEmpleado(req, res) {
             `
         };
         console.log('OK');
-        //await sendEmail(message, res);
+        await sendEmail(message, res);
         return res.json({
             ok: true,
             data: nuevoEmpleado
