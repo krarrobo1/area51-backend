@@ -38,6 +38,7 @@ export async function crearEmpleado(req, res) {
             Por favor ingrese al siguiente link: https://registrate-1570332821411.web.app/client?key=${passresetkey} para confirmar y configurar su cuenta.
             `
         };
+        console.log('OK');
         await sendEmail(message, res);
         return res.json({
             ok: true,
@@ -45,6 +46,7 @@ export async function crearEmpleado(req, res) {
         });
 
     } catch (err) {
+        console.log(err);
         const message = err.errors[0].message;
         return res.status(500).json({
             ok: false,
