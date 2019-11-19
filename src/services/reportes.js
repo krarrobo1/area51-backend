@@ -36,7 +36,7 @@ export async function crearExcel(data) {
     let meses = [];
     let dias = [];
     let ifilas = 6;
-    data.forEach(reg => {
+    data.forEach((reg, index) => {
         let { nombres, ci, ubicacion, timest, dispositivo, evento } = reg;
         let fecha = dt.format(new Date(timest), `EEEE,dd,MMMM,yyyy,HH:mm:ss`, { locale: es }).split(',');
         let mmyy = `${fecha[2]} ${fecha[3]}`;
@@ -103,7 +103,7 @@ export async function crearExcel(data) {
             } else {
                 //console.log('conocido');
                 let idTag = ws.getCell(`A${ifilas}`);
-                idTag.value = '#';
+                idTag.value = index;
 
                 let eventTag = ws.getCell(`B${ifilas}`);
                 eventTag.value = evento;

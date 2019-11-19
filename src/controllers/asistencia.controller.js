@@ -108,6 +108,8 @@ export async function obtenerAsistenciaEmpleadoId(req, res) {
         WHERE emp.id = ${id}
         ORDER BY timest;
         `, { type: QueryTypes.SELECT });
+
+        console.log(data.length);
         return res.json({ ok: true, data })
     } catch (err) {
         const message = err.errors[0].message;
@@ -152,22 +154,44 @@ export async function descargarReporteAsistencias(req, res) {
         WHERE emp.id = ${id}
         ORDER BY timest;
         `, { type: QueryTypes.SELECT });
-        let string = JSON.stringify(registros);
 
-        let bf = await crearExcel(JSON.parse(string));
+
+        let bf = await crearExcel(registros);
         if (!bf) return res.status(500).json({ ok: false, err: { message: `(Sin registros) No se pudo completar la accion...` } });
-
+        let { nombres } = registros[0];
+        // Bufer del Excel
         let fileContents = Buffer.from(bf, "base64");
 
+        // Se crea un flujo de lectura
         let readStream = new stream.PassThrough();
+
+        // Se termina de escribir el archivoen el flujo de lectura
         readStream.end(fileContents);
 
-        let title = new Date().getMilliseconds() * 369;
 
-        res.set('Content-disposition', `attatchment; filename = registro.xlsx`);
+        let title = new Date().getMilliseconds() * 369;
+        res.set('Content-disposition', `attatchment; filename = registro-${nombres}.xlsx`);
         res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
-        return readStream.pipe(res);
+        // Se crea un pipe hacia la respuesta
+        readStream.pipe(res);
+
+        readStream.on('error', () => {
+            return res.status(500).json({
+                ok: false,
+                message: 'Algo salio mal...'
+            });
+        });
+
+        readStream.on('finish', () => {
+            console.log('TODO OK!');
+            return
+        });
+
+
+
+
+
     } catch (err) {
         console.log(err);
         return res.status(500).json({ ok: false, err });

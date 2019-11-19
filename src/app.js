@@ -13,6 +13,7 @@ import login from './routes/login';
 import rol from './routes/rol';
 import permiso from './routes/permiso';
 import utils from './routes/utils';
+import dia from './routes/dia';
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use('/api/login', login);
 app.use('/api/rol', rol);
 app.use('/api/permiso', permiso);
 app.use('/api/utils', utils);
+app.use('/api/dias', dia);
 
 app.use(function(err, req, res, next) {
     console.log(err.stack);

@@ -18,6 +18,8 @@ export const dbconfig = {
 export const transporterConfig = {
     host: 'smtp.gmail.com',
     service: 'google',
+    port: 465,
+    secure: true,
     auth: {
         user: process.env.MUSER || 'krac.corp@gmail.com',
         pass: process.env.MPASS || 'krarrobo98'
