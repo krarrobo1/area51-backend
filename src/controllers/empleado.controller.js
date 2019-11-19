@@ -30,6 +30,7 @@ export async function crearEmpleado(req, res) {
         });
 
         delete nuevoEmpleado.dataValues.passresetkey;
+        delete nuevoEmpleado.dataValues.password;
 
         let message = {
             to: email,

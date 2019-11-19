@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS empleados
     apellidos VARCHAR(80) NOT NULL CHECK(apellidos <> ''),
     ci VARCHAR(10) NOT NULL UNIQUE,
     email VARCHAR(80) NOT NULL UNIQUE,
-    password text NOT NULL
+    password VARCHAR
 );
 
 INSERT INTO EMPLEADOS(empresaid, cargoid, rolid, nombres, apellidos, ci, email, password)
