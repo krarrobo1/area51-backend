@@ -8,7 +8,28 @@ import path from 'path';
 var appDir = path.dirname(require.main.filename);
 //let dir = path.dirname(require.main.);
 
+let fill1 = { //cell filling proprerty
+    type: 'pattern',
+    pattern: 'darkVertical',
+    fgColor: { argb: 'b6d7a8' },
+    bgColor: { argb: 'b6d7a8' }
+}
 
+let fill2 = {
+    type: 'pattern',
+    pattern: 'darkVertical',
+    fgColor: { argb: 'f8cb9c' },
+    bgColor: { argb: 'f8cb9c' }
+}
+
+let fill3 = {
+    type: 'pattern',
+    pattern: 'darkVertical',
+    fgColor: { argb: 'd5dbd6' },
+    bgColor: { argb: '3c78d8' }
+}
+
+let font = { name: 'Arial', size: 12, bold: true };
 export async function crearPDF() {
 
 }
@@ -32,7 +53,7 @@ export async function crearPDF() {
 export async function crearExcel(data) {
     if (data.length === 0) return null;
     await wb.xlsx.readFile(`${appDir}/../assets/Template.xlsx`);
-    console.log('Leido');
+    //console.log('Leido');
     let meses = [];
     let dias = [];
     let ifilas = 6;
@@ -57,10 +78,11 @@ export async function crearExcel(data) {
 
             ifilas++;
             let idTag = ws.getCell(`A${ifilas}`);
-            idTag.value = '#';
+            idTag.value = `${index}`;
 
             let eventTag = ws.getCell(`B${ifilas}`);
             eventTag.value = evento;
+
 
 
             let horaTag = ws.getCell(`C${ifilas}`);
@@ -71,7 +93,20 @@ export async function crearExcel(data) {
 
             let ubTag = ws.getCell(`E${ifilas}`);
             ubTag.value = ubicacion;
-
+            if (evento === 'Entrada') {
+                idTag.style.fill = fill1;
+                eventTag.style.fill = fill1;
+                horaTag.style.fill = fill1;
+                dispTag.style.fill = fill1;
+                ubTag.style.fill = fill1;
+            } else {
+                idTag.style.fill = fill2;
+                eventTag.style.fill = fill2;
+                horaTag.style.fill = fill2;
+                dispTag.style.fill = fill2;
+                ubTag.style.fill = fill2;
+            }
+            eventTag.alignment = { vertical: 'middle', horizontal: 'center' };
             dias.push(eedd);
             ifilas++;
         } else {
@@ -79,14 +114,23 @@ export async function crearExcel(data) {
             //console.log(ws);
             if (!dias.includes(eedd)) {
                 //console.log('nuevo');
-                ws.getCell(`A${ifilas}`).value = `${eedd}`;
+                let dayTag = ws.getCell(`E${ifilas}`);
+                dayTag.merge(ws.getCell(`A${ifilas}`));
+
+                dayTag.value = `${eedd}`;
+                dayTag.style.fill = fill3;
+                dayTag.alignment = { vertical: 'middle', horizontal: 'center' };
+                dayTag.font = font;
+
+
 
                 ifilas++;
                 let idTag = ws.getCell(`A${ifilas}`);
-                idTag.value = '#';
+                idTag.value = `${index}`;
 
                 let eventTag = ws.getCell(`B${ifilas}`);
                 eventTag.value = evento;
+
 
 
                 let horaTag = ws.getCell(`C${ifilas}`);
@@ -97,13 +141,26 @@ export async function crearExcel(data) {
 
                 let ubTag = ws.getCell(`E${ifilas}`);
                 ubTag.value = ubicacion;
-
+                if (evento === 'Entrada') {
+                    idTag.style.fill = fill1;
+                    eventTag.style.fill = fill1;
+                    horaTag.style.fill = fill1;
+                    dispTag.style.fill = fill1;
+                    ubTag.style.fill = fill1;
+                } else if (evento === 'Salida') {
+                    idTag.style.fill = fill2;
+                    eventTag.style.fill = fill2;
+                    horaTag.style.fill = fill2;
+                    dispTag.style.fill = fill2;
+                    ubTag.style.fill = fill2;
+                }
+                eventTag.alignment = { vertical: 'middle', horizontal: 'center' };
                 dias.push(eedd);
                 ifilas++;
             } else {
                 //console.log('conocido');
                 let idTag = ws.getCell(`A${ifilas}`);
-                idTag.value = index;
+                idTag.value = `${index}`;
 
                 let eventTag = ws.getCell(`B${ifilas}`);
                 eventTag.value = evento;
@@ -118,8 +175,33 @@ export async function crearExcel(data) {
                 let ubTag = ws.getCell(`E${ifilas}`);
                 ubTag.value = ubicacion;
 
+                if (evento === 'Entrada') {
+                    idTag.style.fill = fill1;
+                    eventTag.style.fill = fill1;
+                    horaTag.style.fill = fill1;
+                    dispTag.style.fill = fill1;
+                    ubTag.style.fill = fill1;
+
+                } else {
+                    idTag.style.fill = fill2;
+                    eventTag.style.fill = fill2;
+                    horaTag.style.fill = fill2;
+                    dispTag.style.fill = fill2;
+                    ubTag.style.fill = fill2;
+                }
+                eventTag.alignment = { vertical: 'middle', horizontal: 'center' };
                 ifilas++;
             }
+        }
+    });
+
+
+    // Limpia hojas vacias...
+    wb.eachSheet(ws => {
+        let name = ws.name;
+        console.log(name);
+        if (name.charAt(0) === 'H') {
+            wb.removeWorksheet(name);
         }
     });
 
@@ -127,3 +209,12 @@ export async function crearExcel(data) {
     let bf = await wb.xlsx.writeBuffer();
     return bf;
 }
+
+/*
+function styleRow(event) {
+    if (event === 'Entrada') {
+
+    } else if (event === 'Salida') {
+
+    }
+}*/

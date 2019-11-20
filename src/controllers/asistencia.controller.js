@@ -5,10 +5,12 @@ import Evento from '../models/Evento';
 
 
 import { crearExcel } from '../services/reportes';
+import * as dt from 'date-fns';
 import { sequelize } from '../database/database';
 import { QueryTypes } from 'sequelize';
 
 import stream from 'stream';
+
 
 
 export async function crearAsistencia(req, res) {
@@ -95,9 +97,9 @@ export async function obtenerAsistenciaEmpleadoId(req, res) {
     const { id } = req.params;
 
     try {
-        let data = await sequelize.query(`Select CONCAT(emp.nombres,' ', emp.apellidos) nombres, 
-        emp.ci,
-        CONCAT(asis.latitud,',',asis.longitud) ubicacion,
+        let data = await sequelize.query(`Select 
+        asis.latitud,
+		asis.longitud,
         asis.hora timest,
         disp.nombre dispositivo, 
         evt.nombre evento
@@ -109,7 +111,12 @@ export async function obtenerAsistenciaEmpleadoId(req, res) {
         ORDER BY timest;
         `, { type: QueryTypes.SELECT });
 
-        console.log(data.length);
+        data.forEach(element => {
+            let { timest } = element;
+            let formated = dt.format(timest, 'dd/MM/yyyy HH:mm:ss');
+            element.formatedDate = formated;
+
+        });
         return res.json({ ok: true, data })
     } catch (err) {
         const message = err.errors[0].message;
