@@ -1,8 +1,7 @@
 import DetallePermiso from '../models/DetallePermiso';
 import Empleado from '../models/Empleado';
 import Permiso from '../models/Permiso';
-import Sequelize from 'sequelize';
-import Cargo from '../models/Cargo';
+
 
 
 export async function crearPermiso(req, res) {
@@ -18,7 +17,7 @@ export async function crearPermiso(req, res) {
             fields: ['empleadoid', 'fechainicio', 'fechafin', 'permisoid', 'cargoid']
         });
 
-        res.json({
+        return res.json({
             ok: true,
             data: nuevoPermiso
         })
@@ -89,7 +88,7 @@ export async function obtenerPermisosPorEmpleadoId(req, res) {
         });
 
         if (permisos.length === 0) {
-            return res.status(404).json({ ok: false, message: 'No se han encontrado permisos' });
+            return res.json({ ok: true, data: [] })
         }
         return res.json({ ok: true, data: permisos });
     } catch (err) {
@@ -117,7 +116,7 @@ export async function obtenerPermiso(req, res) {
         });
 
         if (!permisos) {
-            return res.status(404).json({ ok: false, message: 'No se han encontrado permisos' });
+            return res.status(404).json({ ok: false, message: `No se ha encontrado permiso con id ${id}` });
         }
         return res.json({ ok: true, data: permisos });
     } catch (err) {

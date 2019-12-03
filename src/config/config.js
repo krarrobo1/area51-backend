@@ -16,12 +16,10 @@ export const dbconfig = {
 };
 
 export const transporterConfig = {
-    host: 'smtp.gmail.com',
-    service: 'google',
-    port: 465,
-    secure: true,
+    host: "smtp.mailtrap.io",
+    port: 2525,
     auth: {
-        user: process.env.MUSER || 'krac.corp@gmail.com',
-        pass: process.env.MPASS || 'krarrobo98'
+        user: process.env.MUSER || '567e7f50289f0b',
+        pass: process.env.MPASS || 'df0b48e0c208a2'
     }
 };

@@ -3,38 +3,47 @@ import Dispositivo from '../models/Dispositivo';
 import Empleado from '../models/Empleado';
 import Evento from '../models/Evento';
 
+import Cargo from '../models/Cargo';
+import Periodo from '../models/Periodo';
+import Dia from '../models/Dia'
+
 
 import { crearExcel } from '../services/reportes';
 import * as dt from 'date-fns';
+import { es } from 'date-fns/locale';
 import { sequelize } from '../database/database';
 import { QueryTypes } from 'sequelize';
 
-import stream from 'stream';
 
 
 
 export async function crearAsistencia(req, res) {
     const { id } = req.data;
     const { dispositivoid, latitud, longitud, eventoid } = req.body;
-    const dispositivos = await Dispositivo.findAll({
-        raw: true,
-        where: {
-            empleadoid: id
-        }
-    });
-    if (dispositivos.length == 0) return res.status(404).json({ ok: false, message: 'No se han encontrado dispositivos vinculados a dicho empleado...' });
-
-    let flag = false;
-    for (let i = 0; i < dispositivos.length; i++) {
-        const { id } = dispositivos[i];
-        if (dispositivoid == id) {
-            flag = true;
-            break;
-        }
-    }
-    if (!flag) return res.json({ ok: false, message: 'El id del dispositivo no coincide con el empleado' });
-    // La hora es la hora local del server...
     try {
+
+        const dispositivos = await Dispositivo.findAll({
+            raw: true,
+            where: {
+                empleadoid: id
+            }
+        });
+
+        if (dispositivos.length == 0) return res.status(404).json({ ok: false, message: 'No se han encontrado dispositivos vinculados a dicho empleado...' });
+
+        let flag = dispositivos.some((value) => value.id === dispositivoid);
+        if (!flag) return res.json({ ok: false, message: 'El id del dispositivo no coincide con el empleado' });
+
+        const empleado = await Empleado.findOne({
+            attributes: ['id'],
+            where: { id: id },
+            include: [{ model: Cargo, attributes: ['nombre'], include: [{ model: Periodo, attributes: ['horainicio', 'horafin'], include: [{ model: Dia, attributes: ['nombre'] }] }] }]
+        });
+        let periodoLaboral = empleado.cargo.periodos;
+
+
+        // Si esta dentro del periodo puede registrarse...
+        if (!comprobarPeriodoLaboral(periodoLaboral)) return res.json({ ok: false, err: { message: 'No se puede registrar fuera del horario laboral...' } })
         const nuevaAsistencia = await Asistencia.create({
             dispositivoid,
             hora: new Date,
@@ -45,7 +54,8 @@ export async function crearAsistencia(req, res) {
             fields: ['dispositivoid', 'hora', 'latitud', 'longitud', 'eventoid']
         });
 
-        res.json({ ok: true, asistencia: nuevaAsistencia });
+        return res.json({ ok: true, asistencia: nuevaAsistencia });
+
     } catch (err) {
         const message = err.errors[0].message;
         return res.status(500).json({
@@ -54,6 +64,28 @@ export async function crearAsistencia(req, res) {
         });
     }
 };
+
+function comprobarPeriodoLaboral(periodoLaboral) {
+    return periodoLaboral.some((periodo) => {
+        let { horainicio, horafin, dia } = periodo;
+
+        let now = dt.format(Date.now(), 'EEEE HH:mm:ss', { locale: es }).split(' ');
+        let diaCapitalized = now[0].charAt(0).toUpperCase() + now[0].slice(1);
+        let horaActual = now[1];
+        if (dia.nombre === diaCapitalized) {
+            // 10 minutos antes de su hora inicial..
+            let tiempoGracia = dt.subMinutes(new Date(`01/01/2020 ${horainicio}`), 10).toTimeString().split(' ')[0];
+            if (Date.parse(`01/01/2020 ${tiempoGracia}`) < Date.parse(`01/01/2020 ${horaActual}`) && Date.parse(`01/01/2020 ${horafin}`) > Date.parse(`01/01/2020 ${horaActual}`)) {
+                console.log('En horario..');
+                return true;
+            } else {
+                return false;
+            };
+        } else {
+            return false
+        }
+    });
+}
 
 export async function obtenerAsistencia(req, res) {
     const { id } = req.params;
@@ -117,6 +149,7 @@ export async function obtenerAsistenciaEmpleadoId(req, res) {
             element.formatedDate = formated;
 
         });
+
         return res.json({ ok: true, data })
     } catch (err) {
         const message = err.errors[0].message;
@@ -194,10 +227,6 @@ export async function descargarReporteAsistencias(req, res) {
             console.log('TODO OK!');
             return
         });
-
-
-
-
 
     } catch (err) {
         console.log(err);
