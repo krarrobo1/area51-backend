@@ -47,10 +47,9 @@ export async function crearEmpleado(req, res) {
 
     } catch (err) {
         console.log(err);
-        const message = err.errors[0].message;
         return res.status(500).json({
             ok: false,
-            err: { message }
+            err: { message: 'Algo salio mal...' }
         });
     }
 };
