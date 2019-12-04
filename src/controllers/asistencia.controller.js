@@ -37,6 +37,8 @@ export async function crearAsistencia(req, res) {
             include: [{ model: Cargo, attributes: ['nombre'], include: [{ model: Periodo, attributes: ['horainicio', 'horafin'], include: [{ model: Dia, attributes: ['nombre'] }] }] }]
         });
 
+        // Si no tiene asignado un horario throw Error...
+
         let periodoLaboral = empleado.cargo.periodos;
         // Si esta dentro del periodo puede registrarse...
         if (!comprobarPeriodoLaboral(periodoLaboral)) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
@@ -117,12 +119,11 @@ export async function obtenerAsistenciaEmpleadoId(req, res) {
         ORDER BY timest;
         `, { type: QueryTypes.SELECT });
 
-        // data.forEach(element => {
-        //     let { timest } = element;
-        //     let formated = dt.format(timest, 'dd/MM/yyyy HH:mm:ss');
-        //     element.formatedDate = formated;
-
-        // });
+        data.forEach(element => {
+            let { timest } = element;
+            let formated = dt.format(timest, 'dd/MM/yyyy HH:mm:ss');
+            element.formatedDate = formated;
+        });
 
         return res.json({ ok: true, data })
     } catch (err) {

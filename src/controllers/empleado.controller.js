@@ -10,29 +10,28 @@ export async function crearEmpleado(req, res) {
     const { nombres, apellidos, ci, email, empresaid, cargoid, rolid } = req.body;
     try {
         // Secret Key
-        let passresetkey = shortid.generate();
+        /*let passresetkey = shortid.generate();
         // Key expiration date
         let tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setDate(tomorrow.getDate() + 1);*/
 
         let nuevoEmpleado = await Empleado.create({
             nombres,
             apellidos,
             ci,
+            password: await bcrypt.hash(ci, 10),
             email,
             empresaid,
             cargoid,
-            rolid,
-            passresetkey,
-            passkeyexpires: tomorrow
+            rolid
         }, {
-            fields: ['nombres', 'apellidos', 'ci', 'email', 'empresaid', 'cargoid', 'rolid', 'passresetkey', 'passkeyexpires']
+            fields: ['nombres', 'apellidos', 'ci', 'password', 'email', 'empresaid', 'cargoid', 'rolid']
         });
 
         delete nuevoEmpleado.dataValues.passresetkey;
         delete nuevoEmpleado.dataValues.password;
 
-        let message = {
+        /*let message = {
             to: email,
             subject: `Registrate | Confirmación de cuenta`,
             text: `Bienvenido a Registrate App
@@ -40,7 +39,7 @@ export async function crearEmpleado(req, res) {
             `
         };
         console.log('OK');
-        await sendEmail(message, res);
+        await sendEmail(message, res);*/
         return res.json({
             ok: true,
             data: nuevoEmpleado
