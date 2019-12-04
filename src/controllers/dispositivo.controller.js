@@ -3,16 +3,15 @@ import Empleado from '../models/Empleado';
 
 export async function registrarDispositivo(req, res) {
     const { id } = req.data;
-    const { nombre, ip, mac, modelo } = req.body;
+    const { nombre, imei, modelo } = req.body;
     try {
         let nuevoDispositivo = await Dispositivo.create({
             empleadoid: id,
-            nombre,
-            ip,
-            mac,
-            modelo
+            nombre, 
+            modelo,
+            imei
         }, {
-            fields: ['empleadoid', 'nombre', 'ip', 'mac', 'modelo']
+            fields: ['empleadoid', 'nombre', 'modelo', 'imei']
         });
 
         return res.json({
@@ -20,10 +19,9 @@ export async function registrarDispositivo(req, res) {
             data: nuevoDispositivo
         })
     } catch (err) {
-        const message = err.errors[0].message;
         return res.status(500).json({
             ok: false,
-            err: { message }
+            err: { message: 'Algo salio mal..' }
         });
     }
 }
@@ -36,13 +34,14 @@ export async function obtenerDispositivosPorIdEmpleado(req, res) {
                 id
             }
         });
-        if (!empleado) return res.status(404).json({ ok: false, err: { message: `No se ha encontrado empleado con id ${id}` } });
+        if (!empleado) return res.status(404).json({ ok: false, err: { message: `EmpleadoNoEncontrado` } });
         const dispositivos = await Dispositivo.findAll({
             where: {
                 empleadoid: id
             }
         });
         if (dispositivos.length == 0) return res.json({ ok: false, data: [] });
+        
         return res.json({
             ok: true,
             data: dispositivos
@@ -51,7 +50,7 @@ export async function obtenerDispositivosPorIdEmpleado(req, res) {
         console.log(err);
         res.status(500).json({
             ok: false,
-            err
+            err : {message: 'Algo salio mal...'}
         });
     }
 }
@@ -65,7 +64,7 @@ export async function obtenerDispositivo(req, res) {
                 id
             }
         });
-        if (!dispositivo) return res.status(404).json({ ok: false, message: 'Dispositivo no encontrado...' });
+        if (!dispositivo) return res.status(404).json({ ok: false, message: 'DispositivoNoEncontrado' });
         return res.json({ ok: true, data: dispositivo });
     } catch (err) {
         return res.json({ ok: false, err });
@@ -74,13 +73,13 @@ export async function obtenerDispositivo(req, res) {
 
 export async function modificarDispositivo(req, res) {
     const { id } = req.params;
-    const { nombre, ip, mac, estado } = req.body;
+    const { nombre, imei, modelo, estado } = req.body;
 
     try {
-        await Dispositivo.update({
+        let dispositivo = await Dispositivo.update({
             nombre,
-            ip,
-            mac,
+            imei,
+            modelo,
             estado
         }, {
             where: {
@@ -88,6 +87,7 @@ export async function modificarDispositivo(req, res) {
             }
         });
 
+        console.log(dispositivo);
         return res.json({ ok: true, message: 'Dispositivo actualizado...' });
 
     } catch (err) {
@@ -101,11 +101,12 @@ export async function modificarDispositivo(req, res) {
 export async function eliminarDispositivo(req, res) {
     const { id } = req.params;
     try {
-        await Dispositivo.update({ estado: false }, {
+        let dispositivo = await Dispositivo.update({ estado: false }, {
             where: {
                 id
             }
         });
+        console.log(dispositivo);
         return res.json({ ok: true, message: 'Dispositivo eliminado...' });
     } catch (err) {
         return res.status(500).json({

@@ -68,6 +68,8 @@ CREATE TABLE IF NOT EXISTS empleados
     password VARCHAR
 );
 
+ALTER TABLE empleados ADD passresetkey VARCHAR;
+
 INSERT INTO EMPLEADOS(empresaid, cargoid, rolid, nombres, apellidos, ci, email, password)
 VALUES(1,1,1,'SUPER', 'ADMIN', '1102266192', 'admin@email.com', '')
 

@@ -36,11 +36,7 @@ const Empleado = sequelize.define('empleado', {
     },
     passresetkey: {
         type: Sequelize.TEXT
-    },
-    passkeyexpires: {
-        type: 'TIMESTAMPTZ'
     }
-
 }, {
     timestamps: false
 });

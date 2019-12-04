@@ -10,16 +10,13 @@ export async function crearEmpleado(req, res) {
     const { nombres, apellidos, ci, email, empresaid, cargoid, rolid } = req.body;
     try {
         // Secret Key
-        /*let passresetkey = shortid.generate();
-        // Key expiration date
-        let tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);*/
+        let passresetkey = shortid.generate();
 
         let nuevoEmpleado = await Empleado.create({
             nombres,
             apellidos,
             ci,
-            password: await bcrypt.hash(ci, 10),
+            passresetKey,
             email,
             empresaid,
             cargoid,
@@ -31,15 +28,16 @@ export async function crearEmpleado(req, res) {
         delete nuevoEmpleado.dataValues.passresetkey;
         delete nuevoEmpleado.dataValues.password;
 
-        /*let message = {
+        let message = {
             to: email,
             subject: `Registrate | Confirmación de cuenta`,
             text: `Bienvenido a Registrate App
-            Por favor ingrese al siguiente link: https://registrate-1570332821411.web.app/client?key=${passresetkey} para confirmar y configurar su cuenta.
-            `
-        };
-        console.log('OK');
-        await sendEmail(message, res);*/
+            Por favor ingrese al siguiente link: https://registrate-1570332821411.web.app/login/configurar-contraseña?key=${passresetkey} para confirmar y configurar su cuenta.            `
+        }
+        
+        await sendEmail(message, res);
+        console.log(`Email sended ${email}...`);
+        
         return res.json({
             ok: true,
             data: nuevoEmpleado

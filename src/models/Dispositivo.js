@@ -12,17 +12,12 @@ const Dispositivo = sequelize.define('dispositivo', {
         type: STRING,
         allowNull: false
     },
-    ip: {
-        type: CIDR,
-        allowNull: false
-    },
-    mac: {
-        type: MACADDR,
-        allowNull: false
-    },
     modelo: {
         type: STRING,
         allowNull: true
+    },
+    imei: {
+        type: STRING,
     },
     estado: {
         type: BOOLEAN

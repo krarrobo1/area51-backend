@@ -12,9 +12,8 @@ export async function sendEmail(mail, res) {
     };
     try {
         await transporter.sendMail(mailOptions);
-        return true;
+        console.log(`Email sended to ${to}`);
     } catch (err) {
-        console.log(err);
-        return res.status(500).json({ ok: false, err });
+        throw err
     }
 }
