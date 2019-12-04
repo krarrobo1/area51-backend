@@ -59,23 +59,24 @@ export async function setPassword(req, res) {
             where: {
                 email
             },
-            attributes: ['id', 'passkeyexpires', 'passresetkey']
+            attributes: ['id','passresetkey']
         });
-        if (!empleadoDB) return res.status(404).json({ ok: false, err: { message: `Empleado con email ${email} no encontrado...` } });
-        let { id, passkeyexpires, passresetkey } = empleadoDB;
-        if (passresetkey !== key) return res.status(401).json({ ok: false, err: { message: `Codigo invalido...` } });
+        if (!empleadoDB) return res.status(404).json({ ok: false, err: { message: `EmpleadoNoEncontrado` } });
+        let { id, passresetkey } = empleadoDB;
+        if (passresetkey !== key) return res.status(401).json({ ok: false, err: { message: `KeyInvalida` } });
 
         // Exceeded
-        if (passkeyexpires < now) return res.status(401).json({ ok: false, err: { message: `Lo siento, el código expiro... solicite un codigo nuevo` } });
+        //if (passkeyexpires < now) return res.status(401).json({ ok: false, err: { message: `Lo siento, el código expiro... solicite un codigo nuevo` } });
 
         // On time
-        let now = new Date();
+        //let now = new Date();
         let encrypted = await bcrypt.hash(password, 10);
-        await Empleado.update({ password: encrypted }, {
+        let updated = await Empleado.update({ password: encrypted }, {
             where: {
                 id
             }
         });
+        console.log(updated);
         return res.json({ ok: true, message: 'password establecido correctamente...' });
 
     } catch (err) {
