@@ -16,13 +16,13 @@ export async function crearEmpleado(req, res) {
             nombres,
             apellidos,
             ci,
-            passresetKey,
+            passresetkey,
             email,
             empresaid,
             cargoid,
             rolid
         }, {
-            fields: ['nombres', 'apellidos', 'ci', 'password', 'email', 'empresaid', 'cargoid', 'rolid']
+            fields: ['nombres', 'apellidos', 'ci', 'passresetkey', 'email', 'empresaid', 'cargoid', 'rolid']
         });
 
         delete nuevoEmpleado.dataValues.passresetkey;
