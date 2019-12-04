@@ -21,29 +21,25 @@ export async function crearAsistencia(req, res) {
     const { id } = req.data;
     const { dispositivoid, latitud, longitud, eventoid } = req.body;
     try {
-
         const dispositivos = await Dispositivo.findAll({
             raw: true,
             where: {
                 empleadoid: id
             }
         });
-
-        if (dispositivos.length == 0) return res.status(404).json({ ok: false, message: 'No se han encontrado dispositivos vinculados a dicho empleado...' });
-
+        if (dispositivos.length == 0) return res.status(404).json({ ok: false, message: 'EmpleadoSinDispositivos' });
         let flag = dispositivos.some((value) => value.id === dispositivoid);
-        if (!flag) return res.json({ ok: false, message: 'El id del dispositivo no coincide con el empleado' });
+        if (!flag) return res.status(404).json({ ok: false, message: 'EquipoNoEncontrado' });
 
         const empleado = await Empleado.findOne({
             attributes: ['id'],
             where: { id: id },
             include: [{ model: Cargo, attributes: ['nombre'], include: [{ model: Periodo, attributes: ['horainicio', 'horafin'], include: [{ model: Dia, attributes: ['nombre'] }] }] }]
         });
+
         let periodoLaboral = empleado.cargo.periodos;
-
-
         // Si esta dentro del periodo puede registrarse...
-        if (!comprobarPeriodoLaboral(periodoLaboral)) return res.json({ ok: false, err: { message: 'No se puede registrar fuera del horario laboral...' } })
+        if (!comprobarPeriodoLaboral(periodoLaboral)) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
         const nuevaAsistencia = await Asistencia.create({
             dispositivoid,
             hora: new Date,
@@ -53,39 +49,17 @@ export async function crearAsistencia(req, res) {
         }, {
             fields: ['dispositivoid', 'hora', 'latitud', 'longitud', 'eventoid']
         });
-
         return res.json({ ok: true, asistencia: nuevaAsistencia });
-
     } catch (err) {
-        const message = err.errors[0].message;
+        //const message = err.errors[0].message;
         return res.status(500).json({
             ok: false,
-            err: { message: message }
+            err: { message: 'AlgoSalioMal' }
         });
     }
 };
 
-function comprobarPeriodoLaboral(periodoLaboral) {
-    return periodoLaboral.some((periodo) => {
-        let { horainicio, horafin, dia } = periodo;
 
-        let now = dt.format(Date.now(), 'EEEE HH:mm:ss', { locale: es }).split(' ');
-        let diaCapitalized = now[0].charAt(0).toUpperCase() + now[0].slice(1);
-        let horaActual = now[1];
-        if (dia.nombre === diaCapitalized) {
-            // 10 minutos antes de su hora inicial..
-            let tiempoGracia = dt.subMinutes(new Date(`01/01/2020 ${horainicio}`), 10).toTimeString().split(' ')[0];
-            if (Date.parse(`01/01/2020 ${tiempoGracia}`) < Date.parse(`01/01/2020 ${horaActual}`) && Date.parse(`01/01/2020 ${horafin}`) > Date.parse(`01/01/2020 ${horaActual}`)) {
-                console.log('En horario..');
-                return true;
-            } else {
-                return false;
-            };
-        } else {
-            return false
-        }
-    });
-}
 
 export async function obtenerAsistencia(req, res) {
     const { id } = req.params;
@@ -143,12 +117,12 @@ export async function obtenerAsistenciaEmpleadoId(req, res) {
         ORDER BY timest;
         `, { type: QueryTypes.SELECT });
 
-        data.forEach(element => {
-            let { timest } = element;
-            let formated = dt.format(timest, 'dd/MM/yyyy HH:mm:ss');
-            element.formatedDate = formated;
+        // data.forEach(element => {
+        //     let { timest } = element;
+        //     let formated = dt.format(timest, 'dd/MM/yyyy HH:mm:ss');
+        //     element.formatedDate = formated;
 
-        });
+        // });
 
         return res.json({ ok: true, data })
     } catch (err) {
@@ -232,4 +206,28 @@ export async function descargarReporteAsistencias(req, res) {
         console.log(err);
         return res.status(500).json({ ok: false, err });
     }
+}
+
+
+
+function comprobarPeriodoLaboral(periodoLaboral) {
+    return periodoLaboral.some((periodo) => {
+        let { horainicio, horafin, dia } = periodo;
+
+        let now = dt.format(Date.now(), 'EEEE HH:mm:ss', { locale: es }).split(' ');
+        let diaCapitalized = now[0].charAt(0).toUpperCase() + now[0].slice(1);
+        let horaActual = now[1];
+        if (dia.nombre === diaCapitalized) {
+            // 10 minutos antes de su hora inicial..
+            let tiempoGracia = dt.subMinutes(new Date(`01/01/2020 ${horainicio}`), 10).toTimeString().split(' ')[0];
+            if (Date.parse(`01/01/2020 ${tiempoGracia}`) < Date.parse(`01/01/2020 ${horaActual}`) && Date.parse(`01/01/2020 ${horafin}`) > Date.parse(`01/01/2020 ${horaActual}`)) {
+                console.log('En horario..');
+                return true;
+            } else {
+                return false;
+            };
+        } else {
+            return false
+        }
+    });
 }

@@ -24,7 +24,8 @@
         "pg": "^7.12.1",
         "pg-hstore": "^2.3.3",
         "sequelize": "^5.18.4",
-        "shortid": "^2.2.15"
+        "shortid": "^2.2.15",
+        "socket.io": "^2.3.0"
     },
     "devDependencies": {
         "@babel/cli": "^7.6.0",
