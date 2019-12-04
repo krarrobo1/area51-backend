@@ -4,7 +4,8 @@ import { crearEmpleado, obtenerEmpleado, modificarEmpleado, eliminarEmpleado, ob
 
 const router = Router();
 
-router.post('/', [verificarToken, verificarAdmin], crearEmpleado);
+// router.post('/', [verificarToken, verificarAdmin], crearEmpleado);
+router.post('/', crearEmpleado);
 
 router.post('/set', setPassword);
 

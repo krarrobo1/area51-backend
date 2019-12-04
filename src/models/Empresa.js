@@ -10,7 +10,7 @@ const Empresa = sequelize.define('empresa', {
         primaryKey: true
     },
     nombre: {
-        type: Sequelize.STRING(50),
+        type: Sequelize.STRING,
         allowNull: false
     },
     latitud: {

@@ -85,6 +85,8 @@ export async function eliminarEmpresa(req, res) {
             ok: true,
             message: 'Empresa eliminada...'
         })
+
+        //let empresa = await Empresa.update({})
     } catch (err) {
         console.log('Error:', err);
         return res.status(500).json({

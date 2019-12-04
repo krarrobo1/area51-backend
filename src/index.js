@@ -12,10 +12,11 @@ import http from 'http';
 }
 
 main();*/
+
 /*
 let io = socketIO(server);
 io.on('connection', (client) => {
-    client.on('registro', () => {
+    client.on('range', () => {
 
     });
 });*/

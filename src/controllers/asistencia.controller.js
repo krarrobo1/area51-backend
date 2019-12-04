@@ -65,20 +65,7 @@ export async function crearAsistencia(req, res) {
 
 export async function obtenerAsistencia(req, res) {
     const { id } = req.params;
-    let { month, year } = req.query;
     try {
-
-        /*
-        if (month) {
-            let filtered = await sequelize.query(`SELECT * FROM ASISTENCIAS WHERE DISPOSITIVOID = ${id}
-            AND EXTRACT(MONTH FROM hora) = ${month}`, { type: QueryTypes.SELECT });
-            console.log(filtered);
-            return res.json({ ok: true, filtered });
-        }
-
-        */
-
-
         const asistencias = await Asistencia.findAll({
             attributes: ['id', 'hora', 'latitud', 'longitud'],
             order: ['hora'],
@@ -147,8 +134,7 @@ export async function obtenerAsistenciaEmpleadoId(req, res) {
 
 
 
-// TODO: cambiar rutas, eliminar metodos no validos... TOmorrow es too
-// export async function descargarReporteAsistencias(req, res) {
+
 export async function descargarReporteAsistencias(req, res) {
     const { id } = req.params;
     try {
