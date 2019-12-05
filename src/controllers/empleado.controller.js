@@ -67,7 +67,13 @@ export async function forgotPassword(req, res) {
         let passresetkey = shortid.generate();
 
 
-        await Empleado.update({ passresetkey });
+        let emp = await Empleado.update({ passresetkey }, {
+            where: {
+                id: empleadoDB.id
+            }
+        });
+
+        console.log('state', emp);
 
         let message = {
             to: email,
