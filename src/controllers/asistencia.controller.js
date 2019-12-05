@@ -17,7 +17,7 @@ import { QueryTypes } from 'sequelize';
 
 
 
-export async function crearAsistencia(req, res) {
+export async function crearAsistencia(req, res, next) {
     const { id } = req.data;
     const { dispositivoid, latitud, longitud, eventoid } = req.body;
     try {
@@ -53,17 +53,13 @@ export async function crearAsistencia(req, res) {
         });
         return res.json({ ok: true, asistencia: nuevaAsistencia });
     } catch (err) {
-        //const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message: 'AlgoSalioMal' }
-        });
+        next(err);
     }
 };
 
 
 
-export async function obtenerAsistencia(req, res) {
+export async function obtenerAsistencia(req, res, next) {
     const { id } = req.params;
     try {
         const asistencias = await Asistencia.findAll({
@@ -80,15 +76,11 @@ export async function obtenerAsistencia(req, res) {
 
         return res.json({ ok: true, data: asistencias });
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message: message }
-        });
+        next(err);
     }
 }
 
-export async function obtenerAsistenciaEmpleadoId(req, res) {
+export async function obtenerAsistenciaEmpleadoId(req, res, next) {
     const { id } = req.params;
 
     try {
@@ -114,28 +106,15 @@ export async function obtenerAsistenciaEmpleadoId(req, res) {
 
         return res.json({ ok: true, data })
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message: message }
-        });
+        next(err);
     }
-
-    /* try {
-         let asistencias = await obtenerAsistenciasEmpleado(id);
-         return res.json({ ok: true, data: asistencias });
-     } catch (err) {
-         console.log(err);
-         return res.status(500).json({ ok: false, err });
-     }*/
-
 }
 
 
 
 
 
-export async function descargarReporteAsistencias(req, res) {
+export async function descargarReporteAsistencias(req, res, next) {
     const { id } = req.params;
     try {
         let registros = await sequelize.query(`Select CONCAT(emp.nombres,' ', emp.apellidos) nombres, 
@@ -190,8 +169,7 @@ export async function descargarReporteAsistencias(req, res) {
         });
 
     } catch (err) {
-        console.log(err);
-        return res.status(500).json({ ok: false, err });
+        next(err);
     }
 }
 

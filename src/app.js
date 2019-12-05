@@ -39,12 +39,16 @@ app.use('/api/utils', utils);
 app.use('/api/dias', dia);
 
 app.use(function(err, req, res, next) {
-    console.log(Object.keys(err));
-    console.log('name', err.name);
-    console.log('parameters', err.parameters);
-    console.log('stack: ', err.stack);
-    console.log('message: ', err.message);
-    return res.status(500).json({ ok: false, err: { message: 'Algo salio mal...' } });
+    let { name, message } = err;
+    /*console.log('name', err.name);
+    console.log('Error stack: ', err.stack);
+    console.log('message: ', err.message);*/
+    if (name === 'SequelizeDatabaseError') {
+        return res.status(500).json({ ok: false, err: { message: `Database Error: ${message}` } });
+    } else {
+        return res.status(500).json({ ok: false, err: { message: `AlgoSalioMal: ${message}` } });
+    }
+
 });
 
 export default app;
