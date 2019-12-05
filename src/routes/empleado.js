@@ -7,9 +7,9 @@ const router = Router();
 // router.post('/', [verificarToken, verificarAdmin], crearEmpleado);
 router.post('/', crearEmpleado);
 
-router.post('/set', setPassword);
+router.post('/password', setPassword);
 
-router.post('/forgot', setPassword);
+//router.post('/forgot', setPassword);
 
 router.get('/:id', verificarToken, obtenerEmpleado); // Es necesario que sea admin?
 

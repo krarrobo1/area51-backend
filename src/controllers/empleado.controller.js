@@ -52,18 +52,46 @@ export async function crearEmpleado(req, res) {
     }
 };
 
-export async function setPassword(req, res) {
-    let { password, email, key } = req.body;
-    try {
+export async function forgotPassword(req, res){
+    let {email} = req.body;
+    try{
         let empleadoDB = await Empleado.findOne({
             where: {
                 email
+            },
+            attributes: ['id']
+        });
+        if(!empleadoDB) return res.status(404).json({ok: false, err: {message: 'EmpleadoNoEncontrado'}});
+        let passresetkey = shortid.generate();
+        await Empleado.update({passresetkey});
+
+
+        let message = {
+            to: email,
+            subject: `Registrate | Reestablece tu contraseña`,
+            text: `Si no solicitaste reestablecer tu contraseña porfavor ignora este mensaje
+            Por favor ingrese al siguiente link: https://registrate-1570332821411.web.app/login/configurar-contraseña?key=${passresetkey} para confirmar y configurar su cuenta.            `
+        }
+        
+        await sendEmail(message, res);
+        console.log(`Email sended ${email}...`);
+    }catch(err){
+        return res.status(500).json({ok: false, error: {message: 'Algo salio mal...'}});
+    }
+}
+
+export async function setPassword(req, res) {
+    let { password, key } = req.body;
+    try {
+        let empleadoDB = await Empleado.findOne({
+            where: {
+                passresetkey: key
             },
             attributes: ['id','passresetkey']
         });
         if (!empleadoDB) return res.status(404).json({ ok: false, err: { message: `EmpleadoNoEncontrado` } });
         let { id, passresetkey } = empleadoDB;
-        if (passresetkey !== key) return res.status(401).json({ ok: false, err: { message: `KeyInvalida` } });
+        //if (passresetkey !== key) return res.status(401).json({ ok: false, err: { message: `KeyInvalida` } });
 
         // Exceeded
         //if (passkeyexpires < now) return res.status(401).json({ ok: false, err: { message: `Lo siento, el código expiro... solicite un codigo nuevo` } });
@@ -77,7 +105,7 @@ export async function setPassword(req, res) {
             }
         });
         console.log(updated);
-        return res.json({ ok: true, message: 'password establecido correctamente...' });
+        return res.json({ ok: true, message: 'Password reestablecido' });
 
     } catch (err) {
         console.log(err);
