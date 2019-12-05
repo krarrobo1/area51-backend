@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt';
 import shortid from 'shortid';
 import { sendEmail } from '../services/smtp';
 
-export async function crearEmpleado(req, res) {
+export async function crearEmpleado(req, res, next) {
     const { nombres, apellidos, ci, email, empresaid, cargoid, rolid } = req.body;
     try {
         // Secret Key
@@ -46,15 +46,11 @@ export async function crearEmpleado(req, res) {
         });
 
     } catch (err) {
-        console.log(err);
-        return res.status(500).json({
-            ok: false,
-            err: { message: 'Algo salio mal...' }
-        });
+        next(err);
     }
 };
 
-export async function forgotPassword(req, res) {
+export async function forgotPassword(req, res, next) {
     let { email } = req.body;
     try {
         let empleadoDB = await Empleado.findOne({
@@ -87,12 +83,11 @@ export async function forgotPassword(req, res) {
         await sendEmail(message, res);
         return res.json({ ok: true, message: `Email sended ${email}...` });
     } catch (err) {
-        console.log(err);
-        return res.status(500).json({ ok: false, error: { message: 'Algo salio mal...' } });
+        next(err);
     }
 }
 
-export async function setPassword(req, res) {
+export async function setPassword(req, res, next) {
     let { password, key } = req.body;
     try {
         let empleadoDB = await Empleado.findOne({
@@ -103,13 +98,7 @@ export async function setPassword(req, res) {
         });
         if (!empleadoDB) return res.status(404).json({ ok: false, err: { message: `EmpleadoNoEncontrado` } });
         let { id, passresetkey } = empleadoDB;
-        //if (passresetkey !== key) return res.status(401).json({ ok: false, err: { message: `KeyInvalida` } });
 
-        // Exceeded
-        //if (passkeyexpires < now) return res.status(401).json({ ok: false, err: { message: `Lo siento, el código expiro... solicite un codigo nuevo` } });
-
-        // On time
-        //let now = new Date();
         let encrypted = await bcrypt.hash(password, 10);
         let updated = await Empleado.update({ password: encrypted }, {
             where: {
@@ -120,24 +109,22 @@ export async function setPassword(req, res) {
         return res.json({ ok: true, message: 'Password reestablecido' });
 
     } catch (err) {
-        console.log(err);
-        return res.status(500).json({ ok: false, err });
+        next(err);
     }
 }
 
 
 
 
-export async function obtenerEmpleadosPorEmpresa(req, res) {
+export async function obtenerEmpleadosPorEmpresa(req, res, next) {
     const { id } = req.params;
-    console.log(id);
     try {
         let empresa = await Empresa.findOne({
             where: {
                 id
             }
         });
-        if (!empresa) return res.status(404).json({ ok: false, message: 'No se encontro empresa con ese ID' });
+        if (!empresa) return res.status(404).json({ ok: false, message: 'EmpresaNoEncontrada' });
         let empleados = await Empleado.findAll({
             where: { empresaid: id },
             attributes: ['id', 'nombres', 'apellidos', 'email', 'ci'],
@@ -147,15 +134,10 @@ export async function obtenerEmpleadosPorEmpresa(req, res) {
                 { model: Rol }
             ]
         });
-
-        if (!empleados) return res.status(404).json({ ok: false, message: 'No se encontraron empleados de esa empresa' });
+        if (empleados.length === 0) return res.status.json({ ok: false, data: [] });
         return res.json({ ok: true, data: empleados });
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message }
-        });
+        next(err);
     }
 }
 
@@ -185,7 +167,7 @@ export async function obtenerEmpleado(req, res) {
     }
 }
 
-export async function modificarEmpleado(req, res) {
+export async function modificarEmpleado(req, res, next) {
     const { nombres, apellidos, ci, email } = req.body;
     const { id } = req.params;
     try {
@@ -201,15 +183,11 @@ export async function modificarEmpleado(req, res) {
             message: 'Empleado actualizado...'
         });
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message }
-        });
+        next(err);
     }
 }
 
-export async function eliminarEmpleado(req, res) {
+export async function eliminarEmpleado(req, res, next) {
     const { id } = req.params;
     try {
         await Empleado.destroy({
@@ -222,10 +200,6 @@ export async function eliminarEmpleado(req, res) {
             message: 'Empleado eliminado correctamente'
         })
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message }
-        });
+        next(err);
     }
 }
