@@ -28,8 +28,17 @@ export async function crearAsistencia(req, res, next) {
             }
         });
         if (dispositivos.length == 0) return res.status(404).json({ ok: false, message: 'EmpleadoSinDispositivos' });
-        let flag = dispositivos.some((value) => value.id === dispositivoid);
-        if (!flag) return res.status(404).json({ ok: false, message: 'EquipoNoEncontrado' });
+        let selected = dispositivos.filter((dispositivo) => {
+            if(dispositivo.id === dispositivoid){
+                return  dispositivo;
+            }
+        });
+        if (selected.length === 0) return res.status(404).json({ ok: false, message: 'EquipoNoEncontrado' });
+        if(!selected[0].estado) return res.status(401).json({ok: false, message: `EquipoInactivo`});
+        //dispositivos.some((value) => value.id === dispositivoid);
+        //if (!flag) return res.status(404).json({ ok: false, message: 'EquipoNoEncontrado' });
+
+        // Si el dispositivo.estado == false no puede registrarlo 
 
         const empleado = await Empleado.findOne({
             attributes: ['id'],
