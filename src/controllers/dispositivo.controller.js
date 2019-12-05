@@ -27,15 +27,15 @@ export async function registrarDispositivo(req, res, next) {
                     where: { id }
                 });
 
-                return res.json({
-                    ok: true, data: {
-                        id,
-                        nombre,
-                        imei,
-                        modelo,
-                        estado
-                    }
-                });
+                let updated = {
+                    id,
+                    nombre,
+                    imei,
+                    modelo,
+                    estado: true
+                }
+
+                return res.json({ok: true, data: updated});
             } else {
                 let nuevoDispositivo = await Dispositivo.create({
                     empleadoid: id,
