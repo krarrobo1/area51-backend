@@ -5,7 +5,7 @@ import { runInNewContext } from 'vm';
 
 
 
-export async function crearPermiso(req, res) {
+export async function crearPermiso(req, res, next) {
     const { id } = req.data
     const { fechainicio, fechafin, permisoid } = req.body;
     try {
