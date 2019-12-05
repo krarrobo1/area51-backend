@@ -13,14 +13,15 @@ const DetallePermiso = sequelize.define('detallepermiso', {
         type: Sequelize.INTEGER,
         primaryKey: true
     },
-    fechainicio: { // TODO: Cambiar condicion a not null
+    fechainicio: {
         type: 'TIMESTAMPTZ',
     },
     fechafin: {
         type: 'TIMESTAMPTZ'
     },
     estado: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.ENUM(['aprobado', 'rechazado', 'enrevision']),
+        defaultValue: 'enrevision'
     }
 }, {
     timestamps: false

@@ -1,6 +1,7 @@
 import DetallePermiso from '../models/DetallePermiso';
 import Empleado from '../models/Empleado';
 import Permiso from '../models/Permiso';
+import { runInNewContext } from 'vm';
 
 
 
@@ -14,7 +15,7 @@ export async function crearPermiso(req, res) {
             fechafin,
             permisoid
         }, {
-            fields: ['empleadoid', 'fechainicio', 'fechafin', 'permisoid', 'cargoid']
+            fields: ['empleadoid', 'fechainicio', 'fechafin', 'permisoid']
         });
 
         return res.json({
@@ -23,11 +24,12 @@ export async function crearPermiso(req, res) {
         })
 
     } catch (err) {
-        const message = err.errors[0].message;
+        /*const message = err.errors[0].message;
         return res.status(500).json({
             ok: false,
             err: { message: message }
-        });
+        });*/
+        next(err);
     }
 }
 
@@ -37,7 +39,7 @@ export async function modificarPermiso(req, res) {
     const { fechainicio, fechafin, permisoid, estado } = req.body;
     try {
         let perm = await DetallePermiso.findOne({ where: { id } });
-        if (!perm) return res.status(404).json({ ok: false, err: `Permiso con id ${id} no encontrado...` });
+        if (!perm) return res.status(404).json({ ok: false, err: `PermisoNoEncontrado` });
         await DetallePermiso.update({ fechainicio, fechafin, permisoid, estado }, {
             where: {
                 id
@@ -45,7 +47,7 @@ export async function modificarPermiso(req, res) {
         });
         return res.json({
             ok: true,
-            message: 'Permiso actualizado...'
+            message: 'Permiso actualizado'
         });
     } catch (err) {
         const message = err.errors[0].message;
@@ -116,7 +118,7 @@ export async function obtenerPermiso(req, res) {
         });
 
         if (!permisos) {
-            return res.status(404).json({ ok: false, message: `No se ha encontrado permiso con id ${id}` });
+            return res.status(404).json({ ok: false, message: `PermisoNoEncontrado` });
         }
         return res.json({ ok: true, data: permisos });
     } catch (err) {
@@ -139,14 +141,14 @@ export async function crearPermisoGeneral(req, res) {
             },
             attributes: ['id']
         });
-        if (empleados.length === 0) return res.status(404).json({ ok: false, err: { message: `Empleados no encontrados..` } });
+        if (empleados.length === 0) return res.status(404).json({ ok: false, data: [], message: 'EmpleadoNoEncontrado' });
         let permisos = empleados.map(e => {
             let permiso = {
                 empleadoid: e.id,
                 fechainicio,
                 fechafin,
                 permisoid,
-                estado: true
+                estado: 'aprobado'
             }
             return permiso
         });
@@ -164,17 +166,6 @@ export async function crearPermisoGeneral(req, res) {
 export async function obtenerPermisosPorIdEmpresa(req, res) {
     const { empresaid } = req.params;
     try {
-        /*let empleados = await Empleado.findAll({
-            where: {
-                empresaid
-            },
-            attributes: ['id', 'nombres', 'apellidos', 'empresaid'],
-            include: [
-                { model: Cargo, attributes: ['nombre'] },
-                { model: DetallePermiso, attributes: ['id', 'fechainicio', 'fechafin', 'estado'], include: { model: Permiso, attributes: ['nombre'] } },
-            ]
-        });*/
-
         let permisos = await DetallePermiso.findAll({
             attributes: ['id', 'fechainicio', 'fechafin', 'estado'],
             include: [
@@ -183,6 +174,7 @@ export async function obtenerPermisosPorIdEmpresa(req, res) {
             ]
         });
 
+        //if (permisos.length === 0) return res.json({ ok: false, data: [] });
         return res.json({ ok: true, data: permisos })
 
     } catch (err) {
