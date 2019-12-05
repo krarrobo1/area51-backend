@@ -39,7 +39,7 @@ app.use('/api/utils', utils);
 app.use('/api/dias', dia);
 
 app.use(function(err, req, res, next) {
-    console.log('typeof', typeof err);
+    console.log(Object.keys(err));
     console.log('stack: ', err.stack);
     console.log('message: ', err.message);
     return res.status(500).json({ ok: false, err: { message: 'Algo salio mal...' } });
