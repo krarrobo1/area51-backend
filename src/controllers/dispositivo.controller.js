@@ -14,28 +14,35 @@ export async function registrarDispositivo(req, res, next) {
             attributes: ['id', 'imei']
         });
 
-
         if (dispositivos.length > 0) {
+            // Set false to know devices
+            dispositivos.forEach(dispositivo => {
+                Dispositivo.update({ estado: false }, { where: { id: dispositivo.id } });
+            });
+
             let existente = dispositivos.filter((d) => d.imei === imei);
             if (existente.length > 0) {
                 let { id } = existente[0];
-                await Dispositivo.update({ nombre, imei, modelo, estado: true }, {
+                let updated = await Dispositivo.update({ nombre, imei, modelo, estado: true }, {
                     where: { id }
                 });
 
-                // Actualizar todos los dispositivos... a estado false
-                return res.json({ ok: true, message: 'Dispositivo actualizado' });
+                return res.json({ ok: true, data: updated });
+            } else {
+                let nuevoDispositivo = await Dispositivo.create({
+                    empleadoid: id,
+                    nombre,
+                    modelo,
+                    imei
+                }, {
+                        fields: ['empleadoid', 'nombre', 'modelo', 'imei']
+                    });
+                return res.json({
+                    ok: true,
+                    data: nuevoDispositivo
+                });
             };
         }
-
-
-
-
-        // Actualizo el estado y la informacion de ese dispositivo...
-
-        // Si existe actualizar su estado a activo
-        // Al momento de activar un nuevo dispositivo los demas se deben desactivar..
-
         let nuevoDispositivo = await Dispositivo.create({
             empleadoid: id,
             nombre,
@@ -44,13 +51,6 @@ export async function registrarDispositivo(req, res, next) {
         }, {
                 fields: ['empleadoid', 'nombre', 'modelo', 'imei']
             });
-
-        if (dispositivos.length > 0) {
-            dispositivos.forEach(dispositivo => {
-                Dispositivo.update({ estado: false }, { where: { id: dispositivo.id } });
-            });
-        }
-
         return res.json({
             ok: true,
             data: nuevoDispositivo
