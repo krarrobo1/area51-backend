@@ -23,11 +23,19 @@ export async function registrarDispositivo(req, res, next) {
             let existente = dispositivos.filter((d) => d.imei === imei);
             if (existente.length > 0) {
                 let { id } = existente[0];
-                let updated = await Dispositivo.update({ nombre, imei, modelo, estado: true }, {
+                await Dispositivo.update({ nombre, imei, modelo, estado: true }, {
                     where: { id }
                 });
 
-                return res.json({ ok: true, data: updated });
+                return res.json({
+                    ok: true, data: {
+                        id,
+                        nombre,
+                        imei,
+                        modelo,
+                        estado
+                    }
+                });
             } else {
                 let nuevoDispositivo = await Dispositivo.create({
                     empleadoid: id,
