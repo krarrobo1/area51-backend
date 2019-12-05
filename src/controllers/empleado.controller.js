@@ -30,14 +30,16 @@ export async function crearEmpleado(req, res) {
 
         let message = {
             to: email,
-            subject: `Registrate | Confirmación de cuenta`,
-            text: `Bienvenido a Registrate App
-            Por favor ingrese al siguiente link: https://registrate-1570332821411.web.app/login/configurar-contraseña?key=${passresetkey} para confirmar y configurar su cuenta.            `
+            subject: `Registrate App | Confirmación de cuenta`,
+            text: `
+            Hola ${nombres}, Bienvenido a Registrate App
+            Ingresa al siguiente link: https://registrate-1570332821411.web.app/login/configurar-contraseña?key=${passresetkey} 
+            para confirmar tu cuenta y establecer tu constraseña`
         }
-        
+
         await sendEmail(message, res);
         console.log(`Email sended ${email}...`);
-        
+
         return res.json({
             ok: true,
             data: nuevoEmpleado
@@ -52,31 +54,34 @@ export async function crearEmpleado(req, res) {
     }
 };
 
-export async function forgotPassword(req, res){
-    let {email} = req.body;
-    try{
+export async function forgotPassword(req, res) {
+    let { email } = req.body;
+    try {
         let empleadoDB = await Empleado.findOne({
             where: {
                 email
             },
             attributes: ['id']
         });
-        if(!empleadoDB) return res.status(404).json({ok: false, err: {message: 'EmpleadoNoEncontrado'}});
+        if (!empleadoDB) return res.status(404).json({ ok: false, err: { message: 'EmpleadoNoEncontrado' } });
         let passresetkey = shortid.generate();
-        await Empleado.update({passresetkey});
 
+
+        await Empleado.update({ passresetkey });
 
         let message = {
             to: email,
-            subject: `Registrate | Reestablece tu contraseña`,
-            text: `Si no solicitaste reestablecer tu contraseña porfavor ignora este mensaje
-            Por favor ingrese al siguiente link: https://registrate-1570332821411.web.app/login/configurar-contraseña?key=${passresetkey} para confirmar y configurar su cuenta.            `
+            subject: `Registrate App | Reestablece tu contraseña`,
+            text: `Has solicitado un cambio de constraseña, si realmente lo hiciste, ingresa al siguiente link: 
+            https://registrate-1570332821411.web.app/login/configurar-contraseña?key=${passresetkey} 
+            para escoger una nueva constraseña.
+
+            Si no quieres cambiar tu contraseña ignora este email y tu contraseña no cambiará.`
         }
-        
         await sendEmail(message, res);
-        console.log(`Email sended ${email}...`);
-    }catch(err){
-        return res.status(500).json({ok: false, error: {message: 'Algo salio mal...'}});
+        return res.json({ ok: true, message: `Email sended ${email}...` });
+    } catch (err) {
+        return res.status(500).json({ ok: false, error: { message: 'Algo salio mal...' } });
     }
 }
 
@@ -87,7 +92,7 @@ export async function setPassword(req, res) {
             where: {
                 passresetkey: key
             },
-            attributes: ['id','passresetkey']
+            attributes: ['id', 'passresetkey']
         });
         if (!empleadoDB) return res.status(404).json({ ok: false, err: { message: `EmpleadoNoEncontrado` } });
         let { id, passresetkey } = empleadoDB;
