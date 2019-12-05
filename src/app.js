@@ -43,11 +43,16 @@ app.use(function(err, req, res, next) {
     /*console.log('name', err.name);
     console.log('Error stack: ', err.stack);
     console.log('message: ', err.message);*/
+    if (message === 'Validation error') {
+        let stack = err.errors[0].message;
+        return res.status(500).json({ ok: false, err: { message: `ErrorDeValidacion: ${stack}` } });
+    }
     if (name === 'SequelizeDatabaseError') {
         return res.status(500).json({ ok: false, err: { message: `Database Error: ${message}` } });
     } else {
-        return res.status(500).json({ ok: false, err: { message: `AlgoSalioMal: ${message}` } });
+        return res.status(500).json({ ok: false })
     }
+
 
 });
 
