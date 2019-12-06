@@ -24,6 +24,7 @@ export async function registrarDispositivo(req, res, next) {
                     existente = dispositivo;
                 }
                 console.log('No es conocido');
+                console.log(dispositivo.estado);
                 if (dispositivo.estado === true) {
                         console.log('Esta activo')
                         await Dispositivo.update({ estado: false }, { where: { id: dispositivo.id } });
