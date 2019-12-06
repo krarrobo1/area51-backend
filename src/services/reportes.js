@@ -199,7 +199,6 @@ export async function crearExcel(data) {
     // Limpia hojas vacias...
     wb.eachSheet(ws => {
         let name = ws.name;
-        console.log(name);
         if (name.charAt(0) === 'H') {
             wb.removeWorksheet(name);
         }
