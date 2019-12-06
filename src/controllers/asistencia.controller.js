@@ -274,7 +274,7 @@ function comprobarPeriodoLaboral(periodoLaboral){
 
     for (let i = 0; i < periodoLaboral.length; i++) {
         const periodo = periodoLaboral[i];
-        if(periodo.dia === diaActual){
+        if(periodo.dia.nombre === diaActual){
 
             console.log('Dia', periodo.dia);
 
