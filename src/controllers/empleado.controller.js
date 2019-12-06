@@ -63,13 +63,13 @@ export async function forgotPassword(req, res, next) {
         let passresetkey = shortid.generate();
 
 
-        let emp = await Empleado.update({ passresetkey }, {
+        await Empleado.update({ passresetkey }, {
             where: {
                 id: empleadoDB.id
             }
         });
 
-        console.log('state', emp);
+
 
         let message = {
             to: email,
@@ -155,7 +155,7 @@ export async function obtenerEmpleado(req, res) {
                 { model: Rol }
             ]
         });
-        if (!empleado) return res.status(404).json({ ok: false, message: 'Usuario no encontrado...' });
+        if (!empleado) return res.status(404).json({ ok: false, message: 'UsuarioNoEncontrado' });
         delete empleado.dataValues.password;
         return res.json({ ok: true, data: empleado });
     } catch (err) {
@@ -180,7 +180,13 @@ export async function modificarEmpleado(req, res, next) {
         });
         return res.json({
             ok: true,
-            message: 'Empleado actualizado...'
+            data: {
+                id,
+                nombres,
+                apellidos,
+                ci,
+                email
+            }
         });
     } catch (err) {
         next(err);

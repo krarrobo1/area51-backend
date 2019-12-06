@@ -1,6 +1,6 @@
 import Periodo from '../models/Periodo';
 
-export async function crearPeriodo(req, res) {
+export async function crearPeriodo(req, res, next) {
     const { cargoid, diaid, horainicio, horafin } = req.body;
     try {
         let nuevo = await Periodo.create({
@@ -13,16 +13,13 @@ export async function crearPeriodo(req, res) {
         });
         if (nuevo) return res.json({ ok: true, data: nuevo });
     } catch (err) {
-        return res.status(500).json({
-            ok: false,
-            err
-        });
+        next(err);
     }
 };
 
 /*Debe retornar el dia laboral, la hora inicio y la hora fin */
 
-export async function obtenerPeriodoPorIdCargo(req, res) {
+export async function obtenerPeriodoPorIdCargo(req, res, next) {
     const { id } = req.params;
     try {
         const periodos = await Periodo.findAll({
@@ -36,15 +33,12 @@ export async function obtenerPeriodoPorIdCargo(req, res) {
         });
 
     } catch (err) {
-        return res.status(500).json({
-            ok: false,
-            err
-        });
+        next(err);
     }
 };
 
 
-export async function modificarPeriodo(req, res) {
+export async function modificarPeriodo(req, res, next) {
     const { id } = req.params;
     const { horainicio, horafin, diaid } = req.body;
     try {
@@ -59,14 +53,11 @@ export async function modificarPeriodo(req, res) {
             message: 'Periodo modificado correctamente'
         })
     } catch (err) {
-        res.status(500).json({
-            ok: false,
-            err
-        });
+        next(err);
     }
 };
 
-export async function eliminarPeriodo(req, res) {
+export async function eliminarPeriodo(req, res, next) {
     const { id } = req.params;
     try {
         await Periodo.destroy({
@@ -80,14 +71,11 @@ export async function eliminarPeriodo(req, res) {
             message: 'Periodo eliminado'
         })
     } catch (err) {
-        res.status(500).json({
-            ok: false,
-            err
-        });
+        next(err);
     }
 };
 
-export async function obtenerPeriodo(req, res) {
+export async function obtenerPeriodo(req, res, next) {
     const { id } = req.params;
     try {
         let periodo = await Periodo.findOne({
@@ -102,14 +90,11 @@ export async function obtenerPeriodo(req, res) {
                 message: 'Periodo no encontrado'
             });
         }
-        res.json({
+        return res.json({
             ok: true,
             data: periodo
         });
     } catch (err) {
-        res.status(500).json({
-            ok: false,
-            err
-        });
+        next(err);
     }
 };

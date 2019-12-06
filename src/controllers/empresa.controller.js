@@ -1,7 +1,7 @@
 import Empresa from '../models/Empresa';
 import { getAddress } from '../services/geo';
 
-export async function crearEmpresa(req, res) {
+export async function crearEmpresa(req, res, next) {
     const { nombre, latitud, longitud, radio } = req.body;
     try {
         const direccion = await getAddress(latitud, longitud);
@@ -17,15 +17,11 @@ export async function crearEmpresa(req, res) {
         if (nuevaEmpresa) return res.json({ ok: true, message: 'Empresa creada correctamente!', data: nuevaEmpresa });
 
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message: message }
-        });
+        next(err);
     }
 };
 
-export async function obtenerEmpresas(req, res) {
+export async function obtenerEmpresas(req, res, next) {
 
     try {
         const empresas = await Empresa.findAll();
@@ -36,15 +32,11 @@ export async function obtenerEmpresas(req, res) {
             });
         }
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message: message }
-        });
+        next(err);
     }
 }
 
-export async function obtenerEmpresa(req, res) {
+export async function obtenerEmpresa(req, res, next) {
     const { id } = req.params;
     try {
         const empresa = await Empresa.findOne({
@@ -63,16 +55,12 @@ export async function obtenerEmpresa(req, res) {
             data: empresa
         });
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message: message }
-        });
+        next(err);
     }
 }
 
 
-export async function eliminarEmpresa(req, res) {
+export async function eliminarEmpresa(req, res, next) {
     const { id } = req.params;
     try {
         let empresa = await Empresa.destroy({
@@ -88,15 +76,11 @@ export async function eliminarEmpresa(req, res) {
 
         //let empresa = await Empresa.update({})
     } catch (err) {
-        console.log('Error:', err);
-        return res.status(500).json({
-            ok: false,
-            err: { message: message }
-        });
+        next(err);
     }
 }
 
-export async function actualizarEmpresa(req, res) {
+export async function actualizarEmpresa(req, res, next) {
     const { id } = req.params;
     const { nombre, latitud, longitud, radio, estado } = req.body;
 
@@ -117,11 +101,7 @@ export async function actualizarEmpresa(req, res) {
             message: 'Empresa actualizada...'
         });
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message: message }
-        });
+        next(err);
     }
 
 

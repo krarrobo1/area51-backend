@@ -34,7 +34,7 @@ export async function crearPermiso(req, res, next) {
 }
 
 
-export async function modificarPermiso(req, res) {
+export async function modificarPermiso(req, res, next) {
     const { id } = req.params;
     const { fechainicio, fechafin, permisoid, estado } = req.body;
     try {
@@ -50,16 +50,12 @@ export async function modificarPermiso(req, res) {
             message: 'Permiso actualizado'
         });
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message: message }
-        });
+        next(err);
     }
 }
 
 
-export async function eliminarPermiso(req, res) {
+export async function eliminarPermiso(req, res, next) {
     const { id } = req.params;
     try {
         await DetallePermiso.destroy({
@@ -69,15 +65,11 @@ export async function eliminarPermiso(req, res) {
         });
         return res.json({ ok: true, message: 'Permiso eliminado...' });
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message: message }
-        });
+        next(err);
     }
 }
 
-export async function obtenerPermisosPorEmpleadoId(req, res) {
+export async function obtenerPermisosPorEmpleadoId(req, res, next) {
     const { id } = req.params;
     console.log(id);
     try {
@@ -94,16 +86,12 @@ export async function obtenerPermisosPorEmpleadoId(req, res) {
         }
         return res.json({ ok: true, data: permisos });
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message: message }
-        });
+        next(err);
     }
 }
 
 
-export async function obtenerPermiso(req, res) {
+export async function obtenerPermiso(req, res, next) {
     const { id } = req.params;
     try {
         const permisos = await DetallePermiso.findOne({
@@ -122,16 +110,12 @@ export async function obtenerPermiso(req, res) {
         }
         return res.json({ ok: true, data: permisos });
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message: message }
-        });
+        next(err);
     }
 }
 
 // En caso de ser feriado
-export async function crearPermisoGeneral(req, res) {
+export async function crearPermisoGeneral(req, res, next) {
     // permisoid = 3 para feriados..
     const { empresaid, fechainicio, fechafin, permisoid } = req.body;
     try {
@@ -154,16 +138,12 @@ export async function crearPermisoGeneral(req, res) {
         });
         let data = await DetallePermiso.bulkCreate(permisos, { fields: ['empleadoid', 'fechainicio', 'fechafin', 'permisoid', 'estado'] });
         return res.json({ ok: true, data });
-    } catch (error) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message: message }
-        });
+    } catch (err) {
+        next(err)
     }
 }
 
-export async function obtenerPermisosPorIdEmpresa(req, res) {
+export async function obtenerPermisosPorIdEmpresa(req, res, next) {
     const { empresaid } = req.params;
     try {
         let permisos = await DetallePermiso.findAll({
@@ -178,10 +158,6 @@ export async function obtenerPermisosPorIdEmpresa(req, res) {
         return res.json({ ok: true, data: permisos })
 
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message: message }
-        });
+        next(err);
     }
 }
