@@ -15,14 +15,20 @@ export async function registrarDispositivo(req, res, next) {
         });
 
         if (dispositivos.length > 0) {
+            let existente = null;
+
             // Set false to know devices
             dispositivos.forEach(dispositivo => {
-                Dispositivo.update({ estado: false }, { where: { id: dispositivo.id } });
+                if (dispositivo.imei === imei) {
+                    existente = dispositivo;
+                } else {
+                    Dispositivo.update({ estado: false }, { where: { id: dispositivo.id } });
+                }
             });
 
-            let existente = dispositivos.filter((d) => d.imei === imei);
-            if (existente.length > 0) {
-                let { id } = existente[0];
+            if (existente !== null) {
+                let { id } = existente;
+
                 await Dispositivo.update({ nombre, imei, modelo, estado: true }, {
                     where: { id }
                 });
@@ -34,8 +40,7 @@ export async function registrarDispositivo(req, res, next) {
                     modelo,
                     estado: true
                 }
-
-                return res.json({ok: true, data: updated});
+                return res.json({ ok: true, data: updated });
             } else {
                 let nuevoDispositivo = await Dispositivo.create({
                     empleadoid: id,
@@ -43,8 +48,8 @@ export async function registrarDispositivo(req, res, next) {
                     modelo,
                     imei
                 }, {
-                        fields: ['empleadoid', 'nombre', 'modelo', 'imei']
-                    });
+                    fields: ['empleadoid', 'nombre', 'modelo', 'imei']
+                });
                 return res.json({
                     ok: true,
                     data: nuevoDispositivo
@@ -57,8 +62,8 @@ export async function registrarDispositivo(req, res, next) {
             modelo,
             imei
         }, {
-                fields: ['empleadoid', 'nombre', 'modelo', 'imei']
-            });
+            fields: ['empleadoid', 'nombre', 'modelo', 'imei']
+        });
         return res.json({
             ok: true,
             data: nuevoDispositivo
@@ -119,10 +124,10 @@ export async function modificarDispositivo(req, res, next) {
             modelo,
             estado
         }, {
-                where: {
-                    id
-                }
-            });
+            where: {
+                id
+            }
+        });
 
         console.log(dispositivo);
         return res.json({ ok: true, message: 'Dispositivo actualizado...' });
