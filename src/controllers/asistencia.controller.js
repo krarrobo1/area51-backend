@@ -15,6 +15,7 @@ import * as dt from 'date-fns';
 import { es } from 'date-fns/locale';
 import { sequelize } from '../database/database';
 import { QueryTypes } from 'sequelize';
+import { CLIENT_RENEG_LIMIT } from 'tls';
 
 
 
@@ -237,7 +238,7 @@ export async function descargarReporteAsistencias(req, res, next) {
 }*/
 
 
-function comprobarPeriodoLaboral(periodoLaboral) {
+/*function comprobarPeriodoLaboral(periodoLaboral) {
     return periodoLaboral.some((periodo) => {
         let { horainicio, horafin, dia } = periodo;
 
@@ -257,4 +258,33 @@ function comprobarPeriodoLaboral(periodoLaboral) {
             return false
         }
     });
+}*/
+
+function comprobarPeriodoLaboral(periodoLaboral){
+    let enhorario = false;
+    
+    let mockDate = '01/01/2019';
+    
+    let now = dt.format(Date.now(), 'EEEE HH:mm:ss', { locale: es }).split(' ');
+    let diaActual = now[0].charAt(0).toUpperCase() + now[0].slice(1);
+    let horaActual = now[1];
+
+    
+    for (let i = 0; i < periodoLaboral.length; i++) {
+        const periodo = periodoLaboral[i];
+        if(periodo.dia === diaActual){
+            let hinicio = `${mockDate} ${periodo.horainicio}`;
+            let hfin = `${mockDate} ${periodo.horafin}`;
+            
+            // 10 minutos antes de que comience la jornada
+            let tiempoGracia = dt.subMinutes(new Date(hinicio), 10).ToTimeString().split(' ')[0];
+            hfin = `${mockDate} ${tiempoGracia}`;
+            if(hinicio < horaActual && hfin > horaActual){
+                console.log('Dentro de horario...');
+                enhorario = true;
+                break;
+            }
+        }
+    }
+    return enhorario;
 }
