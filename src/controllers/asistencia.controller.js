@@ -269,22 +269,31 @@ function comprobarPeriodoLaboral(periodoLaboral){
     let diaActual = now[0].charAt(0).toUpperCase() + now[0].slice(1);
     let horaActual = now[1];
 
+    let count = 0;
     
+
     for (let i = 0; i < periodoLaboral.length; i++) {
         const periodo = periodoLaboral[i];
         if(periodo.dia === diaActual){
+
+            console.log('Dia', periodo.dia);
+
             let hinicio = `${mockDate} ${periodo.horainicio}`;
             let hfin = `${mockDate} ${periodo.horafin}`;
             
+            console.log('hinicio', hinicio);
+          
+
             // 10 minutos antes de que comience la jornada
             let tiempoGracia = dt.subMinutes(new Date(hinicio), 10).ToTimeString().split(' ')[0];
             hfin = `${mockDate} ${tiempoGracia}`;
+            console.log('hfin', hfin);
             if(hinicio < horaActual && hfin > horaActual){
                 console.log('Dentro de horario...');
                 enhorario = true;
-                break;
             }
         }
     }
+    console.log(enhorario);
     return enhorario;
 }
