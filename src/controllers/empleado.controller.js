@@ -171,7 +171,7 @@ export async function modificarEmpleado(req, res, next) {
     const { nombres, apellidos, ci, email, cargoid} = req.body;
     const { id } = req.params;
     try {
-        await Empleado.update({ nombres, apellidos, ci, email }, {
+        await Empleado.update({ nombres, apellidos, ci, email, cargoid}, {
             where: {
                 id
             }
