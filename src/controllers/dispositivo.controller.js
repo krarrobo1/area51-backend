@@ -58,6 +58,12 @@ export async function registrarDispositivo(req, res, next) {
                 });
             };
         }
+        // Si es un nuevo dispositivo...
+        dispositivos.forEach((dispositivo)=>{
+            if(dispositivo.estado === true){
+                Dispositivo.update({ estado: false }, { where: { id: dispositivo.id } });
+            }
+        });
         let nuevoDispositivo = await Dispositivo.create({
             empleadoid: id,
             nombre,
