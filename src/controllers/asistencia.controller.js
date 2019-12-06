@@ -123,7 +123,7 @@ export async function obtenerAsistenciaEmpleadoId(req, res, next) {
 
 
 
-/*export async function descargarReporteAsistencias(req, res, next) {
+export async function descargarReporteAsistencias(req, res, next) {
     const { id } = req.params;
     try {
         let registros = await sequelize.query(`Select CONCAT(emp.nombres,' ', emp.apellidos) nombres, 
@@ -180,10 +180,10 @@ export async function obtenerAsistenciaEmpleadoId(req, res, next) {
     } catch (err) {
         next(err);
     }
-}*/
+}
 
 
-export async function descargarReporteAsistencias(req, res, next) {
+/*export async function descargarReporteAsistencias(req, res, next) {
     const { id } = req.params;
 
     const query = `SELECT CONCAT (emp.nombres,' ',emp.apellidos) nombres , emp.ci,  CONCAT(asis.latitud,',', asis.longitud) ubicacion, asis.hora timest,disp.nombre dispositivo, evt.nombre evento 
@@ -231,7 +231,7 @@ export async function descargarReporteAsistencias(req, res, next) {
     } catch (err) {
         next(err);
     }
-}
+}*/
 
 
 function comprobarPeriodoLaboral(periodoLaboral) {
