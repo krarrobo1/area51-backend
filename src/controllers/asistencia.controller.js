@@ -288,6 +288,7 @@ function comprobarPeriodoLaboral(periodoLaboral){
             if(hInicio < hActual && hFin > hActual){
                 console.log('Dentro de horario...');
                 enhorario = true;
+                break;
             }
         }
     }
