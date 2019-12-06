@@ -17,7 +17,7 @@ import { QueryTypes } from 'sequelize';
 
 
 
-export async function crearAsistencia(req, res, next) {
+export async function registrarAsistencia(req, res, next) {
     const { id } = req.data;
     const { dispositivoid, latitud, longitud, eventoid } = req.body;
     try {
@@ -29,12 +29,12 @@ export async function crearAsistencia(req, res, next) {
         });
         if (dispositivos.length == 0) return res.status(404).json({ ok: false, message: 'EmpleadoSinDispositivos' });
         let selected = dispositivos.filter((dispositivo) => {
-            if(dispositivo.id === dispositivoid){
-                return  dispositivo;
+            if (dispositivo.id === dispositivoid) {
+                return dispositivo;
             }
         });
         if (selected.length === 0) return res.status(404).json({ ok: false, message: 'EquipoNoEncontrado' });
-        if(!selected[0].estado) return res.status(401).json({ok: false, message: `EquipoInactivo`});
+        if (!selected[0].estado) return res.status(401).json({ ok: false, message: `EquipoInactivo` });
         //dispositivos.some((value) => value.id === dispositivoid);
         //if (!flag) return res.status(404).json({ ok: false, message: 'EquipoNoEncontrado' });
 
@@ -123,7 +123,7 @@ export async function obtenerAsistenciaEmpleadoId(req, res, next) {
 
 
 
-export async function descargarReporteAsistencias(req, res, next) {
+/*export async function descargarReporteAsistencias(req, res, next) {
     const { id } = req.params;
     try {
         let registros = await sequelize.query(`Select CONCAT(emp.nombres,' ', emp.apellidos) nombres, 
@@ -180,8 +180,58 @@ export async function descargarReporteAsistencias(req, res, next) {
     } catch (err) {
         next(err);
     }
-}
+}*/
 
+
+export async function descargarReporteAsistencias(req, res, next) {
+    const { id } = req.params;
+
+    const query = `SELECT CONCAT (emp.nombres,' ',emp.apellidos) nombres , emp.ci,  CONCAT(asis.latitud,',', asis.longitud) ubicacion, asis.hora timest,disp.nombre dispositivo, evt.nombre evento 
+    FROM asistencias asis
+    INNER JOIN dispositivos disp ON asis.dispositivoid = disp.id
+    INNER JOIN empleados emp ON disp.empleadoid = emp.id
+    INNER JOIN eventos evt ON asis.eventoid = evt.id
+    WHERE emp.id = ${id}
+    ORDER BY timest;`
+
+    try {
+        let registros = await sequelize.query(query, { type: QueryTypes.SELECT });
+        let bf = await crearExcel(registros);
+        if (!bf) return res.status(500).json({ ok: false, err: { message: `(Sin registros) No se pudo completar la accion...` } });
+        let { nombres } = registros[0];
+        // Bufer del Excel
+        let fileContents = Buffer.from(bf, "base64");
+
+        // Se crea un flujo de lectura
+        let readStream = new stream.PassThrough();
+
+        // Se termina de escribir el archivoen el flujo de lectura
+        readStream.end(fileContents);
+
+
+        let title = new Date().getMilliseconds() * 369;
+        res.set('Content-disposition', `attatchment; filename = registro-${nombres}.xlsx`);
+        res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+        // Se crea un pipe hacia la respuesta
+        readStream.pipe(res);
+
+        readStream.on('error', () => {
+            return res.status(500).json({
+                ok: false,
+                message: 'Algo salio mal...'
+            });
+        });
+
+        readStream.on('finish', () => {
+            console.log('TODO OK!');
+            return
+        });
+
+    } catch (err) {
+        next(err);
+    }
+}
 
 
 function comprobarPeriodoLaboral(periodoLaboral) {

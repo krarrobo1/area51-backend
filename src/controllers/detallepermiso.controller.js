@@ -1,7 +1,6 @@
 import DetallePermiso from '../models/DetallePermiso';
 import Empleado from '../models/Empleado';
 import Permiso from '../models/Permiso';
-import { runInNewContext } from 'vm';
 
 
 
