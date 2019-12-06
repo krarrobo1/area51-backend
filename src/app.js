@@ -14,6 +14,7 @@ import rol from './routes/rol';
 import permiso from './routes/permiso';
 import utils from './routes/utils';
 import dia from './routes/dia';
+import { CLIENT_RENEG_LIMIT } from 'tls';
 
 const app = express();
 
@@ -40,6 +41,8 @@ app.use('/api/dias', dia);
 
 app.use(function(err, req, res, next) {
     let { name, message } = err;
+
+    console.log(err);
     /*console.log('name', err.name);
     console.log('Error stack: ', err.stack);
     console.log('message: ', err.message);*/
