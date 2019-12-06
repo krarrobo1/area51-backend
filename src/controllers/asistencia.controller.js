@@ -275,19 +275,14 @@ function comprobarPeriodoLaboral(periodoLaboral){
     for (let i = 0; i < periodoLaboral.length; i++) {
         const periodo = periodoLaboral[i];
         if(periodo.dia.nombre === diaActual){
-
             console.log('Dia', periodo.dia);
-
             let hinicio = `${mockDate} ${periodo.horainicio}`;
             let hfin = `${mockDate} ${periodo.horafin}`;
             
-            console.log('hinicio', hinicio);
-          
-
             // 10 minutos antes de que comience la jornada
-            let tiempoGracia = dt.subMinutes(new Date(hinicio), 10).ToTimeString().split(' ')[0];
-            hfin = `${mockDate} ${tiempoGracia}`;
-            console.log('hfin', hfin);
+            let tiempoGracia = dt.subMinutes(new Date(hinicio), 10).toTimeString().split(' ')[0];
+            hinicio = `${mockDate} ${tiempoGracia}`;
+            
             if(hinicio < horaActual && hfin > horaActual){
                 console.log('Dentro de horario...');
                 enhorario = true;
