@@ -168,7 +168,7 @@ export async function obtenerEmpleado(req, res) {
 }
 
 export async function modificarEmpleado(req, res, next) {
-    const { nombres, apellidos, ci, email } = req.body;
+    const { nombres, apellidos, ci, email, cargoid} = req.body;
     const { id } = req.params;
     try {
         await Empleado.update({ nombres, apellidos, ci, email }, {
@@ -176,7 +176,7 @@ export async function modificarEmpleado(req, res, next) {
                 id
             }
         }, {
-            fields: ['nombres', 'apellidos', 'ci', 'email']
+            fields: ['nombres', 'apellidos', 'ci', 'email', 'cargoid']
         });
         return res.json({
             ok: true,
@@ -185,7 +185,8 @@ export async function modificarEmpleado(req, res, next) {
                 nombres,
                 apellidos,
                 ci,
-                email
+                email,
+                cargoid
             }
         });
     } catch (err) {

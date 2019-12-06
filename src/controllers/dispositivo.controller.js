@@ -1,6 +1,6 @@
 import Dispositivo from '../models/Dispositivo';
 import Empleado from '../models/Empleado';
-import { CLIENT_RENEG_LIMIT } from 'tls';
+
 
 export async function registrarDispositivo(req, res, next) {
     const { id } = req.data;
@@ -23,16 +23,10 @@ export async function registrarDispositivo(req, res, next) {
                 if (dispositivo.imei === imei) {
                     existente = dispositivo;
                 }
-                console.log('No es conocido');
-                console.log(dispositivo.estado);
                 if (dispositivo.estado === true) {
-                        console.log('Esta activo')
                         await Dispositivo.update({ estado: false }, { where: { id: dispositivo.id } });
-                }
-                
-                    
+                }     
             });
-
             if (existente !== null) {
                 let { id } = existente;
 

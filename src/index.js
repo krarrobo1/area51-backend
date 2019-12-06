@@ -3,8 +3,12 @@ import app from './app';
 import { port } from './config/config';
 
 import http from 'http';
-//import socketIO from 'socket.io';
+import socketIO from 'socket.io';
 
+
+
+
+let server = http.createServer(app);
 
 /*async function main() {
     await app.listen(port);
@@ -13,15 +17,33 @@ import http from 'http';
 
 main();*/
 
-/*
+
 let io = socketIO(server);
+
+
 io.on('connection', (client) => {
-    client.on('range', () => {
-
+    console.log('Usuario conectado');
+    client.emit('enviarMensaje', { usuario: 'Admin', mensaje: 'Bienvenido a esta App' });
+    client.on('disconnect', () => {
+        console.log('Usuario desconectado');
     });
-});*/
 
-let server = http.createServer(app);
+    client.on('enviarMensaje', (mensaje, cb) =>{
+        console.log(mensaje);
+    });
+
+    client.on('imhere',(msj, cb) =>{
+        console.log(msj);
+        // timer
+        if(msj.message == 'Im here'){
+            console.log('in range')
+        }
+    });
+});
+
+export default io;
+
+
 
 server.listen(port, () => {
     console.log(`Listening on ${port}`);

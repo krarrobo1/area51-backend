@@ -5,7 +5,7 @@ import ExcelJS from 'exceljs';
 let wb = new ExcelJS.Workbook();
 
 import path from 'path';
-var appDir = path.dirname(require.main.filename);
+let appDir = path.dirname(require.main.filename);
 //let dir = path.dirname(require.main.);
 
 let fill1 = { //cell filling proprerty

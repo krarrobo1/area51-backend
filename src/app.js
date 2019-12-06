@@ -1,6 +1,7 @@
 import express, { json } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+import path from 'path';
 //Routes
 import empresaRoutes from './routes/empresa';
 import empleadoRoutes from './routes/empleado';
@@ -14,12 +15,18 @@ import rol from './routes/rol';
 import permiso from './routes/permiso';
 import utils from './routes/utils';
 import dia from './routes/dia';
-import { CLIENT_RENEG_LIMIT } from 'tls';
+
 
 const app = express();
 
 
+// Solo para prueba Socket.io
+let appDir = path.resolve(__dirname, '../public');
 
+
+app.use(express.static(`${appDir}`));
+
+console.log(appDir);
 
 // Middlewares
 app.use(cors());
@@ -53,7 +60,7 @@ app.use(function(err, req, res, next) {
     if (name === 'SequelizeDatabaseError') {
         return res.status(500).json({ ok: false, err: { message: `Database Error: ${message}` } });
     } else {
-        return res.status(500).json({ ok: false })
+        return res.status(500).json({ ok: false , err: {message}});
     }
 
 
