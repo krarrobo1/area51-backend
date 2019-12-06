@@ -8,6 +8,8 @@ import Periodo from '../models/Periodo';
 import Dia from '../models/Dia'
 
 
+import stream from 'stream';
+
 import { crearExcel } from '../services/reportes';
 import * as dt from 'date-fns';
 import { es } from 'date-fns/locale';
