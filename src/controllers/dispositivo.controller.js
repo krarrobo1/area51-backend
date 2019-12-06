@@ -12,7 +12,7 @@ export async function registrarDispositivo(req, res, next) {
             where: {
                 empleadoid: id
             },
-            attributes: ['id', 'imei']
+            attributes: ['id', 'imei', 'estado']
         });
 
         if (dispositivos.length > 0) {
