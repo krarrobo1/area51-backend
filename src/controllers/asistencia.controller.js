@@ -71,8 +71,32 @@ export async function registrarAsistencia(req, res, next) {
 };
 
 
-export async function registrarAsistenciaWeb() {
+export async function registrarAsistenciaWeb(req, res, next) {
     const { empleadoid, dispositivoid, latitud, longitud, eventoid } = req.body;
+    try {
+        const empleado = await Empleado.findOne({
+            attributes: ['id'],
+            where: { id },
+            include: [{ model: Cargo, attributes: ['nombre'], include: [{ model: Periodo, attributes: ['horainicio', 'horafin'], include: [{ model: Dia, attributes: ['nombre'] }] }] }]
+        });
+
+        let periodoLaboral = empleado.cargo.periodos;
+        // Si esta dentro del periodo puede registrarse...
+        if (!comprobarPeriodoLaboral(periodoLaboral)) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
+        const nuevaAsistencia = await Asistencia.create({
+            dispositivoid,
+            empleadoid: id,
+            hora: new Date,
+            latitud,
+            longitud,
+            eventoid
+        }, {
+            fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
+        });
+        return res.json({ ok: true, asistencia: nuevaAsistencia });
+    } catch (err) {
+        next(err);
+    }
 }
 
 
