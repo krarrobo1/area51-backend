@@ -56,12 +56,13 @@ export async function registrarAsistencia(req, res, next) {
         if (!comprobarPeriodoLaboral(periodoLaboral)) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
         const nuevaAsistencia = await Asistencia.create({
             dispositivoid,
+            empleadoid,
             hora: new Date,
             latitud,
             longitud,
             eventoid
         }, {
-            fields: ['dispositivoid', 'hora', 'latitud', 'longitud', 'eventoid']
+            fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
         });
         return res.json({ ok: true, asistencia: nuevaAsistencia });
     } catch (err) {
