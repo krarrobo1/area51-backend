@@ -32,7 +32,7 @@ export async function validateRange(id, radio, latitud, longitud) {
             include: [{ model: Empleado, attributes: ['id'], include: { model: Empresa, attributes: ['radio'] } }]
         });
 
-        console.log(JSON.stringify(employee, null, 2));
+
         let radioPermitido = dispositivo.empleado.empresa.radio;
         console.log(radioPermitido);
 
