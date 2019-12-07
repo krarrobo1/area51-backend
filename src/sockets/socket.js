@@ -16,8 +16,8 @@ io.on('connection', (client) => {
     });
 
     client.on('imhere', (data, cb) => {
-        let { id, range, latitud, longitud } = data;
-        validateRange(id, range, latitud, longitud);
+        let { id, radio, latitud, longitud } = data;
+        validateRange(id, radio, latitud, longitud);
     });
 });
 
@@ -32,7 +32,9 @@ export async function validateRange(id, radio, latitud, longitud) {
             include: [{ model: Empleado, attributes: ['id'], include: { model: Empresa, attributes: ['radio'] } }]
         });
 
+        console.log(JSON.stringify(employee, null, 2));
         let radioPermitido = employee.empresa.radio;
+        console.log(radioPermitido);
 
         if (radio > radioPermitido) {
             const nuevaAsistencia = await Asistencia.create({

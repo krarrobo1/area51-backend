@@ -39,7 +39,7 @@ miboton.addEventListener('click', () => {
     }, function(resp) {
         console.log('respuesta server', resp);
     });*/
-    socket.emit('imhere', { id: 7, range: 60, latitud: -3.986957, longitud: -79.201525 });
+    socket.emit('imhere', { id: 7, radio: 60, latitud: -3.986957, longitud: -79.201525 });
     name.value = '';
     message.value = '';
     window.alert('Mensaje Enviado!');
