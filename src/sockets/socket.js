@@ -34,9 +34,12 @@ export async function validateRange(id, radio, latitud, longitud) {
 
 
         let radioPermitido = dispositivo.empleado.empresa.radio;
-        console.log(radioPermitido);
+        console.log('Permitio', radioPermitido);
+        console.log('Actual', radio);
+
 
         if (radio > radioPermitido) {
+            console.log('Out of Range');
             const nuevaAsistencia = await Asistencia.create({
                 dispositivoid: id,
                 hora: new Date,
@@ -46,6 +49,7 @@ export async function validateRange(id, radio, latitud, longitud) {
             }, {
                 fields: ['dispositivoid', 'hora', 'latitud', 'longitud', 'eventoid']
             });
+            console.log(JSON.stringify(nuevaAsistencia, null, 2));
         }
     } catch (err) {
         console.log(err);
