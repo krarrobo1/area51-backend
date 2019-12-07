@@ -16,32 +16,36 @@ io.on('connection', (client) => {
     });
 
     client.on('imhere', (data, cb) => {
-        let { id, range } = data;
-        validateRange(id, range);
+        let { id, range, latitud, longitud } = data;
+        validateRange(id, range, latitud, longitud);
     });
 });
 
 
-export async function validateRange(id, radio) {
-    let employee = await Dispositivo.findOne({
-        where: {
-            id: id
-        },
-        attributes: ['id', 'nombre'],
-        include: [{ model: Empleado, attributes: ['id'], include: { model: Empresa, attributes: ['radio'] } }]
-    });
-
-    let radioPermitido = employee.empresa.radio;
-
-    if (radio > radioPermitido) {
-        const nuevaAsistencia = await Asistencia.create({
-            dispositivoid: id,
-            hora: new Date,
-            latitud,
-            longitud,
-            eventoid: 2
-        }, {
-            fields: ['dispositivoid', 'hora', 'latitud', 'longitud', 'eventoid']
+export async function validateRange(id, radio, latitud, longitud) {
+    try {
+        let employee = await Dispositivo.findOne({
+            where: {
+                id: id
+            },
+            attributes: ['id', 'nombre'],
+            include: [{ model: Empleado, attributes: ['id'], include: { model: Empresa, attributes: ['radio'] } }]
         });
+
+        let radioPermitido = employee.empresa.radio;
+
+        if (radio > radioPermitido) {
+            const nuevaAsistencia = await Asistencia.create({
+                dispositivoid: id,
+                hora: new Date,
+                latitud,
+                longitud,
+                eventoid: 2
+            }, {
+                fields: ['dispositivoid', 'hora', 'latitud', 'longitud', 'eventoid']
+            });
+        }
+    } catch (err) {
+        console.log(err);
     }
 }

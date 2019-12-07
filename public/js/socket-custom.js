@@ -28,7 +28,7 @@ socket.on('enviarMensaje', function(obj) {
 let miboton = document.getElementById('miboton');
 
 miboton.addEventListener('click', () => {
-    let range = Math.floor(Math.random() * 100) || 10;
+
 
     console.log(range);
     let name = document.getElementById('name');
@@ -39,7 +39,7 @@ miboton.addEventListener('click', () => {
     }, function(resp) {
         console.log('respuesta server', resp);
     });*/
-    socket.emit('imhere', { id: 7, range: range, lat: -3.986957, long: -79.201525 });
+    socket.emit('imhere', { id: 7, range: 60, latitud: -3.986957, longitud: -79.201525 });
     name.value = '';
     message.value = '';
     window.alert('Mensaje Enviado!');
