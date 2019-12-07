@@ -85,7 +85,7 @@ export async function registrarAsistenciaWeb(req, res, next) {
         // Si esta dentro del periodo puede registrarse...
         if (!comprobarPeriodoLaboral(periodoLaboral)) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
 
-        let mesActual = new Date.getMonth();
+        let mesActual = new Date().getMonth();
 
         let lastAttendances = sequelize.query(`SELECT  * FROM ASISTENCIAS 
         WHERE EMPLEADOID = 7
