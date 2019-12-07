@@ -2,6 +2,7 @@ import io from '../index';
 import Dispositivo from '../models/Dispositivo';
 import Empleado from '../models/Empleado';
 import Empresa from '../models/Empresa';
+import Asistencia from '../models/Asistencia';
 
 io.on('connection', (client) => {
     console.log('Usuario conectado');
@@ -21,13 +22,26 @@ io.on('connection', (client) => {
 });
 
 
-export async function validateRange(id, range) {
+export async function validateRange(id, radio) {
     let employee = await Dispositivo.findOne({
         where: {
             id: id
         },
-        include: [{ model: Empleado, attributes: ['id', 'empresaid'], include: { model: Empresa, attributes: ['radio'] } }]
+        attributes: ['id', 'nombre'],
+        include: [{ model: Empleado, attributes: ['id'], include: { model: Empresa, attributes: ['radio'] } }]
     });
 
-    console.log('Employee', JSON.stringify(employee));
+    let radioPermitido = employee.empresa.radio;
+
+    if (radio > radioPermitido) {
+        const nuevaAsistencia = await Asistencia.create({
+            dispositivoid: id,
+            hora: new Date,
+            latitud,
+            longitud,
+            eventoid: 2
+        }, {
+            fields: ['dispositivoid', 'hora', 'latitud', 'longitud', 'eventoid']
+        });
+    }
 }
