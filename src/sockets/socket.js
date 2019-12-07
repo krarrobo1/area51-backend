@@ -29,5 +29,5 @@ export async function validateRange(id, range) {
         include: [{ model: Empleado, attributes: ['id', 'empresaid'], include: { model: Empresa, attributes: ['radio'] } }]
     });
 
-    console.log('Employee', employee);
+    console.log('Employee', JSON.stringify(employee));
 }
