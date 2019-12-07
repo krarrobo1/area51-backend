@@ -29,8 +29,6 @@ let miboton = document.getElementById('miboton');
 
 miboton.addEventListener('click', () => {
 
-
-    console.log(range);
     let name = document.getElementById('name');
     let message = document.getElementById('message');
     /*socket.emit('enviarMensaje', {
