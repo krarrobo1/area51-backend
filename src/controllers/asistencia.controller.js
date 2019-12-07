@@ -2,6 +2,7 @@ import Asistencia from '../models/Asistencia';
 import Dispositivo from '../models/Dispositivo';
 import Empleado from '../models/Empleado';
 import Evento from '../models/Evento';
+import Empresa from '../models/Empresa';
 
 import Cargo from '../models/Cargo';
 import Periodo from '../models/Periodo';
@@ -77,19 +78,37 @@ export async function registrarAsistenciaWeb(req, res, next) {
         const empleado = await Empleado.findOne({
             attributes: ['id'],
             where: { id },
-            include: [{ model: Cargo, attributes: ['nombre'], include: [{ model: Periodo, attributes: ['horainicio', 'horafin'], include: [{ model: Dia, attributes: ['nombre'] }] }] }]
+            include: [{ model: Empresa, attributes: ['latitud', 'longitud'] }, { model: Cargo, attributes: ['nombre'], include: [{ model: Periodo, attributes: ['horainicio', 'horafin'], include: [{ model: Dia, attributes: ['nombre'] }] }] }]
         });
 
         let periodoLaboral = empleado.cargo.periodos;
         // Si esta dentro del periodo puede registrarse...
         if (!comprobarPeriodoLaboral(periodoLaboral)) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
+
+        let mesActual = Date.now().getMonth();
+
+        let lastAttendances = sequelize.query(`SELECT  * FROM ASISTENCIAS 
+        WHERE EMPLEADOID = 7
+        AND EXTRACT (month FROM hora) = ${mesActual};`, { type: QueryTypes.SELECT });
+
+        // Busco el ultimo registro del mes...
+        let last = lastAttendances[lastAttendances.length - 1];
+        console.log('Last: ', last);
+        let event;
+
+        if (last.event === 1) {
+            event = 2;
+        } else {
+            event = 1;
+        }
+        console.log('Event: ', event);
         const nuevaAsistencia = await Asistencia.create({
             dispositivoid,
             empleadoid: id,
             hora: new Date,
-            latitud,
-            longitud,
-            eventoid
+            latitud: empleado.empresa.latitud,
+            longitud: empleado.empresa.longitud,
+            eventoid: event
         }, {
             fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
         });
