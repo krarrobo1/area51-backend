@@ -1,4 +1,8 @@
-import io from '../index'
+import io from '../index';
+import Dispositivo from '../models/Dispositivo';
+import Empleado from '../models/Empleado';
+import Empresa from '../models/Empresa';
+
 io.on('connection', (client) => {
     console.log('Usuario conectado');
     client.emit('enviarMensaje', { usuario: 'Admin', mensaje: 'Bienvenido a esta App' });
@@ -6,15 +10,24 @@ io.on('connection', (client) => {
         console.log('Usuario desconectado');
     });
 
-    client.on('enviarMensaje', (mensaje, cb) =>{
+    client.on('enviarMensaje', (mensaje, cb) => {
         console.log(mensaje);
     });
 
-    client.on('imhere',(msj, cb) =>{
-        console.log(msj);
-        // timer
-        if(msj.message == 'Im here'){
-            console.log('in range')
-        }
+    client.on('imhere', (data, cb) => {
+        let { id, range } = data;
+        validateRange(id, range);
     });
 });
+
+
+export async function validateRange(id, range) {
+    let employee = await Dispositivo.findOne({
+        where: {
+            id: id
+        },
+        include: [{ model: Empleado, attributes: ['id', 'empresaid'], include: { model: Empresa, attributes: ['radio'] } }]
+    });
+
+    console.log('Employee', employee);
+}

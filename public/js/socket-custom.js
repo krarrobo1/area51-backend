@@ -1,5 +1,3 @@
-
-
 /*
  * Client
  */
@@ -21,7 +19,7 @@ socket.on('disconnect', function() {
 // Escuchar mensaje
 socket.on('enviarMensaje', function(obj) {
     console.log('Servidor: ', obj);
-    
+
 });
 
 
@@ -38,7 +36,7 @@ miboton.addEventListener('click', () => {
     }, function(resp) {
         console.log('respuesta server', resp);
     });*/
-    socket.emit('imhere',{message: 'Im here'});
+    socket.emit('imhere', { id: 7, range: 15 });
     name.value = '';
     message.value = '';
     window.alert('Mensaje Enviado!')
