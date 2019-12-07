@@ -9,6 +9,6 @@ router.get('/:id', obtenerAsistencia);
 router.get('/empleado/:id', obtenerAsistenciaEmpleadoId);
 router.get('/report/:id', descargarReporteAsistencias);
 router.post('/', verificarToken, registrarAsistencia);
-router.post('/web', verificarAdmin, registrarAsistenciaWeb);
+router.post('/web', [verificarToken, verificarAdmin], registrarAsistenciaWeb);
 
 export default router;

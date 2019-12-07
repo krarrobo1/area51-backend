@@ -73,11 +73,11 @@ export async function registrarAsistencia(req, res, next) {
 
 
 export async function registrarAsistenciaWeb(req, res, next) {
-    const { empleadoid, dispositivoid, latitud, longitud, eventoid } = req.body;
+    const { email, dispositivoid, latitud, longitud, eventoid } = req.body;
     try {
         const empleado = await Empleado.findOne({
             attributes: ['id'],
-            where: { id },
+            where: { email },
             include: [{ model: Empresa, attributes: ['latitud', 'longitud'] }, { model: Cargo, attributes: ['nombre'], include: [{ model: Periodo, attributes: ['horainicio', 'horafin'], include: [{ model: Dia, attributes: ['nombre'] }] }] }]
         });
 
