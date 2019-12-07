@@ -97,7 +97,7 @@ export async function registrarAsistenciaWeb(req, res, next) {
         console.log('Last: ', JSON.stringify(last, null, 2));
         let event;
 
-        if (last.event === 1) {
+        if (last.eventoid === 1) {
             event = 2;
         } else {
             event = 1;
