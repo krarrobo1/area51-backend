@@ -15,7 +15,7 @@ io.on('connection', (client) => {
         console.log(mensaje);
     });
 
-    client.on('imhere', (data, cb) => {
+    client.on('sendRange', (data, cb) => {
         let { id, radio, latitud, longitud } = data;
         validateRange(id, radio, latitud, longitud);
     });
