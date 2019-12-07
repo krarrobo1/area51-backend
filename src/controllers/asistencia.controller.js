@@ -21,13 +21,13 @@ import { QueryTypes } from 'sequelize';
 
 
 export async function registrarAsistencia(req, res, next) {
-    const { id } = req.data;
-    const { dispositivoid, latitud, longitud, eventoid } = req.body;
+    //const { id } = req.data;
+    const { empleadoid, dispositivoid, latitud, longitud, eventoid } = req.body;
     try {
         const dispositivos = await Dispositivo.findAll({
             raw: true,
             where: {
-                empleadoid: id
+                empleadoid
             }
         });
         if (dispositivos.length == 0) return res.status(404).json({ ok: false, message: 'EmpleadoSinDispositivos' });
@@ -45,7 +45,7 @@ export async function registrarAsistencia(req, res, next) {
 
         const empleado = await Empleado.findOne({
             attributes: ['id'],
-            where: { id: id },
+            where: { id: empleadoid },
             include: [{ model: Cargo, attributes: ['nombre'], include: [{ model: Periodo, attributes: ['horainicio', 'horafin'], include: [{ model: Dia, attributes: ['nombre'] }] }] }]
         });
 
