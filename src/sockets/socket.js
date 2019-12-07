@@ -24,7 +24,7 @@ io.on('connection', (client) => {
 
 export async function validateRange(id, radio, latitud, longitud) {
     try {
-        let employee = await Dispositivo.findOne({
+        let dispositivo = await Dispositivo.findOne({
             where: {
                 id: id
             },
@@ -33,7 +33,7 @@ export async function validateRange(id, radio, latitud, longitud) {
         });
 
         console.log(JSON.stringify(employee, null, 2));
-        let radioPermitido = employee.empresa.radio;
+        let radioPermitido = dispositivo.empleado.empresa.radio;
         console.log(radioPermitido);
 
         if (radio > radioPermitido) {
