@@ -28,6 +28,9 @@ socket.on('enviarMensaje', function(obj) {
 let miboton = document.getElementById('miboton');
 
 miboton.addEventListener('click', () => {
+    let range = Math.floor(Math.random() * 100) || 10;
+
+    console.log(range);
     let name = document.getElementById('name');
     let message = document.getElementById('message');
     /*socket.emit('enviarMensaje', {
@@ -36,7 +39,7 @@ miboton.addEventListener('click', () => {
     }, function(resp) {
         console.log('respuesta server', resp);
     });*/
-    socket.emit('imhere', { id: 7, range: Math.floor(Math.random() * 100), lat: -3.986957, long: -79.201525 });
+    socket.emit('imhere', { id: 7, range: range, lat: -3.986957, long: -79.201525 });
     name.value = '';
     message.value = '';
     window.alert('Mensaje Enviado!');
