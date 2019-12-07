@@ -260,32 +260,33 @@ export async function descargarReporteAsistencias(req, res, next) {
     });
 }*/
 
-function comprobarPeriodoLaboral(periodoLaboral){
+function comprobarPeriodoLaboral(periodoLaboral) {
     let enhorario = false;
-    
+
     let mockDate = '01/01/2019';
-    
+
     let now = dt.format(Date.now(), 'EEEE HH:mm:ss', { locale: es }).split(' ');
     let diaActual = now[0].charAt(0).toUpperCase() + now[0].slice(1);
+    console.log(diaActual);
     let horaActual = now[1];
 
     let count = 0;
-    
+
 
     for (let i = 0; i < periodoLaboral.length; i++) {
         const periodo = periodoLaboral[i];
-        if(periodo.dia.nombre === diaActual){
+        if (periodo.dia.nombre === diaActual) {
             console.log('Dia', periodo.dia);
             let hInicio = `${mockDate} ${periodo.horainicio}`;
             let hFin = `${mockDate} ${periodo.horafin}`;
 
             let hActual = `${mockDate} ${horaActual}`;
-            
+
             // 10 minutos antes de que comience la jornada
             let tiempoGracia = dt.subMinutes(new Date(hInicio), 10).toTimeString().split(' ')[0];
             hInicio = `${mockDate} ${tiempoGracia}`;
-            
-            if(hInicio < hActual && hFin > hActual){
+
+            if (hInicio < hActual && hFin > hActual) {
                 console.log('Dentro de horario...');
                 enhorario = true;
                 break;
