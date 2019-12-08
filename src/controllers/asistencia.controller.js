@@ -66,7 +66,8 @@ export async function registrarAsistencia(req, res, next) {
         console.log('LAST', JSON.stringify(lastValue, null, 2));
         let evento = lastValue[0].eventoid;
 
-        if (evento === 1) {
+
+        if (evento && evento === 1) {
             event = 2;
         }
 
