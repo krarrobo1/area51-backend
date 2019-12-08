@@ -64,12 +64,14 @@ export async function registrarAsistencia(req, res, next) {
 
         let event = 1;
         console.log('LAST', JSON.stringify(lastValue, null, 2));
-        let evento = lastValue[0].eventoid;
 
-
-        if (evento && evento === 1) {
-            event = 2;
+        if (lastValue.length > 0) {
+            let evento = lastValue[0].eventoid;
+            if (evento === 1) {
+                event = 2;
+            }
         }
+
 
 
         const nuevaAsistencia = await Asistencia.create({
