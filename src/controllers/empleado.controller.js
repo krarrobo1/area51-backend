@@ -149,7 +149,7 @@ export async function obtenerEmpleadosPorEmpresa(req, res, next) {
                 { model: Rol }
             ]
         });
-        if (empleados.length === 0) return res.status.json({ ok: false, data: [] });
+        if (empleados.length === 0) return res.json({ ok: true, data: [] });
         return res.json({ ok: true, data: empleados });
     } catch (err) {
         next(err);
