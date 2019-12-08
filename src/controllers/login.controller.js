@@ -26,7 +26,10 @@ export async function LogIn(req, res, next) {
         });
 
         let dispositivo = await Dispositivo.findOne({ where: { empleadoid: empleadoTemp.id, isweb: true } });
+
         console.log('Dispositivo', JSON.stringify(dispositivo, null, 2));
+
+
 
         //     { model: Dispositivo, attributes: ['id'], where: { isweb: true } }
         if (!empleadoTemp) {
@@ -38,6 +41,10 @@ export async function LogIn(req, res, next) {
         }
         let data = empleadoTemp.dataValues;
         delete data.password;
+
+        if (dispositivo) {
+            data.dispositivoid = dispositivo.id
+        }
 
         let tkndata = { id: data.id, nombres: data.nombres, apellidos: data.apellidos, rol: data.role.nombre, email: data.email };
         const token = JWT.sign(tkndata, seed, { expiresIn: '12h' });
