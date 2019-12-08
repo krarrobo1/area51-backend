@@ -73,7 +73,7 @@ export async function registrarAsistencia(req, res, next) {
 
 
 export async function registrarAsistenciaWeb(req, res, next) {
-    const { email, dispositivoid, latitud, longitud, eventoid } = req.body;
+    const { email, dispositivoid } = req.body;
     try {
         const empleado = await Empleado.findOne({
             attributes: ['id'],
@@ -85,26 +85,20 @@ export async function registrarAsistenciaWeb(req, res, next) {
         // Si esta dentro del periodo puede registrarse...
         if (!comprobarPeriodoLaboral(periodoLaboral)) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
 
-        let mesActual = new Date().getMonth() + 1; // TODO: verificar esto..
-        console.log('Mes actual', mesActual);
 
-        let lastAttendances = sequelize.query(`SELECT  * FROM ASISTENCIAS 
-        WHERE EMPLEADOID = 7
-        AND EXTRACT (month FROM hora) = ${mesActual};`, { type: QueryTypes.SELECT });
 
-        console.log(JSON.stringify(lastAttendances, null, 2));
+        let lastValue = await sequelize.query(`SELECT  * FROM ASISTENCIAS 
+        WHERE EMPLEADOID = ${empleado.id}
+        order by hora desc 
+        limit 1;`, { type: QueryTypes.SELECT });
 
-        // Busco el ultimo registro del mes...
-        let last = lastAttendances[lastAttendances.length - 1];
-        console.log('Last: ', JSON.stringify(last, null, 2));
         let event;
-
-        if (last.eventoid === 1) {
+        if (lastValue.eventoid === 1) {
             event = 2;
         } else {
             event = 1;
         }
-        console.log('Event: ', event);
+
         const nuevaAsistencia = await Asistencia.create({
             dispositivoid,
             empleadoid: id,
