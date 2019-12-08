@@ -11,7 +11,9 @@ const Empresa = sequelize.define('empresa', {
     },
     nombre: {
         type: Sequelize.STRING,
-        allowNull: false
+        unique: {
+            message: 'Oops.. ya existe una empresa asociada con este nombre.'
+        }
     },
     latitud: {
         type: Sequelize.NUMBER,
