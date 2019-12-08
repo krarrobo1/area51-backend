@@ -4,18 +4,18 @@ import Empleado from '../models/Empleado';
 import Empresa from '../models/Empresa';
 import Asistencia from '../models/Asistencia';
 
-io.on('connection', (client) => {
+io.on('connection', (socket) => {
     console.log('Usuario conectado');
-    client.emit('enviarMensaje', { usuario: 'Admin', mensaje: 'Bienvenido a esta App' });
-    client.on('disconnect', () => {
+    socket.emit('enviarMensaje', { usuario: 'Admin', mensaje: 'Bienvenido a esta App' });
+    socket.on('disconnect', () => {
         console.log('Usuario desconectado');
     });
 
-    client.on('enviarMensaje', (mensaje, cb) => {
+    socket.on('enviarMensaje', (mensaje, cb) => {
         console.log(mensaje);
     });
 
-    client.on('sendRange', (data, cb) => {
+    socket.on('sendRange', (data, cb) => {
         let { id, radio, latitud, longitud } = data;
         validateRange(id, radio, latitud, longitud);
     });

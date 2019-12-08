@@ -55,13 +55,29 @@ export async function registrarAsistencia(req, res, next) {
         let periodoLaboral = empleado.cargo.periodos;
         // Si esta dentro del periodo puede registrarse...
         if (!comprobarPeriodoLaboral(periodoLaboral)) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
+
+        let lastValue = await sequelize.query(`SELECT eventoid FROM ASISTENCIAS 
+        WHERE EMPLEADOID = ${empleado.id}
+        order by hora desc 
+        limit 1;`, { type: QueryTypes.SELECT });
+
+
+        let event = 1;
+        console.log('LAST', JSON.stringify(lastValue, null, 2));
+        let evento = lastValue[0].eventoid;
+
+        if (evento === 1) {
+            event = 2;
+        }
+
+
         const nuevaAsistencia = await Asistencia.create({
             dispositivoid,
             empleadoid: id,
             hora: new Date,
             latitud,
             longitud,
-            eventoid
+            eventoid: event
         }, {
             fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
         });
@@ -90,7 +106,7 @@ export async function registrarAsistenciaWeb(req, res, next) {
 
 
         let lastValue = await sequelize.query(`SELECT  * FROM ASISTENCIAS 
-        WHERE EMPLEADOID = 7
+        WHERE EMPLEADOID = ${empleado.id}
         order by hora desc 
         limit 1;`, { type: QueryTypes.SELECT });
 
