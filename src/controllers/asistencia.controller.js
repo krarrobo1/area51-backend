@@ -95,16 +95,9 @@ export async function registrarAsistenciaWeb(req, res, next) {
         limit 1;`, { type: QueryTypes.SELECT });
 
 
-        let event;
-        let { eventoid } = lastValue;
-        console.log(eventoid);
-        if (eventoid === '1') {
-            console.log('Va a salir');
-            event = 2;
-        } else if (eventoid === '2') {
-            console.log('Va a entrar');
-            event = 1;
-        }
+        let event = 1;
+        console.log('LAST', JSON.stringify(lastValue, null, 2));
+        console.log('evt', lastValue.eventoid);
 
         const nuevaAsistencia = await Asistencia.create({
             dispositivoid,
