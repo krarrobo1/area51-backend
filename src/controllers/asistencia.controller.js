@@ -97,7 +97,11 @@ export async function registrarAsistenciaWeb(req, res, next) {
 
         let event = 1;
         console.log('LAST', JSON.stringify(lastValue, null, 2));
-        console.log('evt', lastValue.eventoid);
+        let evento = lastValue[0].eventoid;
+
+        if (evento === 1) {
+            event = 2;
+        }
 
         const nuevaAsistencia = await Asistencia.create({
             dispositivoid,
