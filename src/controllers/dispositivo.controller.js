@@ -23,7 +23,7 @@ export async function registrarDispositivo(req, res, next) {
                 if (dispositivo.imei === imei) {
                     existente = dispositivo;
                 }
-                if (dispositivo.estado === true && dispositivo.isweb === false) {
+                if (dispositivo.estado === true) {
                     await Dispositivo.update({ estado: false }, { where: { id: dispositivo.id } });
                 }
             });
