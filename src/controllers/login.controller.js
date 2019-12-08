@@ -22,10 +22,11 @@ export async function LogIn(req, res, next) {
             include: [
                 { model: Empresa, attributes: ['id', 'nombre', 'latitud', 'longitud', 'radio'] },
                 { model: Rol, attributes: ['nombre'] }
-
-
             ]
         });
+
+        let dispositivo = await Dispositivo.findOne({ where: { empleadoid: empleadoTemp.id, isweb: true } });
+        console.log('Dispositivo', JSON.stringify(dispositivo, null, 2));
 
         //     { model: Dispositivo, attributes: ['id'], where: { isweb: true } }
         if (!empleadoTemp) {
