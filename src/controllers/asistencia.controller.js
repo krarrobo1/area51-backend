@@ -81,8 +81,7 @@ export async function registrarAsistenciaWeb(req, res, next) {
             include: [{ model: Empresa, attributes: ['latitud', 'longitud'] }, { model: Cargo, attributes: ['nombre'], include: [{ model: Periodo, attributes: ['horainicio', 'horafin'], include: [{ model: Dia, attributes: ['nombre'] }] }] }]
         });
 
-        console.log('EMPLEADO');
-        console.log(JSON.stringify(empleado, null, 2));
+
 
         let periodoLaboral = empleado.cargo.periodos;
         // Si esta dentro del periodo puede registrarse...
@@ -95,8 +94,6 @@ export async function registrarAsistenciaWeb(req, res, next) {
         order by hora desc 
         limit 1;`, { type: QueryTypes.SELECT });
 
-        console.log('Last');
-        console.log(JSON.stringify(lastValue, null, 2));
 
         let event;
         if (lastValue.eventoid === 1) {
@@ -107,7 +104,7 @@ export async function registrarAsistenciaWeb(req, res, next) {
 
         const nuevaAsistencia = await Asistencia.create({
             dispositivoid,
-            empleadoid: id,
+            empleadoid: empleado.id,
             hora: new Date,
             latitud: empleado.empresa.latitud,
             longitud: empleado.empresa.longitud,
