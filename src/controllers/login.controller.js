@@ -4,6 +4,7 @@ import Empresa from '../models/Empresa';
 //import Periodo from '../models/Periodo';
 //import Dia from '../models/Dia';
 import Rol from '../models/Rol';
+import Dispositivo from '../models/Dispositivo';
 
 
 import bcrypt from 'bcrypt';
@@ -20,7 +21,9 @@ export async function LogIn(req, res, next) {
             },
             include: [
                 { model: Empresa, attributes: ['id', 'nombre', 'latitud', 'longitud', 'radio'] },
-                { model: Rol, attributes: ['nombre'] }
+                { model: Rol, attributes: ['nombre'] },
+                { model: Dispositivo, attributes: ['id'], where: { isweb: true } }
+
             ]
         });
         if (!empleadoTemp) {

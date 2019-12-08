@@ -21,6 +21,9 @@ const Dispositivo = sequelize.define('dispositivo', {
     },
     estado: {
         type: BOOLEAN
+    },
+    isweb: {
+        type: BOOLEAN
     }
 }, {
     timestamps: false

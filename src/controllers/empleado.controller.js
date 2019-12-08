@@ -1,4 +1,5 @@
 import Empleado from '../models/Empleado';
+import Dispositivo from '../models/Dispositivo';
 import Empresa from '../models/Empresa';
 import Cargo from '../models/Cargo';
 import Rol from '../models/Rol';
@@ -39,6 +40,20 @@ export async function crearEmpleado(req, res, next) {
 
         await sendEmail(message, res);
         console.log(`Email sended ${email}...`);
+
+        if (rolid <= 2) {
+            let nuevoDispositivo = await Dispositivo.create({
+                empleadoid: nuevoEmpleado.id,
+                nombre: 'Web',
+                modelo: 'Navegador',
+                imei: 'n/a',
+                isweb: true
+            }, {
+                fields: ['empleadoid', 'nombre', 'modelo', 'imei', 'isweb']
+            });
+
+            console.log(JSON.stringify(nuevoDispositivo, null, 2));
+        }
 
         return res.json({
             ok: true,
@@ -168,10 +183,10 @@ export async function obtenerEmpleado(req, res) {
 }
 
 export async function modificarEmpleado(req, res, next) {
-    const { nombres, apellidos, ci, email, cargoid} = req.body;
+    const { nombres, apellidos, ci, email, cargoid } = req.body;
     const { id } = req.params;
     try {
-        await Empleado.update({ nombres, apellidos, ci, email, cargoid}, {
+        await Empleado.update({ nombres, apellidos, ci, email, cargoid }, {
             where: {
                 id
             }

@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS dispositivos
     modelo varchar NOT NULL,
     imei text NOT NULL,
     estado boolean default true
+    isWeb boolean default false
 );
 
 CREATE TABLE IF NOT EXISTS eventos

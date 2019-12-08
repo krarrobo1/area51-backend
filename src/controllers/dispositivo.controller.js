@@ -23,9 +23,9 @@ export async function registrarDispositivo(req, res, next) {
                 if (dispositivo.imei === imei) {
                     existente = dispositivo;
                 }
-                if (dispositivo.estado === true) {
-                        await Dispositivo.update({ estado: false }, { where: { id: dispositivo.id } });
-                }     
+                if (dispositivo.estado === true && dispositivo.isweb === false) {
+                    await Dispositivo.update({ estado: false }, { where: { id: dispositivo.id } });
+                }
             });
             if (existente !== null) {
                 let { id } = existente;
@@ -58,8 +58,8 @@ export async function registrarDispositivo(req, res, next) {
             };
         }
         // Si es un nuevo dispositivo...
-        dispositivos.forEach(async(dispositivo)=>{
-            if(dispositivo.estado === true){
+        dispositivos.forEach(async(dispositivo) => {
+            if (dispositivo.estado === true) {
                 await Dispositivo.update({ estado: false }, { where: { id: dispositivo.id } });
             }
         });
