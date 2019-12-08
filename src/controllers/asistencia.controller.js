@@ -91,9 +91,12 @@ export async function registrarAsistenciaWeb(req, res, next) {
 
 
         let lastValue = await sequelize.query(`SELECT  * FROM ASISTENCIAS 
-        WHERE EMPLEADOID = ${empleado.id}
+        WHERE EMPLEADOID = 7
         order by hora desc 
         limit 1;`, { type: QueryTypes.SELECT });
+
+        console.log('Last');
+        console.log(JSON.stringify(lastValue, null, 2));
 
         let event;
         if (lastValue.eventoid === 1) {
