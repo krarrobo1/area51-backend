@@ -81,13 +81,15 @@ export async function registrarAsistenciaWeb(req, res, next) {
             include: [{ model: Empresa, attributes: ['latitud', 'longitud'] }, { model: Cargo, attributes: ['nombre'], include: [{ model: Periodo, attributes: ['horainicio', 'horafin'], include: [{ model: Dia, attributes: ['nombre'] }] }] }]
         });
 
+        console.log('EMPLEADO');
+        console.log(JSON.stringify(empleado, null, 2));
 
         let periodoLaboral = empleado.cargo.periodos;
         // Si esta dentro del periodo puede registrarse...
         if (!comprobarPeriodoLaboral(periodoLaboral)) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
 
 
-        console.log(JSON.stringify(empleado, null, 2));
+
         let lastValue = await sequelize.query(`SELECT  * FROM ASISTENCIAS 
         WHERE EMPLEADOID = ${empleado.id}
         order by hora desc 
