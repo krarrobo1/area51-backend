@@ -21,11 +21,13 @@ export async function LogIn(req, res, next) {
             },
             include: [
                 { model: Empresa, attributes: ['id', 'nombre', 'latitud', 'longitud', 'radio'] },
-                { model: Rol, attributes: ['nombre'] },
-                { model: Dispositivo, attributes: ['id'], where: { isweb: true } }
+                { model: Rol, attributes: ['nombre'] }
+
 
             ]
         });
+
+        //     { model: Dispositivo, attributes: ['id'], where: { isweb: true } }
         if (!empleadoTemp) {
             return res.status('401').json({ ok: false, message: 'Email o password incorrectos' });
         }
