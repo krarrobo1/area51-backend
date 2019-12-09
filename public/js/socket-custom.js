@@ -5,9 +5,9 @@
  */
 
 
-var socket = io('http://192.168.137.171:4000',{reconnection: true, reconnectionDelay: 1000, reconnectionDelayMax: 5000, reconnectionAttemps: 5});
+//var socket = io('http://192.168.137.171:4000',{reconnection: true, reconnectionDelay: 1000, reconnectionDelayMax: 5000, reconnectionAttemps: 5});
 
-
+var socket = io('http://192.168.137.171:4000', {reconnection: true, timeout: 30000})
 
 
 
