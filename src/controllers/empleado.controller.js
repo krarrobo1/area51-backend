@@ -33,7 +33,7 @@ export async function crearEmpleado(req, res, next) {
             to: email,
             subject: `Registrate App | Confirmación de cuenta`,
             html: `
-            <div style="background-color: #f6f6f6ff; padding: 12px;">
+            <div style="background-color: #f6f6f6ff; padding: 12px;font-family:font-family: Arial, Helvetica, sans-serif">
             <h2 style="text-align: center;">Bienvenido a Registrate App</h2>
              <!--<img src=""></img> -->
             <p style="text-align: justify;">Hola <strong>${nombres}</strong> te damos la bienvenida a Registrate App. Ingresa al siguiente <a href="https://registrateapp.com.ec/login/configurar?key=${passresetkey} ">enlace </a> para configurar tu cuenta.</p>
