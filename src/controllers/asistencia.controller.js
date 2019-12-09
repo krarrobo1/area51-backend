@@ -371,7 +371,9 @@ function comprobarPeriodoLaboral(periodoLaboral) {
             // 10 minutos antes de que comience la jornada
             let tiempoGracia = dt.subMinutes(new Date(hInicio), 10).toTimeString().split(' ')[0];
             hInicio = `${mockDate} ${tiempoGracia}`;
-
+            console.log('hora actual', hActual);
+            console.log('hora inicio: ', hInicio);
+            console.log('hora fin: ', hFin);
             if (hInicio < hActual && hFin > hActual) {
                 console.log('Dentro de horario...');
                 enhorario = true;

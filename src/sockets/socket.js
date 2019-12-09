@@ -13,15 +13,16 @@ io.on('connection', (socket) => {
         console.log('Usuario desconectado');
     });
 
-    socket.on('sendMessage', (message) => {
+    socket.on('msg', (message) => {
         console.log('El cliente envio: ', message);
         io.emit('recieveMessage', 'Hola desde Ecuador');
     });
 
 
-    socket.on('sendRange', (data, cb) => {
-        let { id, radio, latitud, longitud } = data;
-        validateRange(id, radio, latitud, longitud);
+    socket.on('locationData', (data, cb) => {
+        let { id, rango, latitud, longitud } = data;
+        console.log(data);
+        validateRange(id, rango, latitud, longitud);
     });
     socket.on('ping', (latency) => {;
         socket.emit('pong');
@@ -31,23 +32,29 @@ io.on('connection', (socket) => {
 
 
 
-export async function validateRange(id, radio, latitud, longitud) {
+export async function validateRange(id, rango, latitud, longitud) {
     try {
-        let dispositivo = await Dispositivo.findOne({
+        /*let dispositivo = await Dispositivo.findOne({
             where: {
                 id: id
             },
             attributes: ['id', 'nombre'],
             include: [{ model: Empleado, attributes: ['id'], include: { model: Empresa, attributes: ['radio'] } }]
+        });*/
+        let empleado = await Empleado.findOne({
+            where: {
+                id
+            },
+            include: [{ model: Empresa, attributes: ['radio'] }]
         });
 
 
-        let radioPermitido = dispositivo.empleado.empresa.radio;
-        console.log('Permitio', radioPermitido);
-        console.log('Actual', radio);
+        let radioPermitido = empleado.empresa.radio;
+        console.log('Permitido', radioPermitido);
+        console.log('Actual', rango);
 
 
-        if (radio > radioPermitido) {
+        if (rango > radioPermitido) {
             console.log('Out of Range');
             const nuevaAsistencia = await Asistencia.create({
                 dispositivoid: id,
