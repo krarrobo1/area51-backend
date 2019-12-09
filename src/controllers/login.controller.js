@@ -43,7 +43,7 @@ export async function LogIn(req, res, next) {
         delete data.password;
 
         if (dispositivo) {
-            data.dispositivoid = dispositivo.id
+            data.dispositivo = dispositivo
         }
 
         let tkndata = { id: data.id, nombres: data.nombres, apellidos: data.apellidos, rol: data.role.nombre, email: data.email };

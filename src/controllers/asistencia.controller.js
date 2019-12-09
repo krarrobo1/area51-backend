@@ -136,7 +136,19 @@ export async function registrarAsistenciaWeb(req, res, next) {
         });
         //  TODO: Nombre del Empleado
         // nombre del evento
-        //nuevaAsistencia delete
+
+        let evento = { nombre: '' };
+        if (eventoid === 1) {
+            evento.nombre = 'Entrada';
+        } else if (eventoid === 2) {
+            evento.nombre = 'Salida';
+        }
+        delete nuevaAsistencia.eventoid;
+
+
+        nuevaAsistencia.evento = evento;
+
+
         return res.json({ ok: true, asistencia: nuevaAsistencia });
     } catch (err) {
         next(err);
