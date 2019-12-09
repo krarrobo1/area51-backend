@@ -134,6 +134,8 @@ export async function registrarAsistenciaWeb(req, res, next) {
         }, {
             fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
         });
+
+        console.log(Object.getOwnPropertyNames(nuevaAsistencia));
         //  TODO: Nombre del Empleado
         // nombre del evento
 

@@ -22,7 +22,7 @@ io.on('connection', (socket) => {
     socket.on('locationData', (data, cb) => {
         let { id, rango, latitud, longitud } = data;
         console.log(data);
-        validateRange(id, rango, latitud, longitud);
+        // validateRange(id, rango, latitud, longitud);
     });
     socket.on('ping', (latency) => {;
         socket.emit('pong');
