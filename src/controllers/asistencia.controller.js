@@ -138,9 +138,9 @@ export async function registrarAsistenciaWeb(req, res, next) {
         // nombre del evento
 
         let evento = { nombre: '' };
-        if (eventoid === 1) {
+        if (event === 1) {
             evento.nombre = 'Entrada';
-        } else if (eventoid === 2) {
+        } else if (event === 2) {
             evento.nombre = 'Salida';
         }
         delete nuevaAsistencia.eventoid;
