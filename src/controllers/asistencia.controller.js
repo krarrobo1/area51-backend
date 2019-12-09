@@ -146,7 +146,7 @@ export async function registrarAsistenciaWeb(req, res, next) {
         delete nuevaAsistencia.eventoid;
 
 
-        nuevaAsistencia.evento = evento;
+        nuevaAsistencia.data.evento = evento;
 
 
         return res.json({ ok: true, asistencia: nuevaAsistencia });
