@@ -177,6 +177,36 @@ export async function obtenerAsistencia(req, res, next) {
     }
 }
 
+// export async function obtenerAsistenciaEmpleadoId(req, res, next) {
+//     const { id } = req.params;
+
+//     try {
+//         let data = await sequelize.query(`Select 
+//         asis.latitud,
+// 		asis.longitud,
+//         asis.hora timest,
+//         disp.nombre dispositivo, 
+//         evt.nombre evento
+//         FROM asistencias asis
+//         INNER JOIN dispositivos disp ON asis.dispositivoid = disp.id
+//         INNER JOIN empleados emp ON disp.empleadoid = emp.id
+//         INNER JOIN eventos evt ON asis.eventoid = evt.id
+//         WHERE emp.id = ${id}
+//         ORDER BY timest;
+//         `, { type: QueryTypes.SELECT });
+
+//         data.forEach(element => {
+//             let { timest } = element;
+//             let formated = dt.format(timest, 'dd/MM/yyyy HH:mm:ss');
+//             element.formatedDate = formated;
+//         });
+
+//         return res.json({ ok: true, data })
+//     } catch (err) {
+//         next(err);
+//     }
+// }
+
 export async function obtenerAsistenciaEmpleadoId(req, res, next) {
     const { id } = req.params;
 
@@ -188,8 +218,6 @@ export async function obtenerAsistenciaEmpleadoId(req, res, next) {
         disp.nombre dispositivo, 
         evt.nombre evento
         FROM asistencias asis
-        INNER JOIN dispositivos disp ON asis.dispositivoid = disp.id
-        INNER JOIN empleados emp ON disp.empleadoid = emp.id
         INNER JOIN eventos evt ON asis.eventoid = evt.id
         WHERE emp.id = ${id}
         ORDER BY timest;
@@ -206,6 +234,7 @@ export async function obtenerAsistenciaEmpleadoId(req, res, next) {
         next(err);
     }
 }
+
 
 
 
