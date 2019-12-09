@@ -134,20 +134,18 @@ export async function registrarAsistenciaWeb(req, res, next) {
         }, {
             fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
         });
-        nuevaAsistencia.dataValues.attribute = 'ABC';
+        //nuevaAsistencia.dataValues.attribute = 'ABC';
         //  TODO: Nombre del Empleado
         // nombre del evento
 
-        // let evento = { nombre: '' };
-        // if (event === 1) {
-        //     evento.nombre = 'Entrada';
-        // } else if (event === 2) {
-        //     evento.nombre = 'Salida';
-        // }
-        // delete nuevaAsistencia.eventoid;
-
-
-        //nuevaAsistencia.data.evento = evento;
+        let evento = { nombre: '' };
+        if (event === 1) {
+            evento.nombre = 'Entrada';
+        } else if (event === 2) {
+            evento.nombre = 'Salida';
+        }
+        delete nuevaAsistencia.dataValues.eventoid;
+        nuevaAsistencia.dataValues.evento = evento;
 
 
         return res.json({ ok: true, asistencia: nuevaAsistencia });
