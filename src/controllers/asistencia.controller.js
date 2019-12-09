@@ -148,7 +148,7 @@ export async function registrarAsistenciaWeb(req, res, next) {
         nuevaAsistencia.dataValues.evento = evento;
 
 
-        return res.json({ ok: true, asistencia: nuevaAsistencia });
+        return res.json({ ok: true, data: nuevaAsistencia });
     } catch (err) {
         next(err);
     }

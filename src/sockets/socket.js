@@ -3,14 +3,24 @@ import Dispositivo from '../models/Dispositivo';
 import Empleado from '../models/Empleado';
 import Empresa from '../models/Empresa';
 import Asistencia from '../models/Asistencia';
-import { createVerify } from 'crypto';
+
 
 
 io.on('connection', (socket) => {
     console.log('Usuario conectado');
+    console.log(socket.id);
     socket.emit('enviarMensaje', { usuario: 'Admin', mensaje: 'Bienvenido a esta App' });
+
+
+
+
+
     socket.on('disconnect', () => {
         console.log('Usuario desconectado');
+
+        console.log(socket.id);
+
+
     });
 
     socket.on('msg', (message) => {
