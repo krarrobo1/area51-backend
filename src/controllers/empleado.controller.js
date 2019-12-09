@@ -92,11 +92,13 @@ export async function forgotPassword(req, res, next) {
         let message = {
             to: email,
             subject: `Registrate App | Reestablece tu contraseña`,
-            text: `Has solicitado un cambio de constraseña, si realmente lo hiciste, ingresa al siguiente link: 
-            https://registrateapp.com.ec/login/configurar?key=${passresetkey} 
-            para escoger una nueva constraseña.
-
-            Si no quieres cambiar tu contraseña ignora este email y tu contraseña no cambiará.`
+            html: `<div style="background-color: #f6f6f6ff; padding: 12px; font-family:font-family: Arial, Helvetica, sans-serif ''">
+            <h3>Cambio de contraseña</h3>
+              <!--<img src=""></img> -->
+                <p style="text-align: justify;">Has solicitado un cambio de constraseña, ingresa al siguiente <a href="https://registrateapp.com.ec/login/configurar?key=${passresetkey} ">enlace </a> para escoger tu nueva constraseña.
+                </p>
+                <p>Si no deseas cambiar tu contraseña ignora este email y tu contraseña no cambiará.</p>
+            </div>`
         }
         await sendEmail(message, res);
         return res.json({ ok: true, message: `Email sended ${email}...` });
