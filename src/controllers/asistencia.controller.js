@@ -370,7 +370,10 @@ function comprobarPeriodoLaboral(periodoLaboral) {
 
             // 10 minutos antes de que comience la jornada
             let tiempoGracia = dt.subMinutes(new Date(hInicio), 10).toTimeString().split(' ')[0];
-            hInicio = `${mockDate} ${tiempoGracia}`;
+            if (hInicio !== '00:00:00') {
+                hInicio = `${mockDate} ${tiempoGracia}`;
+            }
+
             console.log('hora actual', hActual);
             console.log('hora inicio: ', hInicio);
             console.log('hora fin: ', hFin);
