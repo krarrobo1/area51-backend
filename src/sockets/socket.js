@@ -5,6 +5,7 @@ import Empresa from '../models/Empresa';
 import Asistencia from '../models/Asistencia';
 import { createVerify } from 'crypto';
 
+
 io.on('connection', (socket) => {
     console.log('Usuario conectado');
     socket.emit('enviarMensaje', { usuario: 'Admin', mensaje: 'Bienvenido a esta App' });

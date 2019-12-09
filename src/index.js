@@ -47,6 +47,8 @@ let io = socketIO(server);
 export default io;
 require('./sockets/socket');
 
+io.listen(7000);
+
 
 
 server.listen(port, () => {
