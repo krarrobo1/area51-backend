@@ -1,4 +1,5 @@
-export const port = process.env.PORT || 4000;
+//export const port = process.env.PORT || 4000;
+export const port = 4000;
 export const env = process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
 
 export const dburi = process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgres://postgres:@localhost:5432/registrate';

@@ -53,9 +53,15 @@ export async function crearPDF() {
 export async function crearExcel(data) {
     if (data.length === 0) return null;
     await wb.xlsx.readFile(`${appDir}/../assets/Template.xlsx`);
-    //console.log('Leido');
+    // Memoria Temporal
     let meses = [];
     let dias = [];
+
+    // Registro temporal de horas
+    let entradas = [];
+    let salidas = [];
+
+
     let ifilas = 6;
     data.forEach((reg, index) => {
         let { nombres, ci, ubicacion, timest, dispositivo, evento } = reg;
@@ -94,12 +100,15 @@ export async function crearExcel(data) {
             let ubTag = ws.getCell(`E${ifilas}`);
             ubTag.value = ubicacion;
             if (evento === 'Entrada') {
+
+                entradas.push(hms);
                 idTag.style.fill = fill1;
                 eventTag.style.fill = fill1;
                 horaTag.style.fill = fill1;
                 dispTag.style.fill = fill1;
                 ubTag.style.fill = fill1;
             } else {
+                salidas.push(hms);
                 idTag.style.fill = fill2;
                 eventTag.style.fill = fill2;
                 horaTag.style.fill = fill2;
@@ -114,10 +123,25 @@ export async function crearExcel(data) {
             //console.log(ws);
             if (!dias.includes(eedd)) {
                 //console.log('nuevo');
+
+                // aca se debe anador la nueva fila y poner el total
+                ws.getCell(`B${ifilas}`).value = 'TOTAL';
+                ws.getCell(`C${ifilas}`).value = '0';
+                ifilas++;
+
+                // ACA SE DEBE RESETEAR EL SUMADOR
+                console.log(`${eedd}`);
+                console.log('Entradas: ', entradas);
+                console.log('Salidas: ', salidas);
+
+                entradas = entradas.splice(1);
+                salidas = salidas.splice(1);
+
+
                 let dayTag = ws.getCell(`E${ifilas}`);
                 dayTag.merge(ws.getCell(`A${ifilas}`));
 
-                dayTag.value = `${eedd}`;
+                dayTag.value = `${eedd}`; // Nombre del dia
                 dayTag.style.fill = fill3;
                 dayTag.alignment = { vertical: 'middle', horizontal: 'center' };
                 dayTag.font = font;
@@ -142,12 +166,16 @@ export async function crearExcel(data) {
                 let ubTag = ws.getCell(`E${ifilas}`);
                 ubTag.value = ubicacion;
                 if (evento === 'Entrada') {
+
+                    entradas.push(hms);
                     idTag.style.fill = fill1;
                     eventTag.style.fill = fill1;
                     horaTag.style.fill = fill1;
                     dispTag.style.fill = fill1;
                     ubTag.style.fill = fill1;
                 } else if (evento === 'Salida') {
+
+                    salidas.push(hms);
                     idTag.style.fill = fill2;
                     eventTag.style.fill = fill2;
                     horaTag.style.fill = fill2;
@@ -176,6 +204,8 @@ export async function crearExcel(data) {
                 ubTag.value = ubicacion;
 
                 if (evento === 'Entrada') {
+
+                    entradas.push(hms);
                     idTag.style.fill = fill1;
                     eventTag.style.fill = fill1;
                     horaTag.style.fill = fill1;
@@ -183,6 +213,7 @@ export async function crearExcel(data) {
                     ubTag.style.fill = fill1;
 
                 } else {
+                    salidas.push(hms);
                     idTag.style.fill = fill2;
                     eventTag.style.fill = fill2;
                     horaTag.style.fill = fill2;
