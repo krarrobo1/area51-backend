@@ -3,6 +3,7 @@ import Dispositivo from '../models/Dispositivo';
 import Empleado from '../models/Empleado';
 import Empresa from '../models/Empresa';
 import Asistencia from '../models/Asistencia';
+import { CLIENT_RENEG_LIMIT } from 'tls';
 
 
 
@@ -20,7 +21,10 @@ io.on('connection', (socket) => {
 
         console.log(socket.id);
 
+    });
 
+    socket.on('reconnect', () =>{
+        console.log('Usuario reconectado: ',socket.id);
     });
 
     socket.on('msg', (message) => {

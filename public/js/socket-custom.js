@@ -1,9 +1,13 @@
+
+
 /*
  * Client
  */
 
 
-var socket = io();
+var socket = io('http://192.168.137.171:4000',{reconnection: true, reconnectionDelay: 1000, reconnectionDelayMax: 5000, reconnectionAttemps: 5});
+
+
 
 
 
@@ -15,8 +19,12 @@ socket.on('connect', function() {
 
 // Escuchar eventos
 socket.on('disconnect', function() {
-    console.log('Perdimos coneccion con el servidor');
+    alert('Perdimos coneccion con el servidor');
 });
+
+socket.on('reconnect',function(){
+    alert('Reconectado con el server..');
+})
 
 socket.on('recieveMessage', function(msj) {
     console.log('El servidor dice:', msj);
