@@ -134,9 +134,6 @@ export async function registrarAsistenciaWeb(req, res, next) {
         }, {
             fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
         });
-        //  TODO: Nombre del Empleado
-        // nombre del evento
-        //nuevaAsistencia delete
         return res.json({ ok: true, asistencia: nuevaAsistencia });
     } catch (err) {
         next(err);
