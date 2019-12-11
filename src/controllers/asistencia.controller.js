@@ -24,7 +24,7 @@ import { QueryTypes } from 'sequelize';
 
 export async function registrarAsistencia(req, res, next) {
     const { id } = req.data;
-    const { dispositivoid, latitud, longitud, eventoid } = req.body;
+    const { dispositivoid, latitud, longitud} = req.body;
     try {
         const dispositivos = await Dispositivo.findAll({
             raw: true,
@@ -101,6 +101,7 @@ export async function registrarAsistenciaWeb(req, res, next) {
             include: [{ model: Empresa, attributes: ['latitud', 'longitud'] }, { model: Cargo, attributes: ['nombre'], include: [{ model: Periodo, attributes: ['horainicio', 'horafin'], include: [{ model: Dia, attributes: ['nombre'] }] }] }]
         });
 
+        if(!empleado) return res.status(404).json({ok: false, message: 'EmpleadoNoEncontrado'});
 
 
         let periodoLaboral = empleado.cargo.periodos;
