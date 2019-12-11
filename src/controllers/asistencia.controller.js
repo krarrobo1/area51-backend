@@ -216,7 +216,8 @@ export async function obtenerAsistenciaEmpleadoId(req, res, next) {
     WHERE 
     ASIS.EMPLEADOID = ${id}
     AND EVENT.ID = ASIS.EVENTOID
-    AND DISP.ID = ASIS.DISPOSITIVOID;`
+    AND DISP.ID = ASIS.DISPOSITIVOID
+    ORDER BY timest`
 
     try {
         let data = await sequelize.query(query, { type: QueryTypes.SELECT });
