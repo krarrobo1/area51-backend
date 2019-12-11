@@ -12,6 +12,7 @@ import Dia from '../models/Dia'
 import stream from 'stream';
 
 import { crearExcel } from '../services/reportes';
+import { createReport } from '../services/excelgenerator';
 import * as dt from 'date-fns';
 import { es } from 'date-fns/locale';
 import { sequelize } from '../database/database';
@@ -177,29 +178,54 @@ export async function obtenerAsistencia(req, res, next) {
     }
 }
 
+// export async function obtenerAsistenciaEmpleadoId(req, res, next) {
+//     const { id } = req.params;
+
+//     try {
+//         let data = await sequelize.query(`Select 
+//         asis.latitud,
+// 		asis.longitud,
+//         asis.hora timest,
+//         disp.nombre dispositivo, 
+//         evt.nombre evento
+//         FROM asistencias asis
+//         INNER JOIN dispositivos disp ON asis.dispositivoid = disp.id
+//         INNER JOIN empleados emp ON disp.empleadoid = emp.id
+//         INNER JOIN eventos evt ON asis.eventoid = evt.id
+//         WHERE emp.id = ${id}
+//         ORDER BY timest;
+//         `, { type: QueryTypes.SELECT });
+
+//         data.forEach(element => {
+//             let { timest } = element;
+//             let formated = dt.format(timest, 'dd/MM/yyyy HH:mm:ss');
+//             element.formatedDate = formated;
+//         });
+
+//         return res.json({ ok: true, data })
+//     } catch (err) {
+//         next(err);
+//     }
+// }
+
 export async function obtenerAsistenciaEmpleadoId(req, res, next) {
     const { id } = req.params;
 
-    try {
-        let data = await sequelize.query(`Select 
-        asis.latitud,
-		asis.longitud,
-        asis.hora timest,
-        disp.nombre dispositivo, 
-        evt.nombre evento
-        FROM asistencias asis
-        INNER JOIN dispositivos disp ON asis.dispositivoid = disp.id
-        INNER JOIN empleados emp ON disp.empleadoid = emp.id
-        INNER JOIN eventos evt ON asis.eventoid = evt.id
-        WHERE emp.id = ${id}
-        ORDER BY timest;
-        `, { type: QueryTypes.SELECT });
+    const query = `SELECT ASIS.LATITUD, ASIS.LONGITUD, TO_CHAR(ASIS.HORA, 'dd/mm/yyyy HH12:MI:SS') formatedDate, asis.hora timest,DISP.NOMBRE, EVENT.NOMBRE
+    FROM ASISTENCIAS ASIS, DISPOSITIVOS DISP, EVENTOS EVENT
+    WHERE 
+    ASIS.EMPLEADOID = ${id}
+    AND EVENT.ID = ASIS.EVENTOID
+    AND DISP.ID = ASIS.DISPOSITIVOID;`
 
-        data.forEach(element => {
-            let { timest } = element;
-            let formated = dt.format(timest, 'dd/MM/yyyy HH:mm:ss');
-            element.formatedDate = formated;
-        });
+    try {
+        let data = await sequelize.query(query, { type: QueryTypes.SELECT });
+
+        // data.forEach(element => {
+        //     let { timest } = element;
+        //     let formated = dt.format(timest, 'dd/MM/yyyy HH:mm:ss');
+        //     element.formatedDate = formated;
+        // });
 
         return res.json({ ok: true, data })
     } catch (err) {
@@ -208,68 +234,110 @@ export async function obtenerAsistenciaEmpleadoId(req, res, next) {
 }
 
 
-
-
-
 export async function descargarReporteAsistencias(req, res, next) {
+    // Obtiene id del url
     const { id } = req.params;
+
     try {
-        let registros = await sequelize.query(`Select CONCAT(emp.nombres,' ', emp.apellidos) nombres, 
-        emp.ci,
-        CONCAT(asis.latitud,',',asis.longitud) ubicacion,
-        EXTRACT(day FROM asis.hora) dia, 
-        EXTRACT (month FROM asis.hora) mes,
-        EXTRACT (year FROM asis.hora) anio,
-        CONCAT(EXTRACT (HOUR from asis.hora),':',EXTRACT(MINUTE from asis.hora),':',EXTRACT(SECOND from asis.hora))hora,
-        asis.hora timest,
-        disp.nombre dispositivo, 
-        evt.nombre evento
-        FROM asistencias asis
-        INNER JOIN dispositivos disp ON asis.dispositivoid = disp.id
-        INNER JOIN empleados emp ON disp.empleadoid = emp.id
-        INNER JOIN eventos evt ON asis.eventoid = evt.id
-        WHERE emp.id = ${id}
-        ORDER BY timest;
-        `, { type: QueryTypes.SELECT });
+        const q1 = `SELECT CONCAT(emp.nombres,' ', emp.apellidos) nombres, ci,EMPR.NOMBRE empresa
+        from empleados emp, empresas empr
+        where emp.id = ${id}
+        and emp.empresaid = empr.id`;
+        let employee = await sequelize.query(q1, { type: QueryTypes.SELECT });
 
+        if (employee.length === 0) res.status(404).json({ ok: false, message: 'UsuarioNoEncontrado' });
 
-        let bf = await crearExcel(registros);
-        if (!bf) return res.status(500).json({ ok: false, err: { message: `(Sin registros) No se pudo completar la accion...` } });
-        let { nombres } = registros[0];
-        // Bufer del Excel
-        let fileContents = Buffer.from(bf, "base64");
+        const q2 = `
+        SELECT ASIS.HORA TIMEST, TO_CHAR(ASIS.HORA, 'HH24:MI:SS') hora, TO_CHAR(ASIS.HORA, 'dd/mm/yyyy')fecha,DISP.NOMBRE dispositivo, EVENT.NOMBRE evento
+                FROM ASISTENCIAS ASIS, DISPOSITIVOS DISP, EVENTOS EVENT
+                WHERE 
+                ASIS.EMPLEADOID = ${id}
+                AND EVENT.ID = ASIS.EVENTOID
+                AND DISP.ID = ASIS.DISPOSITIVOID
+                ORDER BY TIMEST`;
 
-        // Se crea un flujo de lectura
-        let readStream = new stream.PassThrough();
+        let registros = await sequelize.query(q2, { type: QueryTypes.SELECT });
+        let buffer = await createReport(registros, employee[0]);
+        if (!buffer) return res.json({ ok: true, message: 'Sin registros para generar reporte' });
 
-        // Se termina de escribir el archivoen el flujo de lectura
-        readStream.end(fileContents);
+        let { nombres } = employee[0];
 
+        let data = Buffer.from(buffer, "base64"),
+            readStream = new stream.PassThrough();
 
-        let title = new Date().getMilliseconds() * 369;
+        readStream.end(data);
+
         res.set('Content-disposition', `attatchment; filename = registro-${nombres}.xlsx`);
         res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
-        // Se crea un pipe hacia la respuesta
-        readStream.pipe(res);
-
-        readStream.on('error', () => {
-            return res.status(500).json({
-                ok: false,
-                message: 'Algo salio mal...'
-            });
-        });
-
-        readStream.on('finish', () => {
-            console.log('TODO OK!');
-            return
-        });
+        readStream.pipe(res, { end: true });
 
     } catch (err) {
-        console.log(err);
-        return res.status(500).json({ ok: false, err });
+        next(err);
     }
+
 }
+
+
+// export async function descargarReporteAsistencias(req, res, next) {
+//     const { id } = req.params;
+//     try {
+//         let registros = await sequelize.query(`Select CONCAT(emp.nombres,' ', emp.apellidos) nombres, 
+//         emp.ci,
+//         CONCAT(asis.latitud,',',asis.longitud) ubicacion,
+//         EXTRACT(day FROM asis.hora) dia, 
+//         EXTRACT (month FROM asis.hora) mes,
+//         EXTRACT (year FROM asis.hora) anio,
+//         CONCAT(EXTRACT (HOUR from asis.hora),':',EXTRACT(MINUTE from asis.hora),':',EXTRACT(SECOND from asis.hora))hora,
+//         asis.hora timest,
+//         disp.nombre dispositivo, 
+//         evt.nombre evento
+//         FROM asistencias asis
+//         INNER JOIN dispositivos disp ON asis.dispositivoid = disp.id
+//         INNER JOIN empleados emp ON disp.empleadoid = emp.id
+//         INNER JOIN eventos evt ON asis.eventoid = evt.id
+//         WHERE emp.id = ${id}
+//         ORDER BY timest;
+//         `, { type: QueryTypes.SELECT });
+
+
+//         let bf = await crearExcel(registros);
+//         if (!bf) return res.status(500).json({ ok: false, err: { message: `(Sin registros) No se pudo completar la accion...` } });
+//         let { nombres } = registros[0];
+//         // Bufer del Excel
+//         let fileContents = Buffer.from(bf, "base64");
+
+//         // Se crea un flujo de lectura
+//         let readStream = new stream.PassThrough();
+
+//         // Se termina de escribir el archivoen el flujo de lectura
+//         readStream.end(fileContents);
+
+
+//         let title = new Date().getMilliseconds() * 369;
+//         res.set('Content-disposition', `attatchment; filename = registro-${nombres}.xlsx`);
+//         res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+//         // Se crea un pipe hacia la respuesta
+//         readStream.pipe(res);
+
+//         readStream.on('error', () => {
+//             return res.status(500).json({
+//                 ok: false,
+//                 message: 'Algo salio mal...'
+//             });
+//         });
+
+//         readStream.on('finish', () => {
+//             console.log('TODO OK!');
+//             return
+//         });
+
+//     } catch (err) {
+//         console.log(err);
+//         return res.status(500).json({ ok: false, err });
+//     }
+// }
 
 
 /*export async function descargarReporteAsistencias(req, res, next) {

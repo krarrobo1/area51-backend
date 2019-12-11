@@ -1,4 +1,4 @@
-import Sequelize, { INTEGER, STRING, CIDR, MACADDR, BOOLEAN } from 'sequelize';
+import Sequelize, { INTEGER, STRING, BOOLEAN } from 'sequelize';
 import { sequelize } from '../database/database';
 
 import Empleado from '../models/Empleado';
@@ -29,7 +29,7 @@ const Dispositivo = sequelize.define('dispositivo', {
     timestamps: false
 });
 
-console.log(Empleado);
+
 
 Empleado.hasMany(Dispositivo, { foreignKey: 'empleadoid', sourceKey: 'id' });
 Dispositivo.belongsTo(Empleado, { foreignKey: 'empleadoid', sourceKey: 'id' });
