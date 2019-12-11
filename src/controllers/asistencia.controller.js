@@ -178,35 +178,6 @@ export async function obtenerAsistencia(req, res, next) {
     }
 }
 
-// export async function obtenerAsistenciaEmpleadoId(req, res, next) {
-//     const { id } = req.params;
-
-//     try {
-//         let data = await sequelize.query(`Select 
-//         asis.latitud,
-// 		asis.longitud,
-//         asis.hora timest,
-//         disp.nombre dispositivo, 
-//         evt.nombre evento
-//         FROM asistencias asis
-//         INNER JOIN dispositivos disp ON asis.dispositivoid = disp.id
-//         INNER JOIN empleados emp ON disp.empleadoid = emp.id
-//         INNER JOIN eventos evt ON asis.eventoid = evt.id
-//         WHERE emp.id = ${id}
-//         ORDER BY timest;
-//         `, { type: QueryTypes.SELECT });
-
-//         data.forEach(element => {
-//             let { timest } = element;
-//             let formated = dt.format(timest, 'dd/MM/yyyy HH:mm:ss');
-//             element.formatedDate = formated;
-//         });
-
-//         return res.json({ ok: true, data })
-//     } catch (err) {
-//         next(err);
-//     }
-// }
 
 export async function obtenerAsistenciaEmpleadoId(req, res, next) {
     const { id } = req.params;
@@ -221,13 +192,6 @@ export async function obtenerAsistenciaEmpleadoId(req, res, next) {
 
     try {
         let data = await sequelize.query(query, { type: QueryTypes.SELECT });
-
-        // data.forEach(element => {
-        //     let { timest } = element;
-        //     let formated = dt.format(timest, 'dd/MM/yyyy HH:mm:ss');
-        //     element.formatedDate = formated;
-        // });
-
         return res.json({ ok: true, data })
     } catch (err) {
         next(err);
@@ -267,7 +231,6 @@ export async function obtenerAsistenciaEmpleadoId(req, res, next) {
 export async function descargarReporteAsistencias(req, res, next) {
     // Obtiene id del url
     const { id } = req.params;
-
     try {
         const q1 = `SELECT CONCAT(emp.nombres,' ', emp.apellidos) nombres, ci,EMPR.NOMBRE empresa
         from empleados emp, empresas empr
@@ -275,7 +238,7 @@ export async function descargarReporteAsistencias(req, res, next) {
         and emp.empresaid = empr.id`;
         let employee = await sequelize.query(q1, { type: QueryTypes.SELECT });
 
-        if (employee.length === 0) res.status(404).json({ ok: false, message: 'UsuarioNoEncontrado' });
+        if (employee.length === 0) return res.status(404).json({ ok: false, message: 'UsuarioNoEncontrado' });
 
         const q2 = `
         SELECT ASIS.HORA TIMEST, TO_CHAR(ASIS.HORA, 'HH24:MI:SS') hora, TO_CHAR(ASIS.HORA, 'dd/mm/yyyy')fecha,DISP.NOMBRE dispositivo, EVENT.NOMBRE evento
@@ -301,7 +264,6 @@ export async function descargarReporteAsistencias(req, res, next) {
         res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
         readStream.pipe(res, { end: true });
-
     } catch (err) {
         next(err);
     }
