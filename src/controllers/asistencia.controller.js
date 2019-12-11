@@ -182,7 +182,7 @@ export async function obtenerAsistencia(req, res, next) {
 export async function obtenerAsistenciaEmpleadoId(req, res, next) {
     const { id } = req.params;
 
-    const query = `SELECT ASIS.LATITUD, ASIS.LONGITUD, TO_CHAR(ASIS.HORA, 'dd/mm/yyyy HH12:MI:SS') formatedDate, asis.hora timest,DISP.NOMBRE, EVENT.NOMBRE
+    const query = `SELECT ASIS.LATITUD, ASIS.LONGITUD, TO_CHAR(ASIS.HORA, 'dd/mm/yyyy HH12:MI:SS') formatedDate, asis.hora timest,DISP.NOMBRE dispositivo, EVENT.NOMBRE evento
     FROM ASISTENCIAS ASIS, DISPOSITIVOS DISP, EVENTOS EVENT
     WHERE 
     ASIS.EMPLEADOID = ${id}
