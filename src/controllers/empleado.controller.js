@@ -32,10 +32,13 @@ export async function crearEmpleado(req, res, next) {
         let message = {
             to: email,
             subject: `Registrate App | Confirmación de cuenta`,
-            text: `
-            Hola ${nombres}, Bienvenido a Registrate App
-            Ingresa al siguiente link: https://registrate-1570332821411.web.app/login/configurar-contraseña?key=${passresetkey} 
-            para confirmar tu cuenta y establecer tu constraseña`
+            html: `
+            <div style="background-color: #f6f6f6ff; padding: 12px;font-family:font-family: Arial, Helvetica, sans-serif">
+            <h2 style="text-align: center;">Bienvenido a Registrate App</h2>
+             <!--<img src=""></img> -->
+            <p style="text-align: justify;">Hola <strong>${nombres}</strong> te damos la bienvenida a Registrate App. Ingresa al siguiente <a href="https://registrateapp.com.ec/login/configurar?key=${passresetkey} ">enlace </a> para configurar tu cuenta.</p>
+            Para más información visita: <a href="Grupo Aptec">https://registrateapp.com.ec/assets/Manual_de_Usuario.pdf</a> <br /> <br />
+            </div>`
         }
 
         await sendEmail(message, res);
@@ -89,11 +92,13 @@ export async function forgotPassword(req, res, next) {
         let message = {
             to: email,
             subject: `Registrate App | Reestablece tu contraseña`,
-            text: `Has solicitado un cambio de constraseña, si realmente lo hiciste, ingresa al siguiente link: 
-            https://registrate-1570332821411.web.app/login/configurar-contraseña?key=${passresetkey} 
-            para escoger una nueva constraseña.
-
-            Si no quieres cambiar tu contraseña ignora este email y tu contraseña no cambiará.`
+            html: `<div style="background-color: #f6f6f6ff; padding: 12px; font-family:font-family: Arial, Helvetica, sans-serif ''">
+            <h3>Cambio de contraseña</h3>
+              <!--<img src=""></img> -->
+                <p style="text-align: justify;">Has solicitado un cambio de constraseña, ingresa al siguiente <a href="https://registrateapp.com.ec/login/configurar?key=${passresetkey} ">enlace </a> para escoger tu nueva constraseña.
+                </p>
+                <p>Si no deseas cambiar tu contraseña ignora este email y tu contraseña no cambiará.</p>
+            </div>`
         }
         await sendEmail(message, res);
         return res.json({ ok: true, message: `Email sended ${email}...` });

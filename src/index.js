@@ -21,7 +21,7 @@ let server = http.createServer(app);
 main();*/
 
 
-let io = socketIO(server, { pingTimeout: 1000 });
+let io = socketIO(server, { pingTimeout: 5000, pingInterval: 5000 });
 
 
 // io.on('connection', (client) => {
