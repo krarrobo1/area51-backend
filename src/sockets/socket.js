@@ -5,46 +5,25 @@ import Empresa from '../models/Empresa';
 import Asistencia from '../models/Asistencia';
 
 
-let conectados = [];
+
 
 io.on('connection', (socket) => {
 
     console.log('Usuario conectado', socket.id);
 
-    socket.on('entrar', (data) => {
-        // let obj = data;
-        // obj.id = socket.id;
-
-        // conectados.push(obj);
-
-        // console.log(conectados);
-    });
-
-
-    socket.on('myid', data => console.log(data));
-
     socket.on('disconnect', () => {
         console.log('Usuario desconectado', socket.id);
     });
 
-    socket.on('disconnecting', (reason) => {
-        console.log(reason);
-        if (reason === 'transport close') {
-            console.log('Intempestivamente');
-            setTimeout(() => {
-                console.log('Salida registrada');
-            }, 30000)
-        }
-        // ...
-    });
+    // socket.on('disconnecting', (reason) => {
+
+    // });
 
     socket.on('send', (data) => {
         let obj = data;
         obj.id = socket.id;
 
-        conectados.push(obj);
-
-        console.log(conectados);
+        setTimeout
     });
 
     socket.on('reconnect', () => {

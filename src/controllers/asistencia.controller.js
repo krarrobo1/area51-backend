@@ -24,7 +24,7 @@ import { QueryTypes } from 'sequelize';
 
 export async function registrarAsistencia(req, res, next) {
     const { id } = req.data;
-    const { dispositivoid, latitud, longitud} = req.body;
+    const { dispositivoid, latitud, longitud } = req.body;
     try {
         const dispositivos = await Dispositivo.findAll({
             raw: true,
@@ -101,7 +101,7 @@ export async function registrarAsistenciaWeb(req, res, next) {
             include: [{ model: Empresa, attributes: ['latitud', 'longitud'] }, { model: Cargo, attributes: ['nombre'], include: [{ model: Periodo, attributes: ['horainicio', 'horafin'], include: [{ model: Dia, attributes: ['nombre'] }] }] }]
         });
 
-        if(!empleado) return res.status(404).json({ok: false, message: 'EmpleadoNoEncontrado'});
+        if (!empleado) return res.status(404).json({ ok: false, message: 'EmpleadoNoEncontrado' });
 
 
         let periodoLaboral = empleado.cargo.periodos;
@@ -183,7 +183,7 @@ export async function obtenerAsistencia(req, res, next) {
 export async function obtenerAsistenciaEmpleadoId(req, res, next) {
     const { id } = req.params;
 
-    const query = `SELECT ASIS.LATITUD, ASIS.LONGITUD, TO_CHAR(ASIS.HORA, 'dd/mm/yyyy HH12:MI:SS') formatedDate, asis.hora timest,DISP.NOMBRE dispositivo, EVENT.NOMBRE evento
+    const QUERY = `SELECT ASIS.LATITUD, ASIS.LONGITUD, TO_CHAR(ASIS.HORA, 'dd/mm/yyyy HH24:MI:SS') formatedDate, asis.hora timest,DISP.NOMBRE dispositivo, EVENT.NOMBRE evento
     FROM ASISTENCIAS ASIS, DISPOSITIVOS DISP, EVENTOS EVENT
     WHERE 
     ASIS.EMPLEADOID = ${id}
@@ -192,42 +192,36 @@ export async function obtenerAsistenciaEmpleadoId(req, res, next) {
     ORDER BY timest`
 
     try {
-        let data = await sequelize.query(query, { type: QueryTypes.SELECT });
+        let data = await sequelize.query(QUERY, { type: QueryTypes.SELECT });
         return res.json({ ok: true, data })
     } catch (err) {
         next(err);
     }
 }
 
-// export async function obtenerAsistenciaEmpleadoId(req, res, next) {
-//     const { id } = req.params;
+export async function obtenerUltimasAsistenciasDelDia(req, res, next) {
+    const { id } = req.params;
+    let hoy = dt.format(Date.now(), 'dd/MM/yyyy');
 
-//     try {
-//         let data = await sequelize.query(`Select 
-//         asis.latitud,
-// 		asis.longitud,
-//         asis.hora timest,
-//         disp.nombre dispositivo, 
-//         evt.nombre evento
-//         FROM asistencias asis
-//         INNER JOIN eventos evt ON asis.eventoid = evt.id
-//         WHERE emp.id = ${id}
-//         ORDER BY timest;
-//         `, { type: QueryTypes.SELECT });
-
-//         data.forEach(element => {
-//             let { timest } = element;
-//             let formated = dt.format(timest, 'dd/MM/yyyy HH:mm:ss');
-//             element.formatedDate = formated;
-//         });
-
-//         return res.json({ ok: true, data })
-//     } catch (err) {
-//         next(err);
-//     }
-// }
+    console.log(hoy);
 
 
+    const QUERY = `SELECT ASIS.LATITUD, ASIS.LONGITUD, TO_CHAR(ASIS.HORA, 'dd/mm/yyyy HH24:MI:SS') formatedDate, asis.hora timest,DISP.NOMBRE dispositivo, EVENT.NOMBRE evento
+    FROM ASISTENCIAS ASIS, DISPOSITIVOS DISP, EVENTOS EVENT
+    WHERE 
+    ASIS.EMPLEADOID = ${id}
+    AND TO_CHAR(ASIS.hora, 'dd/mm/yyyy') = '${hoy}'
+    AND EVENT.ID = ASIS.EVENTOID
+    AND DISP.ID = ASIS.DISPOSITIVOID
+    ORDER BY timest
+    `;
+    try {
+        let asistencias = await sequelize.query(QUERY, { type: QueryTypes.SELECT });
+        return res.json({ ok: true, data: asistencias });
+    } catch (err) {
+        next(err);
+    }
+}
 
 export async function descargarReporteAsistencias(req, res, next) {
     // Obtiene id del url
