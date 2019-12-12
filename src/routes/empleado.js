@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { verificarToken, verificarAdmin } from '../middleware/auth';
-import { crearSuperAdmin,crearEmpleado, obtenerEmpleado, modificarEmpleado, eliminarEmpleado, obtenerEmpleadosPorEmpresa, setPassword, forgotPassword } from '../controllers/empleado.controller';
+import {crearEmpleado, obtenerEmpleado, modificarEmpleado, eliminarEmpleado, obtenerEmpleadosPorEmpresa, setPassword, forgotPassword } from '../controllers/empleado.controller';
 
 const router = Router();
 
 // router.post('/', [verificarToken, verificarAdmin], crearEmpleado);
 
-router.post('/spa',crearSuperAdmin);
+
 router.post('/', crearEmpleado);
 
 router.post('/password', setPassword);

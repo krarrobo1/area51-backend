@@ -7,7 +7,7 @@
 
 //var socket = io('http://localhost:4000', { reconnection: true, timeout: 1000 })
 
-var socket = io('http://localhost:4000', { forceNew: false })
+var socket = io('http://localhost:4000');
 
 
 
