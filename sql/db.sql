@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS dias(
 
 INSERT INTO dias(nombre) VALUES('Lunes');
 INSERT INTO dias(nombre) VALUES('Martes');
-INSERT INTO dias(nombre) VALUES('Miercoles');
+INSERT INTO dias(nombre) VALUES('Miércoles');
 INSERT INTO dias(nombre) VALUES('Jueves');
 INSERT INTO dias(nombre) VALUES('Viernes');
 INSERT INTO dias(nombre) VALUES('Sábado');
