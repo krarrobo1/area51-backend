@@ -69,7 +69,7 @@ export async function crearEmpleado(req, res, next) {
 };
 
 export async function crearSuperAdmin(req, res, next) {
-    const { nombres, apellidos, ci, email, password, empresaid, cargoid, rolid } = req.body;
+    const { nombres, apellidos, ci, email, password, empresaid, cargoid} = req.body;
     l
     try {
         let encrypted = await bcrypt.hash(password, 10);
@@ -82,6 +82,8 @@ export async function crearSuperAdmin(req, res, next) {
             empresaid,
             cargoid,
             rolid: 1
+        }, {
+            fields: ['nombres', 'apellidos', 'ci', 'email', 'password', 'empresaid', 'cargoid', 'rolid']
         });
 
         return res.json({ok: true, data: superAdmin});
