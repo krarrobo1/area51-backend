@@ -68,29 +68,7 @@ export async function crearEmpleado(req, res, next) {
     }
 };
 
-export async function crearSuperAdmin(req, res, next) {
-    const { nombres, apellidos, ci, email, password, empresaid, cargoid} = req.body;
-    l
-    try {
-        let encrypted = await bcrypt.hash(password, 10);
-        let superAdmin = await Empleado.create({
-            nombres,
-            apellidos,
-            ci,
-            email,
-            password: encrypted,
-            empresaid,
-            cargoid,
-            rolid: 1
-        }, {
-            fields: ['nombres', 'apellidos', 'ci', 'email', 'password', 'empresaid', 'cargoid', 'rolid']
-        });
 
-        return res.json({ok: true, data: superAdmin});
-    } catch (err) {
-        next(err);
-    }
-}
 
 export async function forgotPassword(req, res, next) {
     let { email } = req.body;
