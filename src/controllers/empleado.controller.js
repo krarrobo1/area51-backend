@@ -122,12 +122,11 @@ export async function setPassword(req, res, next) {
         let { id, passresetkey } = empleadoDB;
 
         let encrypted = await bcrypt.hash(password, 10);
-        let updated = await Empleado.update({ password: encrypted }, {
+        let updated = await Empleado.update({ password: encrypted, passresetkey: '' }, {
             where: {
                 id
             }
         });
-        console.log(updated);
         return res.json({ ok: true, message: 'Password reestablecido' });
 
     } catch (err) {

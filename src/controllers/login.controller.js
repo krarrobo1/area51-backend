@@ -25,6 +25,8 @@ export async function LogIn(req, res, next) {
             ]
         });
 
+        if (!empleadoTemp) return res.status(404).json({ ok: false, message: 'UsuarioNoEncontrado' });
+
         let dispositivo = await Dispositivo.findOne({ where: { empleadoid: empleadoTemp.id, isweb: true } });
 
         console.log('Dispositivo', JSON.stringify(dispositivo, null, 2));
