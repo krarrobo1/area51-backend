@@ -1,5 +1,3 @@
-
-
 /*
  * Client
  */
@@ -7,23 +5,28 @@
 
 //var socket = io('http://192.168.137.171:4000',{reconnection: true, reconnectionDelay: 1000, reconnectionDelayMax: 5000, reconnectionAttemps: 5});
 
-var socket = io('http://192.168.137.171:4000', {reconnection: true, timeout: 30000})
+//var socket = io('http://localhost:4000', { reconnection: true, timeout: 1000 })
+
+var socket = io('http://localhost:4000', { forceNew: false })
 
 
 
 
 // Notifica cuando se ha conectado al servidor, para estar pendiente de cambios
-socket.on('connect', function() {
-    console.log('Conectado al servidor');
-});
+// socket.on('connect', function() {
+//     console.log('Conectado con el servidor');
+//     socket.emit('entrar', { userid: 1, dispositivoid: 1 });
+// });
+
 
 // Escuchar eventos
 socket.on('disconnect', function() {
-    alert('Perdimos coneccion con el servidor');
+    console.log('Desconectado');
 });
 
-socket.on('reconnect',function(){
+socket.on('reconnect', function() {
     alert('Reconectado con el server..');
+
 })
 
 socket.on('recieveMessage', function(msj) {
@@ -49,16 +52,18 @@ let msj = document.getElementById('msj');
 
 miboton.addEventListener('click', () => {
 
-    let name = document.getElementById('name');
-    let message = document.getElementById('message');
-    socket.emit('sendRange', { id: 7, radio: 60, latitud: -3.986957, longitud: -79.201525 });
-    console.log('mensaje enviado...');
+    let userid = document.getElementById('userid').value;
+    let dispositivo = document.getElementById('dispositivo').value;
+
+
+
+    socket.emit('send', { userid, dispositivo })
 });
 
 ping.addEventListener('click', () => {
-    socket.emit('ping');
+    socket.disconnect();
 });
 
 msj.addEventListener('click', () => {
-    socket.emit('sendMessage', 'Hola');
+    socket.connect();
 });
