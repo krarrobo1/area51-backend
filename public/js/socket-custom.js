@@ -9,7 +9,7 @@
 var r1 = Math.floor(Math.random() * 100);
 var r2 = Math.floor(Math.random() * 100);
 
-var socket = io('http://localhost:4000');
+var socket = io('http://192.168.43.175:4000');
 
 
 socket.on('connect', function() {
