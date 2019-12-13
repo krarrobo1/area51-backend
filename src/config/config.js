@@ -24,3 +24,14 @@ export const transporterConfig = {
         pass: process.env.MPASS || 'df0b48e0c208a2'
     }
 };
+
+// export const transporterConfig = {
+//     host: "smtp.gmail.com",
+//     port: 465,
+//     secure: true,
+//     auth: {
+//         type: 'OAuth2',
+//         clientId: '750918137410-4c1u8cmq1pcg74uf7s6icuj94ibl5nd0.apps.googleusercontent.com',
+//         clientSecret: 'YUX3HsWYW0NFp3pyhCDA07Yo'
+//     }
+// }

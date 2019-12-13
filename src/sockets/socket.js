@@ -1,87 +1,40 @@
+/*-----------------------------------
+            SOCKET SERVER
+-------------------------------------*/
 import io from '../index';
-import Dispositivo from '../models/Dispositivo';
-import Empleado from '../models/Empleado';
-import Empresa from '../models/Empresa';
-import Asistencia from '../models/Asistencia';
+import redis from '../services/redis-client';
 
 
+redis.on('connect', () => {
+    console.log('Redis up');
+})
 
 
-io.on('connection', (socket) => {
+io.on('connection', async(client) => {
+    let key = client.id;
+    console.log('Usuario conectado: ', key);
 
-    console.log('Usuario conectado', socket.id);
 
-    socket.on('disconnect', () => {
-        console.log('Usuario desconectado', socket.id);
-    });
+    client.on('data', async(data) => {
 
-    // socket.on('disconnecting', (reason) => {
-
-    // });
-
-    socket.on('send', (data) => {
-        let obj = data;
-        obj.id = socket.id;
-
-        setTimeout
-    });
-
-    socket.on('reconnect', () => {
-        console.log('Usuario reconectado: ', socket.id);
-    });
-
-    socket.on('sendMessage', (data) => {
-        console.log(socket.id, 'Dice ', data);
-    });
-
-    socket.on('locationData', (data, cb) => {
-        // let { userid, deviceid, rango, latitud, longitud } = data;
         console.log(data);
+        let exists = await redis.exists(key);
+        console.log(exists);
 
-
+        await redis.setnx(client.id, JSON.stringify(data));
     });
 
+    client.on('disconnect', async() => {
+        console.log('Usuario desconectado', client.id);
+        let key = client.id;
+
+        setTimeout(() => {
+            redis.get(key, (err, reply) => {
+                if (err) console.log(err);
+                console.log(reply);
+            });
+            console.log('Salida registrada');
+            redis.del(key);
+        }, 10000)
+    });
 });
-
-
-
-
-// export async function validateRange(id, rango, latitud, longitud) {
-//     try {
-//         /*let dispositivo = await Dispositivo.findOne({
-//             where: {
-//                 id: id
-//             },
-//             attributes: ['id', 'nombre'],
-//             include: [{ model: Empleado, attributes: ['id'], include: { model: Empresa, attributes: ['radio'] } }]
-//         });*/
-//         let empleado = await Empleado.findOne({
-//             where: {
-//                 id
-//             },
-//             include: [{ model: Empresa, attributes: ['radio'] }]
-//         });
-
-
-//         let radioPermitido = empleado.empresa.radio;
-//         console.log('Permitido', radioPermitido);
-//         console.log('Actual', rango);
-
-
-//         if (rango > radioPermitido) {
-//             console.log('Out of Range');
-//             const nuevaAsistencia = await Asistencia.create({
-//                 dispositivoid: id,
-//                 hora: new Date,
-//                 latitud,
-//                 longitud,
-//                 eventoid: 2
-//             }, {
-//                 fields: ['dispositivoid', 'hora', 'latitud', 'longitud', 'eventoid']
-//             });
-//             console.log(JSON.stringify(nuevaAsistencia, null, 2));
-//         }
-//     } catch (err) {
-//         console.log(err);
-//     }
-// }

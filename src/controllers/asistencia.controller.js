@@ -11,7 +11,6 @@ import Dia from '../models/Dia'
 
 import stream from 'stream';
 
-import { crearExcel } from '../services/reportes';
 import { createReport } from '../services/excelgenerator';
 import * as dt from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -327,78 +326,6 @@ export async function descargarReporteAsistencias(req, res, next) {
 // }
 
 
-/*export async function descargarReporteAsistencias(req, res, next) {
-    const { id } = req.params;
-
-    const query = `SELECT CONCAT (emp.nombres,' ',emp.apellidos) nombres , emp.ci,  CONCAT(asis.latitud,',', asis.longitud) ubicacion, asis.hora timest,disp.nombre dispositivo, evt.nombre evento 
-    FROM asistencias asis
-    INNER JOIN dispositivos disp ON asis.dispositivoid = disp.id
-    INNER JOIN empleados emp ON disp.empleadoid = emp.id
-    INNER JOIN eventos evt ON asis.eventoid = evt.id
-    WHERE emp.id = ${id}
-    ORDER BY timest;`
-
-    try {
-        let registros = await sequelize.query(query, { type: QueryTypes.SELECT });
-        let bf = await crearExcel(registros);
-        if (!bf) return res.status(500).json({ ok: false, err: { message: `(Sin registros) No se pudo completar la accion...` } });
-        let { nombres } = registros[0];
-        // Bufer del Excel
-        let fileContents = Buffer.from(bf, "base64");
-
-        // Se crea un flujo de lectura
-        let readStream = new stream.PassThrough();
-
-        // Se termina de escribir el archivoen el flujo de lectura
-        readStream.end(fileContents);
-
-
-        let title = new Date().getMilliseconds() * 369;
-        res.set('Content-disposition', `attatchment; filename = registro-${nombres}.xlsx`);
-        res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-
-        // Se crea un pipe hacia la respuesta
-        readStream.pipe(res);
-
-        readStream.on('error', () => {
-            return res.status(500).json({
-                ok: false,
-                message: 'Algo salio mal...'
-            });
-        });
-
-        readStream.on('finish', () => {
-            console.log('TODO OK!');
-            return
-        });
-
-    } catch (err) {
-        next(err);
-    }
-}*/
-
-
-/*function comprobarPeriodoLaboral(periodoLaboral) {
-    return periodoLaboral.some((periodo) => {
-        let { horainicio, horafin, dia } = periodo;
-
-        let now = dt.format(Date.now(), 'EEEE HH:mm:ss', { locale: es }).split(' ');
-        let diaCapitalized = now[0].charAt(0).toUpperCase() + now[0].slice(1);
-        let horaActual = now[1];
-        if (dia.nombre === diaCapitalized) {
-            // 10 minutos antes de su hora inicial..
-            let tiempoGracia = dt.subMinutes(new Date(`01/01/2020 ${horainicio}`), 10).toTimeString().split(' ')[0];
-            if (Date.parse(`01/01/2020 ${tiempoGracia}`) < Date.parse(`01/01/2020 ${horaActual}`) && Date.parse(`01/01/2020 ${horafin}`) > Date.parse(`01/01/2020 ${horaActual}`)) {
-                console.log('En horario..');
-                return true;
-            } else {
-                return false;
-            };
-        } else {
-            return false
-        }
-    });
-}*/
 
 function comprobarPeriodoLaboral(periodoLaboral) {
     let enhorario = false;
