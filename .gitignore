@@ -1,1 +1,3 @@
 node_modules
+src/sockets/*
+src/services/redis-client
