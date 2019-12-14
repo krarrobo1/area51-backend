@@ -3,6 +3,7 @@
 -------------------------------------*/
 import io from '../index';
 import redis from '../services/redis-client';
+import Asistencia from '../models/Asistencia';
 
 
 redis.on('connect', () => {
@@ -17,10 +18,12 @@ io.on('connection', async (client) => {
 
     client.on('data', async (data) => {
         await redis.setnx(client.id, JSON.stringify(data));
-        console.log('Client: ', data);
-        let { enRango } = data;
+        console.log('Client: ', client.id,data);
+        let { enRango } = JSON.parse(data);
+        console.log(enRango);
         if (enRango === false) {
             registrarSalida(data);
+            client.disconnect(true);
         }
         // let exists = await redis.exists(key);
         // console.log(exists);
@@ -32,7 +35,9 @@ io.on('connection', async (client) => {
         client.disconnect(true);
     });
 
-    client.on('reconnect')
+    client.on('reconnect',async(data) =>{
+        console.log('Reconectado');
+    });
 
     client.on('disconnect', async (reason) => {
         console.log('Usuario desconectado', client.id);
@@ -40,11 +45,7 @@ io.on('connection', async (client) => {
         console.log(`El usuario ${key} se desconecto por ${reason}`);
 
         if(reason === 'server namespace disconnect'){
-            redis.get(key, (err, data) =>{
-                if (err) console.log(err);
-                registrarSalida(data);
-            });
-
+            redis.del(key);
         }else{
             console.log('Esperalo')
             setTimeout(() => {
@@ -60,6 +61,19 @@ io.on('connection', async (client) => {
 });
 
 async function registrarSalida(data) {
-    let { latitud, longitud, usuarioid, dispositivoid } = data;
-    console.log('Salida: ',data);
+    if(data){
+        /*let { latitud, longitud, empleadoid, dispositivoid } = data;
+        let salida = await Asistencia.create({
+            dispositivoid,
+            empleadoid,
+            hora: new Date,
+            latitud,
+            longitud,
+            eventoid: 2
+        }, {
+            fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
+        });
+        console.log(`Salida ${salida}`);*/
+        console.log('SALIDA', data)
+    }
 }
