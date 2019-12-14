@@ -2,7 +2,7 @@
             SOCKET SERVER
 -------------------------------------*/
 import io from '../index';
-import redis from '../services/redis-client';
+//import redis from '../services/redis-client';
 import Asistencia from '../models/Asistencia';
 
 
