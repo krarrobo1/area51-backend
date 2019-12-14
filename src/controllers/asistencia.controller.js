@@ -415,9 +415,7 @@ function getHoraSalida(periodoLaboral){
             let hFin = `${mockDate} ${periodo.horafin}`;
             let hActual = `${mockDate} ${horaActual}`;
 
-            if (hInicio !== '00:00:00') {
-                hInicio = `${mockDate} ${tiempoGracia}`;
-            }
+         
 
             console.log('hora actual', hActual);
             console.log('hora inicio: ', hInicio);
