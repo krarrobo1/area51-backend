@@ -6,10 +6,12 @@ import Empresa from '../models/Empresa';
 
 import Cargo from '../models/Cargo';
 import Periodo from '../models/Periodo';
-import Dia from '../models/Dia'
+import Dia from '../models/Dia';
+import Temp from '../models/Temp';
 
 
 import stream from 'stream';
+import redis from '../services/redis-client';
 
 import { createReport } from '../services/excelgenerator';
 import * as dt from 'date-fns';
@@ -73,6 +75,12 @@ export async function registrarAsistencia(req, res, next) {
         }
 
 
+        /*
+        let temp = await Temp.create({
+            horafin
+        });*/
+
+
 
         const nuevaAsistencia = await Asistencia.create({
             dispositivoid,
@@ -124,6 +132,23 @@ export async function registrarAsistenciaWeb(req, res, next) {
                 event = 2;
             }
         }
+
+        let horafin = getHoraSalida(periodoLaboral);
+
+        let temp = Temp.create({
+            horafin: horafin,
+            latitud: empleado.empresa.latitud,
+            longitud: empleado.empresa.longitud,
+            dispositivoid,
+            empleadoid: empleado.id
+        },{
+            fields: ['dispositivoid', 'empleadoid', 'horafin', 'latitud', 'longitud']
+        });
+
+        console.log(temp);
+
+
+        
 
         const nuevaAsistencia = await Asistencia.create({
             dispositivoid,
@@ -367,4 +392,42 @@ function comprobarPeriodoLaboral(periodoLaboral) {
     }
     console.log(enhorario);
     return enhorario;
+}
+
+function getHoraSalida(periodoLaboral){
+    let horafin = '';
+
+    let mockDate = '01/01/2019';
+
+    let now = dt.format(Date.now(), 'EEEE HH:mm:ss', { locale: es }).split(' ');
+    let diaActual = now[0].charAt(0).toUpperCase() + now[0].slice(1);
+    console.log(diaActual);
+    let horaActual = now[1];
+
+    let count = 0;
+
+
+    for (let i = 0; i < periodoLaboral.length; i++) {
+        const periodo = periodoLaboral[i];
+        if (periodo.dia.nombre === diaActual) {
+            console.log('Dia', periodo.dia);
+            let hInicio = `${mockDate} ${periodo.horainicio}`;
+            let hFin = `${mockDate} ${periodo.horafin}`;
+            let hActual = `${mockDate} ${horaActual}`;
+
+            if (hInicio !== '00:00:00') {
+                hInicio = `${mockDate} ${tiempoGracia}`;
+            }
+
+            console.log('hora actual', hActual);
+            console.log('hora inicio: ', hInicio);
+            console.log('hora fin: ', hFin);
+            if (hInicio < hActual && hFin > hActual) {
+                horafin = periodo.horafin;
+                break;
+            }
+        }
+    }
+    console.log(horafin);
+    return horafin
 }

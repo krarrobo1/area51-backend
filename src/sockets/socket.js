@@ -6,6 +6,7 @@ import redis from '../services/redis-client';
 import Asistencia from '../models/Asistencia';
 
 
+
 redis.on('connect', () => {
     console.log('Redis up');
 })
@@ -17,18 +18,26 @@ io.on('connection', async (client) => {
 
 
     client.on('data', async (data) => {
+        // Si ya existe no lo guardes denuevo...
         await redis.setnx(client.id, JSON.stringify(data));
+        //El cliente se ha conectado
         console.log('Client: ', client.id,data);
-        let { enRango } = JSON.parse(data);
-        console.log(enRango);
+
+        let { enRango, empleadoid} = JSON.parse(data);
+
+        console.log(empleadoid);
+        // Guardamos el id del usuario;
+        await redis.setnx(`${empleadoid}`, `${client.id}`);
+    
+        // Si sale del rango de la empresa
         if (enRango === false) {
+            console.log('Ha salido del rango');
+            // Se registra su salida
             registrarSalida(data);
+
+            // Desconectar al cliente...
             client.disconnect(true);
         }
-        // let exists = await redis.exists(key);
-        // console.log(exists);
-
-
     });
 
     client.on('salida', async (data) => {
@@ -41,22 +50,78 @@ io.on('connection', async (client) => {
 
     client.on('disconnect', async (reason) => {
         console.log('Usuario desconectado', client.id);
+        
+        // Id del socket
         let key = client.id;
-        console.log(`El usuario ${key} se desconecto por ${reason}`);
 
+        // Data del socket
+        
+       
+       
+        
+        
+        console.log(`El usuario ${key} se desconecto por ${reason}`);
+       
+
+
+        redis.get(key, (err, data) =>{
+            if(err) console.log(err);
+            // Data parseada
+
+          
+            let str= JSON.parse(data);
+
+            let userData = JSON.parse(str);
+            
+            if(userData){
+                console.log(userData);
+                redis.del(`${userData.empleadoid}`);
+            }
+            
+
+        });
+
+    
+        
+        
+        
+
+        // Si el usuario se desconecto voluntariamente elimina su key del redis
         if(reason === 'server namespace disconnect'){
+            console.log('Desconeccion voluntaria: ', key);
             redis.del(key);
         }else{
-            console.log('Esperalo')
-            setTimeout(() => {
-                redis.get(key, (err, data) => {
-                    if (err) console.log(err);
-                    registrarSalida(data);
-                });
-                redis.del(key);
-            }, 60000);
-        }
+            console.log('Esperar a que se reconecte', key);
+            setTimeout(async() => {
+                try{
+                   
+                    redis.get(key, async(err, data) =>{
+                        if(err) throw err;
+                        
+                        // Data parseada
+                        let str= JSON.parse(data);
+                        let userData = JSON.parse(str);
 
+                        if(userData){
+                            redis.get(`${userData.empleadoid}`, (err, data)=>{
+                                if(err) console.log(err);
+                                if(data === null){
+                                   registrarSalida(userData);
+                                }else{
+                                    console.log('se volvio a conectar');
+                                }
+                            });
+                        }
+
+                        redis.del(key);
+                    });
+                    
+                }catch(err){
+                    console.log(err);
+                }
+            }, 60000);
+            console.log('despues: ');
+        }
     });
 });
 
