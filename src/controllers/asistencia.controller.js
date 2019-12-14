@@ -135,20 +135,30 @@ export async function registrarAsistenciaWeb(req, res, next) {
 
         let horafin = getHoraSalida(periodoLaboral);
 
-        let temp = Temp.create({
-            horafin: horafin,
-            latitud: empleado.empresa.latitud,
-            longitud: empleado.empresa.longitud,
-            dispositivoid,
-            empleadoid: empleado.id
-        },{
-            fields: ['dispositivoid', 'empleadoid', 'horafin', 'latitud', 'longitud']
-        });
+        if (event === 1) {
+            let temp = Temp.create({
+                horafin: horafin,
+                latitud: empleado.empresa.latitud,
+                longitud: empleado.empresa.longitud,
+                dispositivoid,
+                empleadoid: empleado.id
+            }, {
+                fields: ['dispositivoid', 'empleadoid', 'horafin', 'latitud', 'longitud']
+            });
 
-        console.log(temp);
+            console.log(temp);
+        } else {
+            await Temp.destroy({
+                where: {
+                    empleadoid: empleado.id
+                }
+            });
+            console.log('deleted');
+        }
 
 
-        
+
+
 
         const nuevaAsistencia = await Asistencia.create({
             dispositivoid,
@@ -394,7 +404,7 @@ function comprobarPeriodoLaboral(periodoLaboral) {
     return enhorario;
 }
 
-function getHoraSalida(periodoLaboral){
+function getHoraSalida(periodoLaboral) {
     let horafin = '';
 
     let mockDate = '01/01/2019';
@@ -415,7 +425,7 @@ function getHoraSalida(periodoLaboral){
             let hFin = `${mockDate} ${periodo.horafin}`;
             let hActual = `${mockDate} ${horaActual}`;
 
-         
+
 
             console.log('hora actual', hActual);
             console.log('hora inicio: ', hInicio);
