@@ -19,7 +19,12 @@ io.on('connection', async (client) => {
     console.log('Usuario conectado: ', key);
 
     client.on('data', async (data) => {
+        console.log({
+            data, typ: (typeof data)
+        });
+        
         let { enRango, empleadoid } = data;
+
         await redis.setnx(key, JSON.stringify(data));
 
         //El cliente se ha conectado
