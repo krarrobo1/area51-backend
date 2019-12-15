@@ -194,12 +194,9 @@ export async function registrarAsistenciaWeb(req, res, next) {
         //  TODO: Nombre del Empleado
         // nombre del evento
 
-        let evento = { nombre: '' };
-        if (event === 1) {
-            evento.nombre = 'Entrada';
-        } else if (event === 2) {
-            evento.nombre = 'Salida';
-        }
+        let evento = (event === 1) ?
+            'Entrada' : 'Salida';
+
         delete nuevaAsistencia.dataValues.eventoid;
         nuevaAsistencia.dataValues.evento = evento;
 

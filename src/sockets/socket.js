@@ -12,78 +12,49 @@ redis.on('connect', () => {
 })
 
 
-io.on('connection', async(client) => {
-    let key = client.id;
+io.on('connection', async (client) => {
+
+    const key = client.id;
+
     console.log('Usuario conectado: ', key);
 
+    client.on('data', async (data) => {
+        let { enRango, empleadoid } = data;
+        await redis.setnx(key, JSON.stringify(data));
 
-    client.on('data', async(data) => {
-        // Si ya existe no lo guardes denuevo...
-        await redis.setnx(client.id, JSON.stringify(data));
         //El cliente se ha conectado
-        console.log('Client: ', client.id, data);
+        console.log(`El Cliente con id: ${empleadoid} envio una trama`, key, data);
 
-        let { enRango, empleadoid } = JSON.parse(data);
-
-        console.log(empleadoid);
         // Guardamos el id del usuario;
-        await redis.setnx(`${empleadoid}`, `${client.id}`);
+        await redis.setnx(`${empleadoid}`, `${key}`);
 
-        // Si sale del rango de la empresa
+        // Si sale del rango de la empresa desconectarlo 
         if (enRango === false) {
-            console.log('Ha salido del rango');
-            // Se registra su salida
-            registrarSalida(data);
-
-            // Desconectar al cliente...
+            console.log('En rango?', enRango);
             client.disconnect(true);
+            registrarSalida(data);
         }
     });
 
-    client.on('salida', async(data) => {
+
+    client.on('salida', () => {
         client.disconnect(true);
     });
 
-    client.on('reconnect', async(data) => {
-        //console.log('Reconectado');
-    });
-
-    client.on('disconnect', async(reason) => {
-        console.log('Usuario desconectado', client.id);
-
-        // Id del socket
-        let key = client.id;
-
-        // Data del socket
 
 
-
-
-
+    client.on('disconnect', async (reason) => {
+        
         console.log(`El usuario ${key} se desconecto por ${reason}`);
 
-
-
+        // Elimina su empleadoid de redis
         redis.get(key, (err, data) => {
-            if (err) console.log(err);
-            // Data parseada
-
-
-            let str = JSON.parse(data);
-
-            let userData = JSON.parse(str);
-
+            if (err) console.log('Redis ERROR:', err);
+            let userData = JSON.parse(data);
             if (userData) {
-                console.log(userData);
                 redis.del(`${userData.empleadoid}`);
             }
-
-
         });
-
-
-
-
 
 
         // Si el usuario se desconecto voluntariamente elimina su key del redis
@@ -91,53 +62,45 @@ io.on('connection', async(client) => {
             console.log('Desconeccion voluntaria: ', key);
             redis.del(key);
         } else {
-            console.log('Esperar a que se reconecte', key);
-            setTimeout(async() => {
-                try {
-
-                    redis.get(key, async(err, data) => {
-                        if (err) throw err;
-
-                        // Data parseada
-                        let str = JSON.parse(data);
-                        let userData = JSON.parse(str);
-
+            console.log('Espera 1 min a que se reconecte', key);
+            setTimeout(() => {
+                    redis.get(key,(err, data) => {
+                        if (err) console.log('Redis Error:',err);
+                        let userData = JSON.parse(data);
                         if (userData) {
                             redis.get(`${userData.empleadoid}`, (err, data) => {
-                                if (err) console.log(err);
-                                if (data === null) {
-                                    registrarSalida(userData);
-                                } else {
-                                    console.log('se volvio a conectar');
-                                }
+                                if (err) console.log('Redis Error:',err);
+                                if(!data) registrarSalida(userData);
                             });
                         }
-
-                        redis.del(key);
                     });
-
-                } catch (err) {
-                    console.log(err);
-                }
+                    redis.del(key);
             }, 60000);
-            //console.log('despues: ');
         }
     });
 });
 
 async function registrarSalida(data) {
     if (data) {
+        console.log('Registrando salida de :', data);
+
         let { latitud, longitud, empleadoid, dispositivoid } = data;
-        let salida = await Asistencia.create({
-            dispositivoid,
-            empleadoid,
-            hora: new Date,
-            latitud,
-            longitud,
-            eventoid: 2
-        }, {
-            fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
-        });
-        console.log(`Salida ${salida}`);
+
+        try {
+            let salida = await Asistencia.create({
+                dispositivoid,
+                empleadoid,
+                hora: new Date,
+                latitud,
+                longitud,
+                eventoid: 2
+            }, {
+                fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
+            });
+            console.log(`Salida registrada: data = ${salida}`);
+        } catch (err) {
+            console.log('Err: ', err.message);
+        }
+
     }
 }
