@@ -19,9 +19,6 @@ io.on('connection', async (client) => {
     console.log('Usuario conectado: ', key);
 
     client.on('data', async (data) => {
-        console.log({
-            data, typ: (typeof data)
-        });
         
         let objTemp = JSON.parse(data);
         let { enRango, empleadoid } = objTemp;
@@ -43,9 +40,9 @@ io.on('connection', async (client) => {
     });
 
 
-    client.on('salida', () => {
+    /*client.on('salida', () => {
         client.disconnect(true);
-    });
+    });*/
 
 
 
@@ -64,10 +61,14 @@ io.on('connection', async (client) => {
 
 
         // Si el usuario se desconecto voluntariamente elimina su key del redis
-        if (reason === 'server namespace disconnect') {
+        if (reason === 'client namespace disconnect') {
             console.log('Desconeccion voluntaria: ', key);
             redis.del(key);
-        } else {
+        } else if ('server namespace disconnect'){
+            console.log('El server desconecto al cliente', key);
+            redis.del(key);
+        }
+        else {
             console.log('Espera 1 min a que se reconecte', key);
             setTimeout(() => {
                     redis.get(key,(err, data) => {
