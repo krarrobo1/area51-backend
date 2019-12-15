@@ -23,9 +23,10 @@ io.on('connection', async (client) => {
             data, typ: (typeof data)
         });
         
-        let { enRango, empleadoid } = data;
+        let objTemp = JSON.parse(data);
+        let { enRango, empleadoid } = objTemp;
 
-        await redis.setnx(key, JSON.stringify(data));
+        await redis.setnx(key, data);
 
         //El cliente se ha conectado
         console.log(`El Cliente con id: ${empleadoid} envio una trama`, key, data);
@@ -37,7 +38,7 @@ io.on('connection', async (client) => {
         if (enRango === false) {
             console.log('En rango?', enRango);
             client.disconnect(true);
-            registrarSalida(data);
+            registrarSalida(objTemp);
         }
     });
 
@@ -75,7 +76,8 @@ io.on('connection', async (client) => {
                         if (userData) {
                             redis.get(`${userData.empleadoid}`, (err, data) => {
                                 if (err) console.log('Redis Error:',err);
-                                if(!data) registrarSalida(userData);
+                                if(!data) registrarSalida(userData)
+                                else console.log(`El usuario se reconecto id: ${userData.empleadoid}`);
                             });
                         }
                     });
