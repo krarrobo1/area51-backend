@@ -74,11 +74,29 @@ export async function registrarAsistencia(req, res, next) {
             }
         }
 
+        // Guardar en Temporales
 
-        /*
-        let temp = await Temp.create({
-            horafin
-        });*/
+        if (event === 1) {
+            let temp = Temp.create({
+                horafin: horafin,
+                latitud: empleado.empresa.latitud,
+                longitud: empleado.empresa.longitud,
+                dispositivoid,
+                empleadoid: empleado.id
+            }, {
+                fields: ['dispositivoid', 'empleadoid', 'horafin', 'latitud', 'longitud']
+            });
+
+            console.log(temp);
+        } else {
+            await Temp.destroy({
+                where: {
+                    empleadoid: empleado.id
+                }
+            });
+            console.log('deleted');
+        }
+
 
 
 
@@ -133,6 +151,7 @@ export async function registrarAsistenciaWeb(req, res, next) {
             }
         }
 
+        // Guardar en Temporales
         let horafin = getHoraSalida(periodoLaboral);
 
         if (event === 1) {
