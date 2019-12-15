@@ -80,10 +80,10 @@ export async function registrarAsistencia(req, res, next) {
         if (event === 1) {
             let temp = Temp.create({
                 horafin: horafin,
-                latitud: empleado.empresa.latitud,
-                longitud: empleado.empresa.longitud,
+                latitud,
+                longitud,
                 dispositivoid,
-                empleadoid: empleado.id
+                empleadoid: id
             }, {
                 fields: ['dispositivoid', 'empleadoid', 'horafin', 'latitud', 'longitud']
             });
