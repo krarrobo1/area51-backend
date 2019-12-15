@@ -10,6 +10,11 @@ estado BOOLEAN DEFAULT true NOT NULL,
 direccion VARCHAR DEFAULT ''
 );
 
+INSERT INTO EMPRESAS(nombre, latitud, longitud, radio, direccion) 
+VALUES ('Registrate', 4.0123776,-79.2023579, 999, 'Cipres y acacias' );
+
+
+
 
 
 CREATE TABLE IF NOT EXISTS cargos(
@@ -17,6 +22,8 @@ CREATE TABLE IF NOT EXISTS cargos(
     empresaid integer references empresas(id) ON DELETE CASCADE,
     nombre VARCHAR(50) NOT NULL
 );
+
+INSERT INTO CARGOS(empresaid, nombre) VALUES (1, 'CEO');
 
 
 
