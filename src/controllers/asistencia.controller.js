@@ -75,6 +75,7 @@ export async function registrarAsistencia(req, res, next) {
         }
 
         // Guardar en Temporales
+        let horafin = getHoraSalida(periodoLaboral);
 
         if (event === 1) {
             let temp = Temp.create({
