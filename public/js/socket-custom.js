@@ -9,7 +9,7 @@
 var r1 = Math.floor(Math.random() * 100);
 var r2 = Math.floor(Math.random() * 100);
 
-var socket = io('https://registrateapp.com.ec');
+var socket = io('https://registrateapp.com.ec:7000');
 
 
 socket.on('connect', function() {
