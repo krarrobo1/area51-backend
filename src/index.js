@@ -11,13 +11,15 @@ import socketIO from 'socket.io';
 
 
 
-let server = http.createServer(app);
+let server = http.Server(app);
+
 
 cron.schedule('*/15 * * * *', marcarSalidas).start();
 
 let io = socketIO(server, { pingTimeout: 60000 });
 
-io(7000);
+
+
 
 
 // Redis config
