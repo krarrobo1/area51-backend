@@ -8,6 +8,10 @@ export const seed = process.env.SEED = process.env.SEED || '19wrqk12n3f876653dey
 export const google_key = process.env.GOOGLE_KEY;
 
 export const dbconfig = {
+    dialect: 'postgres',
+    dialectOptions: {
+        ssl: true
+    },
     pool: {
         max: 5,
         min: 0,
@@ -24,4 +28,3 @@ export const transporterConfig = {
         pass: process.env.MPASS || 'df0b48e0c208a2'
     }
 };
-
