@@ -14,24 +14,24 @@ redis.on('connect', () => {
 
 io.on('connection', async(client) => {
     let key = client.id;
-    //console.log('Usuario conectado: ', key);
+    console.log('Usuario conectado: ', key);
 
 
     client.on('data', async(data) => {
         // Si ya existe no lo guardes denuevo...
         await redis.setnx(client.id, JSON.stringify(data));
         //El cliente se ha conectado
-        //console.log('Client: ', client.id, data);
+        console.log('Client: ', client.id, data);
 
         let { enRango, empleadoid } = JSON.parse(data);
 
-        //console.log(empleadoid);
+        console.log(empleadoid);
         // Guardamos el id del usuario;
         await redis.setnx(`${empleadoid}`, `${client.id}`);
 
         // Si sale del rango de la empresa
         if (enRango === false) {
-            //console.log('Ha salido del rango');
+            console.log('Ha salido del rango');
             // Se registra su salida
             registrarSalida(data);
 
@@ -49,7 +49,7 @@ io.on('connection', async(client) => {
     });
 
     client.on('disconnect', async(reason) => {
-        //console.log('Usuario desconectado', client.id);
+        console.log('Usuario desconectado', client.id);
 
         // Id del socket
         let key = client.id;
@@ -60,7 +60,7 @@ io.on('connection', async(client) => {
 
 
 
-        //console.log(`El usuario ${key} se desconecto por ${reason}`);
+        console.log(`El usuario ${key} se desconecto por ${reason}`);
 
 
 
@@ -88,10 +88,10 @@ io.on('connection', async(client) => {
 
         // Si el usuario se desconecto voluntariamente elimina su key del redis
         if (reason === 'server namespace disconnect') {
-            //console.log('Desconeccion voluntaria: ', key);
+            console.log('Desconeccion voluntaria: ', key);
             redis.del(key);
         } else {
-            //console.log('Esperar a que se reconecte', key);
+            console.log('Esperar a que se reconecte', key);
             setTimeout(async() => {
                 try {
 
@@ -107,10 +107,9 @@ io.on('connection', async(client) => {
                                 if (err) console.log(err);
                                 if (data === null) {
                                     registrarSalida(userData);
+                                } else {
+                                    console.log('se volvio a conectar');
                                 }
-                                /*else {
-                                                                   console.log('se volvio a conectar');
-                                                               }*/
                             });
                         }
 
