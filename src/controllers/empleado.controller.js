@@ -50,9 +50,10 @@ export async function crearEmpleado(req, res, next) {
                 nombre: 'Web',
                 modelo: 'Navegador',
                 imei: 'n/a',
-                isweb: true
+                isweb: true,
+                estado: true
             }, {
-                fields: ['empleadoid', 'nombre', 'modelo', 'imei', 'isweb']
+                fields: ['empleadoid', 'nombre', 'modelo', 'imei', 'isweb', 'estado']
             });
 
             console.log(JSON.stringify(nuevoDispositivo, null, 2));

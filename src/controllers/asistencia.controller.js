@@ -24,94 +24,69 @@ import { QueryTypes } from 'sequelize';
 
 
 export async function registrarAsistencia(req, res, next) {
-    const { id } = req.data;
-    const { dispositivoid, latitud, longitud } = req.body;
+    const { id: empleadoid } = req.data;
     try {
-        const dispositivos = await Dispositivo.findAll({
-            raw: true,
+        const { dispositivoid, latitud, longitud } = req.body;
+        // Busca su equipo
+        const equipo = await Dispositivo.findOne({
             where: {
-                empleadoid: id
+                id: dispositivoid,
+                empleadoid
             }
         });
-        if (dispositivos.length == 0) return res.status(404).json({ ok: false, message: 'EmpleadoSinDispositivos' });
-        let selected = dispositivos.filter((dispositivo) => {
-            if (dispositivo.id === dispositivoid) {
-                return dispositivo;
-            }
-        });
-        if (selected.length === 0) return res.status(404).json({ ok: false, message: 'EquipoNoEncontrado' });
-        if (!selected[0].estado) return res.status(401).json({ ok: false, message: `EquipoInactivo` });
-        //dispositivos.some((value) => value.id === dispositivoid);
-        //if (!flag) return res.status(404).json({ ok: false, message: 'EquipoNoEncontrado' });
 
-        // Si el dispositivo.estado == false no puede registrarlo 
+        // Comprueba su equipo
+        if (!equipo) return res.status(404).json({ ok: false, message: 'EquipoNoEncontrado' });
+        let { estado } = equipo;
 
+        // Comprueba el estado del equipo
+        if (!estado) return res.status(401).json({ ok: false, message: `EquipoInactivo` });
         const empleado = await Empleado.findOne({
             attributes: ['id'],
-            where: { id },
+            where: { id: empleadoid },
             include: [{ model: Cargo, attributes: ['nombre'], include: [{ model: Periodo, attributes: ['horainicio', 'horafin'], include: [{ model: Dia, attributes: ['nombre'] }] }] }]
         });
 
-        // Si no tiene asignado un horario throw Error...
-
         let periodoLaboral = empleado.cargo.periodos;
-        // Si esta dentro del periodo puede registrarse...
-        if (!comprobarPeriodoLaboral(periodoLaboral)) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
 
-        let lastValue = await sequelize.query(`SELECT eventoid FROM ASISTENCIAS 
-        WHERE EMPLEADOID = ${empleado.id}
+        // Comprueba que tenga un periodo Laboral
+        if (periodoLaboral.length === 0) return res.status(404).json({ ok: false, err: { message: 'SinPeriodosLaborales' } });
+
+        // Comprueba que este dentro de su periodo laboral
+        let periodoActual = comprobarPeriodoLaboral(periodoLaboral);
+
+        let { enhorario, horafin } = periodoActual;
+
+        if (!enhorario) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
+
+
+        // Busca el evento de su ultima asistencia
+        let ultimoRegistro = await sequelize.query(`SELECT eventoid FROM ASISTENCIAS 
+        WHERE EMPLEADOID = ${empleadoid}
         order by hora desc 
         limit 1;`, { type: QueryTypes.SELECT });
 
 
+
         let event = 1;
-        console.log('LAST', JSON.stringify(lastValue, null, 2));
-
-        if (lastValue.length > 0) {
-            let evento = lastValue[0].eventoid;
-            if (evento === 1) {
-                event = 2;
-            }
-        }
-
-        // Guardar en Temporales
-        let horafin = getHoraSalida(periodoLaboral);
-
-        if (event === 1) {
-            let temp = Temp.create({
-                horafin: horafin,
-                latitud,
-                longitud,
-                dispositivoid,
-                empleadoid: id
-            }, {
-                fields: ['dispositivoid', 'empleadoid', 'horafin', 'latitud', 'longitud']
-            });
-
-            console.log(temp);
-        } else {
-            await Temp.destroy({
-                where: {
-                    empleadoid: empleado.id
-                }
-            });
-            console.log('deleted');
+        if (ultimoRegistro.length !== 0) {
+            let { eventoid } = ultimoRegistro[0];
+            if (eventoid === 1) event = 2;
         }
 
 
-
-
-        const nuevaAsistencia = await Asistencia.create({
-            dispositivoid,
-            empleadoid: id,
-            hora: new Date,
+        // Guarda una Salida pendiente.
+        await crearSalidaPendiente(event, {
+            horafin,
             latitud,
             longitud,
-            eventoid: event
-        }, {
-            fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
+            dispositivoid,
+            empleadoid
         });
-        return res.json({ ok: true, asistencia: nuevaAsistencia });
+
+        // Crea una asistencia
+        const asistencia = await crearAsistencia({ empleadoid, dispositivoid, latitud, longitud, eventoid: event });
+        return res.json({ ok: true, asistencia });
     } catch (err) {
         next(err);
     }
@@ -119,8 +94,11 @@ export async function registrarAsistencia(req, res, next) {
 
 
 export async function registrarAsistenciaWeb(req, res, next) {
-    const { ci, dispositivoid } = req.body;
     try {
+
+        const { ci, dispositivoid } = req.body;
+
+        // Busca un empleado por su cedula.
         const empleado = await Empleado.findOne({
             attributes: ['id'],
             where: { ci },
@@ -128,78 +106,59 @@ export async function registrarAsistenciaWeb(req, res, next) {
         });
 
         if (!empleado) return res.status(404).json({ ok: false, message: 'EmpleadoNoEncontrado' });
-
-
+        let { latitud, longitud } = empleado.empresa;
         let periodoLaboral = empleado.cargo.periodos;
-        // Si esta dentro del periodo puede registrarse...
-        if (!comprobarPeriodoLaboral(periodoLaboral)) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
+        // Comprueba que tenga un periodo Laboral
+        if (periodoLaboral.length === 0) return res.status(404).json({ ok: false, err: { message: 'SinPeriodosLaborales' } });
+
+        // Comprueba que este dentro del periodo Laboral
+        let periodoActual = comprobarPeriodoLaboral(periodoLaboral);
+        let { enhorario, horafin } = periodoActual;
+        if (!enhorario) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
 
 
-
-        let lastValue = await sequelize.query(`SELECT  * FROM ASISTENCIAS 
+        // Busca el evento de su ultima asistencia
+        let ultimoRegistro = await sequelize.query(`SELECT eventoid FROM ASISTENCIAS 
         WHERE EMPLEADOID = ${empleado.id}
         order by hora desc 
         limit 1;`, { type: QueryTypes.SELECT });
 
 
         let event = 1;
-        console.log('LAST', JSON.stringify(lastValue, null, 2));
-
-        if (lastValue.length > 0) {
-            let evento = lastValue[0].eventoid;
-            if (evento === 1) {
-                event = 2;
-            }
+        if (ultimoRegistro.length !== 0) {
+            let { eventoid } = ultimoRegistro[0];
+            console.log(eventoid);
+            if (eventoid === 1) event = 2;
         }
 
-        // Guardar en Temporales
-        let horafin = getHoraSalida(periodoLaboral);
+        console.log(event);
 
-        if (event === 1) {
-            let temp = Temp.create({
-                horafin: horafin,
-                latitud: empleado.empresa.latitud,
-                longitud: empleado.empresa.longitud,
-                dispositivoid,
-                empleadoid: empleado.id
-            }, {
-                fields: ['dispositivoid', 'empleadoid', 'horafin', 'latitud', 'longitud']
-            });
-
-            console.log(temp);
-        } else {
-            await Temp.destroy({
-                where: {
-                    empleadoid: empleado.id
-                }
-            });
-            console.log('deleted');
-        }
+        // Guarda una Salida pendiente.
+        await crearSalidaPendiente(event, {
+            horafin,
+            latitud,
+            longitud,
+            dispositivoid,
+            empleadoid: empleado.id
+        });
 
 
-
-
-
-        const nuevaAsistencia = await Asistencia.create({
+        // Registra una asistencia
+        const nuevaAsistencia = await crearAsistencia({
             dispositivoid,
             empleadoid: empleado.id,
-            hora: new Date,
             latitud: empleado.empresa.latitud,
             longitud: empleado.empresa.longitud,
             eventoid: event
-        }, {
-            fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
         });
-        //nuevaAsistencia.dataValues.attribute = 'ABC';
-        //  TODO: Nombre del Empleado
-        // nombre del evento
 
+
+        // Devuelve el nombre del evento al Front...
         let evento = (event === 1) ?
             'Entrada' : 'Salida';
 
         delete nuevaAsistencia.dataValues.eventoid;
         nuevaAsistencia.dataValues.evento = evento;
-
 
         return res.json({ ok: true, data: nuevaAsistencia });
     } catch (err) {
@@ -317,142 +276,99 @@ export async function descargarReporteAsistencias(req, res, next) {
 }
 
 
-// export async function descargarReporteAsistencias(req, res, next) {
-//     const { id } = req.params;
-//     try {
-//         let registros = await sequelize.query(`Select CONCAT(emp.nombres,' ', emp.apellidos) nombres, 
-//         emp.ci,
-//         CONCAT(asis.latitud,',',asis.longitud) ubicacion,
-//         EXTRACT(day FROM asis.hora) dia, 
-//         EXTRACT (month FROM asis.hora) mes,
-//         EXTRACT (year FROM asis.hora) anio,
-//         CONCAT(EXTRACT (HOUR from asis.hora),':',EXTRACT(MINUTE from asis.hora),':',EXTRACT(SECOND from asis.hora))hora,
-//         asis.hora timest,
-//         disp.nombre dispositivo, 
-//         evt.nombre evento
-//         FROM asistencias asis
-//         INNER JOIN dispositivos disp ON asis.dispositivoid = disp.id
-//         INNER JOIN empleados emp ON disp.empleadoid = emp.id
-//         INNER JOIN eventos evt ON asis.eventoid = evt.id
-//         WHERE emp.id = ${id}
-//         ORDER BY timest;
-//         `, { type: QueryTypes.SELECT });
-
-
-//         let bf = await crearExcel(registros);
-//         if (!bf) return res.status(500).json({ ok: false, err: { message: `(Sin registros) No se pudo completar la accion...` } });
-//         let { nombres } = registros[0];
-//         // Bufer del Excel
-//         let fileContents = Buffer.from(bf, "base64");
-
-//         // Se crea un flujo de lectura
-//         let readStream = new stream.PassThrough();
-
-//         // Se termina de escribir el archivoen el flujo de lectura
-//         readStream.end(fileContents);
-
-
-//         let title = new Date().getMilliseconds() * 369;
-//         res.set('Content-disposition', `attatchment; filename = registro-${nombres}.xlsx`);
-//         res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-
-//         // Se crea un pipe hacia la respuesta
-//         readStream.pipe(res);
-
-//         readStream.on('error', () => {
-//             return res.status(500).json({
-//                 ok: false,
-//                 message: 'Algo salio mal...'
-//             });
-//         });
-
-//         readStream.on('finish', () => {
-//             console.log('TODO OK!');
-//             return
-//         });
-
-//     } catch (err) {
-//         console.log(err);
-//         return res.status(500).json({ ok: false, err });
-//     }
-// }
-
 
 
 function comprobarPeriodoLaboral(periodoLaboral) {
-    let enhorario = false;
 
+    let response = { enhorario: false, horafin: '' };
     let mockDate = '01/01/2019';
-
     let now = dt.format(Date.now(), 'EEEE HH:mm:ss', { locale: es }).split(' ');
-    let diaActual = now[0].charAt(0).toUpperCase() + now[0].slice(1);
-    console.log(diaActual);
+
+    let nombreDia = now[0].charAt(0).toUpperCase() + now[0].slice(1);
     let horaActual = now[1];
-
-    let count = 0;
-
 
     for (let i = 0; i < periodoLaboral.length; i++) {
         const periodo = periodoLaboral[i];
-        if (periodo.dia.nombre === diaActual) {
-            console.log('Dia', periodo.dia);
+        let { dia } = periodo;
+        if (dia.nombre === nombreDia) {
+            let hActual = `${mockDate} ${horaActual}`;
             let hInicio = `${mockDate} ${periodo.horainicio}`;
             let hFin = `${mockDate} ${periodo.horafin}`;
-
-            let hActual = `${mockDate} ${horaActual}`;
 
             // 10 minutos antes de que comience la jornada
-            let tiempoGracia = dt.subMinutes(new Date(hInicio), 10).toTimeString().split(' ')[0];
-            if (hInicio !== '00:00:00') {
-                hInicio = `${mockDate} ${tiempoGracia}`;
-            }
+            let tgEntrada = dt.subMinutes(new Date(hInicio), 10).toTimeString().split(' ')[0];
 
-            console.log('hora actual', hActual);
-            console.log('hora inicio: ', hInicio);
-            console.log('hora fin: ', hFin);
-            if (hInicio < hActual && hFin > hActual) {
-                console.log('Dentro de horario...');
-                enhorario = true;
+            // 10 minutos despues de que acabe
+            let tgSalida = dt.addMinutes(new Date(hFin), 10).toTimeString().split(' ')[0];
+
+
+            let hgInicio = `${mockDate} ${tgEntrada}`;
+
+            //let hgFin = `${mockDate} ${tgSalida};`
+
+            if (hgInicio < hActual && hFin > hActual) {
+                // Si entra 10 min antes de la hora de Inicio se marca a tiempo
+                response.enhorario = true;
+                response.horafin = hFin;
                 break;
             }
         }
     }
-    console.log(enhorario);
-    return enhorario;
+    // console.log('Estado periodoLaboral: ', {
+    //     dia: nombreDia,
+    //     enHorario: response.enhorario
+    // });
+    return response;
 }
 
-function getHoraSalida(periodoLaboral) {
-    let horafin = '';
-
-    let mockDate = '01/01/2019';
-
-    let now = dt.format(Date.now(), 'EEEE HH:mm:ss', { locale: es }).split(' ');
-    let diaActual = now[0].charAt(0).toUpperCase() + now[0].slice(1);
-    console.log(diaActual);
-    let horaActual = now[1];
-
-    let count = 0;
 
 
-    for (let i = 0; i < periodoLaboral.length; i++) {
-        const periodo = periodoLaboral[i];
-        if (periodo.dia.nombre === diaActual) {
-            console.log('Dia', periodo.dia);
-            let hInicio = `${mockDate} ${periodo.horainicio}`;
-            let hFin = `${mockDate} ${periodo.horafin}`;
-            let hActual = `${mockDate} ${horaActual}`;
+async function crearAsistencia(objTemp) {
+    let { empleadoid, dispositivoid, latitud, longitud, eventoid } = objTemp;
+    const asistencia = await Asistencia.create({
+        dispositivoid,
+        empleadoid,
+        hora: new Date,
+        latitud,
+        longitud,
+        eventoid
+    }, {
+        fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
+    });
 
+    return asistencia;
+}
 
+// Este metodo sirve para almacenar en BD una salida pendiente, 
+// el servidor revisa los registros temporales de esta tabla para buscar salidas pendientes 
+// y cerrarlas en su hora de finalizacion de jornada.
 
-            console.log('hora actual', hActual);
-            console.log('hora inicio: ', hInicio);
-            console.log('hora fin: ', hFin);
-            if (hInicio < hActual && hFin > hActual) {
-                horafin = periodo.horafin;
-                break;
+async function crearSalidaPendiente(event, obj) {
+    let {
+        horafin,
+        latitud,
+        longitud,
+        dispositivoid,
+        empleadoid
+    } = obj;
+
+    if (event === 1) {
+        let temp = await Temp.create({
+            horafin,
+            latitud,
+            longitud,
+            dispositivoid,
+            empleadoid
+        }, {
+            fields: ['dispositivoid', 'empleadoid', 'horafin', 'latitud', 'longitud']
+        });
+        console.log("Salida pendiente", JSON.stringify(temp));
+    } else {
+        await Temp.destroy({
+            where: {
+                empleadoid
             }
-        }
+        });
+        console.log('Salida pendiente eliminada');
     }
-    console.log(horafin);
-    return horafin
 }

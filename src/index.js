@@ -1,7 +1,7 @@
 require("@babel/polyfill");
 
 import app from './app';
-import { port } from './config/config';
+import { port, time } from './config/config';
 
 import http from 'http';
 import { marcarSalidas } from './services/task';
@@ -14,7 +14,7 @@ import socketIO from 'socket.io';
 let server = http.Server(app);
 
 
-cron.schedule('*/15 * * * *', marcarSalidas).start();
+cron.schedule(time, marcarSalidas).start();
 
 let io = socketIO(server, { pingTimeout: 60000 });
 
