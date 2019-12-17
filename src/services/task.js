@@ -15,26 +15,36 @@ export async function marcarSalidas() {
             }
         });
 
-        let records = [];
-        let ids = [];
         if (temps.length !== 0) {
-            temps.forEach((temp) => {
+            temps.forEach(async(temp) => {
                 let { id, empleadoid, dispositivoid, latitud, longitud } = temp;
                 let eventoid = 2;
-                let objTemp = { empleadoid, dispositivoid, latitud, longitud, eventoid, hora: new Date };
-                records.push(objTemp);
-                ids.push(id);
+                let objTemp = { empleadoid, dispositivoid, latitud, longitud, eventoid };
+                // Registra las salidas pendientes del cierre de horario laboral.
+                await crearAsistencia(objTemp);
+                // Elimina las salidas pendientes
+                await Temp.destroy({ where: { id } });
+
             });
-            // Limpiando los temporales
-            await Temp.destroy({ where: { id: ids } });
-        }
-
-
-        if (records.length !== 0) {
-            let data = await Asistencia.bulkCreate(records, { fields: ['empleadoid', 'dispositivoid', 'latitud', 'longitud', 'eventoid', 'hora'] });
-            console.log(`Resultado: ${data}`);
         }
     } catch (err) {
         console.log(err);
     }
+}
+
+
+async function crearAsistencia(objTemp) {
+    let { empleadoid, dispositivoid, latitud, longitud, eventoid } = objTemp;
+    const asistencia = await Asistencia.create({
+        dispositivoid,
+        empleadoid,
+        hora: new Date,
+        latitud,
+        longitud,
+        eventoid
+    }, {
+        fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
+    });
+
+    return asistencia;
 }
