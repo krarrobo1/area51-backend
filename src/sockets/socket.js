@@ -64,7 +64,7 @@ io.on('connection', async (client) => {
         if (reason === 'client namespace disconnect') {
             console.log('Desconeccion voluntaria: ', key);
             redis.del(key);
-        } else if ('server namespace disconnect'){
+        } else if (reason === 'server namespace disconnect'){
             console.log('El server desconecto al cliente', key);
             redis.del(key);
         }
