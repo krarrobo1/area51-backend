@@ -60,10 +60,10 @@ io.on('connection', async (client) => {
             console.log(`El usuario ${connId} se desconecto por ${reason}`);
             let data = await redis.getAsync(connId);
             let registro = JSON.parse(data);
-            // console.log(`redis user data:`, {data: registro});
+            console.log(`redis user data:`, {data: registro});
 
             // Borramos id del usuario
-            if (registro) await redis.delAsync(`${registro.empleadoid}`);
+            if (registro !== null) await redis.delAsync(`${registro.empleadoid}`);
             // Si el usuario se desconecto voluntariamente elimina su key del redis
             if (reason === 'client namespace disconnect') {
                 console.log('Desconeccion voluntaria: ', connId);
