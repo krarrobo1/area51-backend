@@ -52,7 +52,7 @@ io.on('connection', async (client) => {
             console.log(`El usuario ${key} se desconecto por ${reason}`);
             let data = await redis.getAsync(key);
             let registro = JSON.parse(data);
-            console.log(`redis user data:`, {data: registro});
+            //console.log(`redis user data:`, {data: registro});
             if(registro) await redis.delAsync(`${registro.empleadoid}`);
         } catch (err) {
             console.log(`ERROR: ${err}`);
@@ -101,10 +101,10 @@ async function registrarSalida(data) {
             }, {
                 fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
             });
-            console.log({
-                ok: true,
-                data: salida
-            });
+            // console.log({
+            //     ok: true,
+            //     data: salida
+            // });
         } catch (err) {
             console.log(`ERROR: ${err.message}`);
         }
