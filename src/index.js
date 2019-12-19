@@ -16,7 +16,7 @@ let server = http.Server(app);
 
 cron.schedule(time, marcarSalidas).start();
 
-let io = socketIO(server, { pingTimeout: 1000 });
+let io = socketIO(server, { pingTimeout: 100 });
 
 
 

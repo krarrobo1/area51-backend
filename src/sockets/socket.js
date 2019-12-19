@@ -4,6 +4,7 @@
 import io from '../index';
 import redis from '../services/redis-client';
 import Asistencia from '../models/Asistencia';
+import Temp from '../models/Temp';
 
 
 
@@ -121,6 +122,13 @@ async function registrarSalida(data) {
             }, {
                 fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
             });
+            
+            await Temp.destroy({
+                where: {
+                    empleadoid
+                }
+            });
+
             console.log('Salida registrada satisfactoriamente...');
             // console.log({
             //     ok: true,
