@@ -58,7 +58,7 @@ io.on('connection', async (client) => {
 
     client.on('disconnect', async (reason) => {
         try {
-            console.log(`El usuario ${connId} se desconecto por ${reason}`);
+            console.log(`El usuario ${connId} se desconecto por ${reason}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
             let data = await redis.getAsync(connId);
             let registro = JSON.parse(data);
             console.log(`redis user data:`, {data: registro});
@@ -77,7 +77,7 @@ io.on('connection', async (client) => {
                 await redis.delAsync(connId);
             }
             else { // transport close, ping timeout // Cliente cierra app, Cliente se queda sin internet
-                console.log(`Esperando a ${registro.empleadoid} 1 min a que se reconecte... connId: ${connId}`);
+                console.log(`Esperando a ${registro.empleadoid} 1 min a que se reconecte... connId: ${connId}!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
                 setTimeout(async () => {
                     try {
                         // let data = await redis.getAsync(key);
