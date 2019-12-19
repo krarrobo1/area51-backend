@@ -16,6 +16,7 @@ io.on('connection', async (client) => {
     const connId = client.id;
     console.log(`Nueva coneccion.. connId: ${connId}`);
     client.on('isValid', async (data) => {
+        console.log('ISVALID!');
         try{
             let objTemp = JSON.parse(data);
             let { empleadoid } = objTemp;
