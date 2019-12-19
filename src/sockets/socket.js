@@ -58,7 +58,7 @@ io.on('connection', async (client) => {
 
     client.on('disconnect', async (reason) => {
         try {
-            console.log(`El usuario ${connId} se desconecto por ${reason}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
+            console.log(`El usuario ${connId} se desconecto por ${reason.toUpperCase()}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
             let data = await redis.getAsync(connId);
             let registro = JSON.parse(data);
             console.log(`redis user data:`, {data: registro});
