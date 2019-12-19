@@ -26,7 +26,7 @@ io.on('connection', async (client) => {
             await redis.setnxAsync(`${empleadoid}`, connId);
             // Guardamos el id del socket y el del usuario;
             await redis.setnxAsync(connId, data);
-            client.emit('valid', true);
+            client.emit('validado', true);
         }catch(err){
             console.log(`ERROR: ${err}`);
         }
