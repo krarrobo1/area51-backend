@@ -197,11 +197,21 @@ function writeRow(ws, row, i, registry, empresa) {
 function getDailyTotal(entradas, salidas) {
     let total = 0;
     if (entradas.length === salidas.length) {
+        const mockDate = '01/01/2020';
+        let total = '';
         for (let i = 0; i < entradas.length; i++) {
-            const entrada = new Date(`01/01/2019 ${entradas[i]}`);
-            const salida = new Date(`01/01/2019 ${salidas[i]}`);
-            let result = Math.abs(dt.differenceInHours(salida, entrada));
-            total += result;
+            let entrada = new Date(`${mockDate} ${entradas[i]}`),
+            salida = new Date(`${mockDate} ${salidas[i]}`);
+            let result = dt.differenceInMilliseconds(salida, entrada);
+            let utcDate = new Date(result);
+            let totalTemp = `${utcDate.getUTCHours()}:${utcDate.getUTCMinutes()}:${utcDate.getUTCSeconds()}`;
+            if(total === '') total = totalTemp;
+            else{
+                let lastTotal = new Date(`${mockDate} ${total}`);
+                let sum = dt.addMilliseconds(lastTotal, result);
+                let newTotal = sum.toLocaleTimeString();
+                total = newTotal;
+            }
         }
         return total;
     } else {

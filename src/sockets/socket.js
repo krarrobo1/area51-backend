@@ -15,6 +15,9 @@ redis.on('connect', () => {
 
 io.on('connection', async (client) => {
     const connId = client.id;
+    // reconeccion desconeccion
+    let recdes = false;
+
     console.log(`Nueva coneccion.. connId: ${connId}`);
     client.on('isValid', async (data) => {
         console.log('ISVALID!');
@@ -67,23 +70,29 @@ io.on('connection', async (client) => {
 
     client.on('salidaPorRegistro',() =>{
         client.disconnect(true);
+        recdes = true;
     });
 
     client.on('disconnect', async (reason) => {
+
         try {
             console.log(`El usuario ${connId} se desconecto por ${reason.toUpperCase()}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
             let data = await redis.getAsync(connId);
             let registro = JSON.parse(data);
             console.log(`redis user data:`, {data: registro});
 
-            // Borramos id del usuario
+
+            // If reconnect ? Mantener ID usuario
+
+            // Borramos id del usuario 
             if (registro !== null) await redis.delAsync(`${registro.empleadoid}`);
-            // Si el usuario se desconecto voluntariamente elimina su key del redis
+            // Si el usuario se desconecto voluntariamente elimina su info de salida del redis
             if (reason === 'client namespace disconnect') {
                 console.log('Desconeccion voluntaria: ', connId);
                 await redis.delAsync(connId);
             } else if (reason === 'server namespace disconnect') {
                 console.log('El server desconecto al cliente', connId);
+                // Reconexion y desconexion? 
                 await redis.delAsync(connId);
             }else if(reason === 'transport error'){
                 console.log('Transport error');
@@ -98,10 +107,11 @@ io.on('connection', async (client) => {
                         if (registro) {
                             let reconnect = await redis.getAsync(`${registro.empleadoid}`);
                             console.log('reconnect: ', reconnect);
-                            if (!reconnect) {
+                            if (!reconnect && recdes == false) {
                                 console.log('Tiempo de espera finalizado....')
                                 registrarSalida(registro);
                             }
+                            else if (recdes){ console.log('El usuario se ha reconectado y salido') }
                             else console.log(`El usuario se ha reconectado ${registro.empleadoid} ${reconnect}`);
                         }
                     } catch (err) {
