@@ -56,7 +56,11 @@ io.on('connection', async (client) => {
     //     }
     // });
 
-
+    client.on('reconnect', () =>{
+        console.log(`USUARIO RECONECTADO ${key}`);
+        client.emit('reconectar',('Reconectando...'));
+        
+    })
     client.on('salidaLimitesEmpresa',() =>{
         client.disconnect(true);
     });
