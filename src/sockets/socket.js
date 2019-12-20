@@ -60,7 +60,11 @@ io.on('connection', async (client) => {
     client.on('salidaLimitesEmpresa',() =>{
         client.disconnect(true);
     });
-    
+
+    client.on('salidaPorRegistro',() =>{
+        client.disconnect(true);
+    });
+
     client.on('disconnect', async (reason) => {
         try {
             console.log(`El usuario ${connId} se desconecto por ${reason.toUpperCase()}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
