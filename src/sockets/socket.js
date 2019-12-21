@@ -45,7 +45,7 @@ io.on('connection', async (client) => {
     });
 
     // Se desencadena cuando el cliente se reconecta desde su bucle
-    client.on('isReconnected', async(data) =>{
+    client.on('isReconnected', async (data) => {
         console.log('RECONECTADO AUTOMATICAMENTE...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         try {
             let objTemp = JSON.parse(data);
@@ -98,38 +98,41 @@ io.on('connection', async (client) => {
     })
     client.on('salidaLimitesEmpresa', async () => {
         console.log('SALIO DE LA EMPRESA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-        try{
-            
-            let data = await redis.getAsync(connId);
-            let registro = JSON.parse(data);
-            //await redis.delAsync(registro.empleadoid); sera de eliminarlo aca?
-
-            await redis.setexAsync(`${registro.empleadoid}`, 60 * 4, JSON.stringify(temp));
+        try {
 
             client.disconnect(true);
-        }catch(err){
-            console.log('ERROR: ', {err});
+
+
+            // let data = await redis.getAsync(connId);
+            // let registro = JSON.parse(data);
+            // //await redis.delAsync(registro.empleadoid); sera de eliminarlo aca?
+
+            // await redis.setexAsync(`${registro.empleadoid}`, 60 * 4, JSON.stringify(temp));
+
+
+        } catch (err) {
+            console.log('ERROR: ', { err });
         }
     });
 
     client.on('salidaPorRegistro', async () => {
         client.disconnect(true);
         // Cambio
-        try {
-            let data = await redis.getAsync(connId);
-            let registro = JSON.parse(data);
+        // try {
+        //     let data = await redis.getAsync(connId);
+        //     let registro = JSON.parse(data);
 
-            if (registro) {
-                let temp = { socketid: connId, recdec: true };
-                // Actualizamos la key con un timer....
-                await redis.setexAsync(`${registro.empleadoid}`, 60 * 4, JSON.stringify(temp));
-            }
+        //     if (registro) {
+        //         let temp = { socketid: connId, recdec: true };
+        //         // Actualizamos la key con un timer....
+        //         await redis.setexAsync(`${registro.empleadoid}`, 60 * 4, JSON.stringify(temp));
+        //     }
 
 
 
-        } catch (err) {
-            console.log(err);
-        }
+        // } catch (err) {
+        //     console.log(err);
+        // }
 
 
 
@@ -158,8 +161,24 @@ io.on('connection', async (client) => {
                 await redis.delAsync(connId);
             } else if (reason === 'server namespace disconnect') {
                 console.log('El server desconecto al cliente', connId);
-                // Reconexion y desconexion? 
-                await redis.delAsync(connId);
+               
+                try {
+                    let data = await redis.getAsync(connId);
+                    let registro = JSON.parse(data);
+
+                    if (registro) {
+                        let temp = { socketid: connId, recdec: true };
+                        // Actualizamos la key con un timer....
+                        await redis.setexAsync(`${registro.empleadoid}`, 60 * 4, JSON.stringify(temp));
+                        await redis.delAsync(connId);
+                    }
+
+
+
+                } catch (err) {
+                    console.log(err);
+                }
+
             } else if (reason === 'transport error') {
                 console.log('Transport error');
                 await redis.delAsync(connId);
