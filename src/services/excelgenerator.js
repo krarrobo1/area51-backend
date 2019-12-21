@@ -1,6 +1,6 @@
 import * as dt from 'date-fns';
 
-import { add } from 'timelite/time'
+import { add, sub } from 'timelite/time'
 import { es } from 'date-fns/locale';
 
 import ExcelJS from 'exceljs';
@@ -201,17 +201,26 @@ function getDailyTotal(entradas, salidas) {
         const mockDate = '01/01/2020';
         let total = '';
         for (let i = 0; i < entradas.length; i++) {
-            let entrada = new Date(`${mockDate} ${entradas[i]}`),
-                salida = new Date(`${mockDate} ${salidas[i]}`);
-            let result = dt.differenceInMilliseconds(salida, entrada);
+            /*let entrada = new Date(`${mockDate} ${entradas[i]}`),
+                salida = new Date(`${mockDate} ${salidas[i]}`);*/
+
+            console.log({ entrada: `${entradas[i]}`, salida: `${salidas[i]}`, resta: `${sub([`${salidas[i]}`, `${entradas[i]}`])}` });
+            let resta = sub([`${salidas[i]}`, `${entradas[i]}`]);
+            let totalTemp = `${resta[0]}:${resta[1]}:${resta[2]}`;
+            if(total === '') total = totalTemp;
+            /*let result = dt.differenceInMilliseconds(salida, entrada);
             let utcDate = new Date(result);
             let totalTemp = `${utcDate.getUTCHours()}:${utcDate.getUTCMinutes()}:${utcDate.getUTCSeconds()}`;
-            if (total === '') total = totalTemp;
+            if (total === '') total = totalTemp;*/
             else {
-                let lastTotal = new Date(`${mockDate} ${total}`);
-                let sum = dt.addMilliseconds(lastTotal, result);
-                let newTotal = sum.toLocaleTimeString().split(' ')[0];
-                total = newTotal;
+
+                let suma = add([total, totalTemp]);
+
+                total = `${suma[0]}:${suma[1]}:${suma[2]}`;
+                // let lastTotal = new Date(`${mockDate} ${total}`);
+                // let sum = dt.addMilliseconds(lastTotal, result);
+                // let newTotal = sum.toLocaleTimeString().split(' ')[0];
+                // total = newTotal;
             }
         }
         return total;
