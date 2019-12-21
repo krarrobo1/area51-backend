@@ -44,6 +44,30 @@ io.on('connection', async (client) => {
         }
     });
 
+    // Se desencadena cuando el cliente se reconecta desde su bucle
+    client.on('isReconnected', (data) =>{
+        console.log('RECONECTADO AUTOMATICAMENTE...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+        try {
+            let objTemp = JSON.parse(data);
+
+            if (objTemp) {
+                let { empleadoid } = objTemp;
+                console.log('Empezando a trabajar...');
+                console.log(`empleadoid: ${empleadoid} socketid: ${connId}`);
+                // Guardamos el id del usuario
+                let temp = { socketid: connId, recdec: false };
+                await redis.setAsync(`${empleadoid}`, JSON.stringify(temp));
+                // Guardamos el id del socket y el del usuario;
+                await redis.setnxAsync(connId, data);
+                // client.emit('valid', true);
+            }
+
+        } catch (err) {
+            console.log(`ERROR: ${err}`);
+        }
+
+    })
+
     // client.on('data', async (data) => {
     //     try {
     //         // Guardar info del usuario.
