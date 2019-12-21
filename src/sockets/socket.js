@@ -27,7 +27,7 @@ io.on('connection', async (client) => {
             console.log('Empezando a trabajar...');
             console.log(`empleadoid: ${empleadoid} socketid: ${connId}`);
             // Guardamos el id del usuario
-            await redis.setnxAsync(`${empleadoid}`, connId);
+            await redis.setAsync(`${empleadoid}`, `{ socketid: '${connId}', recdec: false }`);
             // Guardamos el id del socket y el del usuario;
             await redis.setnxAsync(connId, data);
             client.emit('valid', true);
@@ -70,7 +70,10 @@ io.on('connection', async (client) => {
 
     client.on('salidaPorRegistro',() =>{
         client.disconnect(true);
-        recdes = true;
+        // Cambio
+        let data = await redis.getAsync(connId);
+        let registro = JSON.parse(data);
+        await redis.setAsync(`${registro.empleadoid}`, `{ socketid: '${connId}', recdec: true }`);
     });
 
     client.on('disconnect', async (reason) => {
@@ -84,8 +87,8 @@ io.on('connection', async (client) => {
 
             // If reconnect ? Mantener ID usuario
 
-            // Borramos id del usuario 
-            if (registro !== null) await redis.delAsync(`${registro.empleadoid}`);
+            // Borramos id del usuario CAMBIAMOS EL ESTADO
+            //if (registro !== null) await redis.setAsync(`${registro.empleadoid}`, key);
             // Si el usuario se desconecto voluntariamente elimina su info de salida del redis
             if (reason === 'client namespace disconnect') {
                 console.log('Desconeccion voluntaria: ', connId);
@@ -105,14 +108,27 @@ io.on('connection', async (client) => {
                         // let data = await redis.getAsync(key);
                         // let registro = JSON.parse(data);
                         if (registro) {
-                            let reconnect = await redis.getAsync(`${registro.empleadoid}`);
-                            console.log('reconnect: ', reconnect);
-                            if (!reconnect && recdes == false) {
-                                console.log('Tiempo de espera finalizado....')
-                                registrarSalida(registro);
+
+                            let keyActual = await redis.getAsync(`${registro.empleadoid}`, key);
+
+                            // TODO: OBTENER OBJETO DEL REDIS Y VERIFICAR SI HIZO RECONECCION Y DESCONECCION
+
+                            // if key != key
+
+                            if(key !== keyActual){
+                                console.log(`Se reconecto`);
+                            }else{
+                                registrarSalida('')
                             }
-                            else if (recdes){ console.log('El usuario se ha reconectado y salido') }
-                            else console.log(`El usuario se ha reconectado ${registro.empleadoid} ${reconnect}`);
+                            // let reconnect = await redis.getAsync(`${registro.empleadoid}`);
+                            // console.log('reconnect: ', reconnect);
+                            // if (!reconnect) {
+                            //     if(reconnect)
+                            //     console.log('Tiempo de espera finalizado....')
+                            //     registrarSalida(registro);
+                            // }
+                            // else if (recdes){ console.log('El usuario se ha reconectado y salido') }
+                            // else console.log(`El usuario se ha reconectado ${registro.empleadoid} ${reconnect}`);
                         }
                     } catch (err) {
                         console.log(`ERROR: ${err}`);
