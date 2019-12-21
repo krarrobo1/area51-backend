@@ -1,4 +1,6 @@
 import * as dt from 'date-fns';
+
+import { add } from 'timelite/time'
 import { es } from 'date-fns/locale';
 
 import ExcelJS from 'exceljs';
@@ -149,11 +151,10 @@ export async function createReport(data, employee) {
 
     let totalTag = lws.getCell(`A${row}`);
     totalTag.value = 'TOTAL:';
-    totalTag.style.fill = totalStyle;
 
     let totalN = lws.getCell(`C${row}`);
     totalN.value = `${last}`;
-    totalN.style.fill = totalStyle;
+
 
     row++;
     totalMonth.push(last);
@@ -209,7 +210,7 @@ function getDailyTotal(entradas, salidas) {
             else {
                 let lastTotal = new Date(`${mockDate} ${total}`);
                 let sum = dt.addMilliseconds(lastTotal, result);
-                let newTotal = sum.toLocaleTimeString();
+                let newTotal = sum.toLocaleTimeString().split(' ')[0];
                 total = newTotal;
             }
         }
@@ -223,23 +224,13 @@ function getMonthlyTotal(totales) {
     let total = '';
     const mockDate = '01/01/2020';
     for (let i = 0; i < totales.length; i++) {
-        const temp = totales[i];
-        let ms = new Date(`${mockDate} ${temp}`);
-
-        console.log(ms.getUTCMilliseconds());
-
-
+        let temp = totales[i].split(' ')[0];
         if (total === '') {
             total = temp;
         } else {
-            let lastTotal = new Date(`${mockDate} ${total}`);
-            let sum = dt.addMilliseconds(lastTotal, ms);
-            console.log(sum);
-            let newTotal = sum.toLocaleTimeString();
-            total = newTotal;
+            let lastTotal = add([total, temp]);
+            total = `${lastTotal[0]}:${lastTotal[1]}:${lastTotal[2]}`
         }
-
-        //let dateTemp = new Date(`${mockDate} ${temp}`);
     }
     return total;
 }
