@@ -13,32 +13,32 @@ redis.on('connect', () => {
 });
 
 
-io.on('connection', async(client) => {
+io.on('connection', async (client) => {
     const connId = client.id;
     // reconeccion desconeccion
 
 
     console.log(`Nueva coneccion.. connId: ${connId}`);
-    client.on('isValid', async(data) => {
+    client.on('isValid', async (data) => {
         console.log('ISVALID!');
         try {
             let objTemp = JSON.parse(data);
 
-            if(objTemp){
+            if (objTemp) {
                 let { empleadoid } = objTemp;
                 console.log('Empezando a trabajar...');
                 console.log(`empleadoid: ${empleadoid} socketid: ${connId}`);
                 // Guardamos el id del usuario
-    
+
                 let temp = { socketid: connId, recdec: false };
-    
-    
+
+
                 await redis.setAsync(`${empleadoid}`, JSON.stringify(temp));
                 // Guardamos el id del socket y el del usuario;
                 await redis.setnxAsync(connId, data);
                 client.emit('valid', true);
             }
-           
+
         } catch (err) {
             console.log(`ERROR: ${err}`);
         }
@@ -72,7 +72,7 @@ io.on('connection', async(client) => {
         client.emit('reconectar', ('Reconectando...'));
 
     })
-    client.on('salidaLimitesEmpresa', async() => {
+    client.on('salidaLimitesEmpresa', async () => {
         client.disconnect(true);
         let data = await redis.getAsync(connId);
         let registro = JSON.parse(data);
@@ -81,20 +81,20 @@ io.on('connection', async(client) => {
         await redis.delAsync(registro.empleadoid);
     });
 
-    client.on('salidaPorRegistro', async() => {
+    client.on('salidaPorRegistro', async () => {
         client.disconnect(true);
         // Cambio
         try {
             let data = await redis.getAsync(connId);
             let registro = JSON.parse(data);
 
-            if(registro){
+            if (registro) {
                 let temp = { socketid: connId, recdec: true };
                 // Actualizamos la key con un timer....
                 await redis.setexAsync(`${registro.empleadoid}`, 60 * 4, JSON.stringify(temp));
             }
 
-          
+
 
         } catch (err) {
             console.log(err);
@@ -104,14 +104,16 @@ io.on('connection', async(client) => {
 
     });
 
-    client.on('disconnect', async(reason) => {
+    client.on('disconnect', async (reason) => {
+
+        let nodata = false;
 
         try {
             console.log(`El usuario ${connId} se desconecto por ${reason.toUpperCase()}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
             let data = await redis.getAsync(connId);
             let registro = JSON.parse(data);
             if (registro) console.log(`redis user data:`, { data: registro });
-            else console.log('NO REDIS DATA');
+            else nodata = true;
 
 
 
@@ -131,52 +133,57 @@ io.on('connection', async(client) => {
                 console.log('Transport error');
                 await redis.delAsync(connId);
             } else { // transport close, ping timeout // Cliente cierra app, Cliente se queda sin internet
-                console.log(`Esperando a  3 min a que se reconecte... connId: ${connId}!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
-                setTimeout(async() => {
-                    try {
-                        // let data = await redis.getAsync(key);
-                        // let registro = JSON.parse(data);
-                        if (registro) {
+                if (nodata === false) {
+                    console.log(`Esperando a  3 min a que se reconecte... connId: ${connId}!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
+                    setTimeout(async () => {
+                        try {
+                            // let data = await redis.getAsync(key);
+                            // let registro = JSON.parse(data);
+                            if (registro) {
 
-                            let keyActual = await redis.getAsync(`${registro.empleadoid}`);
-                            console.log({ keyActual });
+                                let keyActual = await redis.getAsync(`${registro.empleadoid}`);
+                                console.log({ keyActual });
 
-                            let { socketid, recdec } = JSON.parse(keyActual);
+                                let { socketid, recdec } = JSON.parse(keyActual);
 
 
-                            // TODO: OBTENER OBJETO DEL REDIS Y VERIFICAR SI HIZO RECONECCION Y DESCONECCION
+                                // TODO: OBTENER OBJETO DEL REDIS Y VERIFICAR SI HIZO RECONECCION Y DESCONECCION
 
-                            // if key != key
+                                // if key != key
 
-                            if (connId !== socketid) {
-                                console.log(`SE RECONECTO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
-                                //await redis.delAsync(registro.empleadoid);
-                            } else {
-                                console.log('TIEMPO DE ESPERA FINALIZADO..!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-                                if (recdec == false) {
-                                    //registrarSalida(registro);
-                                    console.log('Registrando salida!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-                                    await redis.delAsync(registro.empleadoid);
+                                if (connId !== socketid) {
+                                    console.log(`SE RECONECTO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
+                                    //await redis.delAsync(registro.empleadoid);
                                 } else {
-                                    'El usuario ya salio previamente..'
+                                    console.log('TIEMPO DE ESPERA FINALIZADO..!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+                                    if (recdec == false) {
+                                        //registrarSalida(registro);
+                                        console.log('Registrando salida!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+                                        await redis.delAsync(registro.empleadoid);
+                                    } else {
+                                        'El usuario ya salio previamente..'
+                                    }
                                 }
+                                // let reconnect = await redis.getAsync(`${registro.empleadoid}`);
+                                // console.log('reconnect: ', reconnect);
+                                // if (!reconnect) {
+                                //     if(reconnect)
+                                //     console.log('Tiempo de espera finalizado....')
+                                //     registrarSalida(registro);
+                                // }
+                                // else if (recdes){ console.log('El usuario se ha reconectado y salido') }
+                                // else console.log(`El usuario se ha reconectado ${registro.empleadoid} ${reconnect}`);
                             }
-                            // let reconnect = await redis.getAsync(`${registro.empleadoid}`);
-                            // console.log('reconnect: ', reconnect);
-                            // if (!reconnect) {
-                            //     if(reconnect)
-                            //     console.log('Tiempo de espera finalizado....')
-                            //     registrarSalida(registro);
-                            // }
-                            // else if (recdes){ console.log('El usuario se ha reconectado y salido') }
-                            // else console.log(`El usuario se ha reconectado ${registro.empleadoid} ${reconnect}`);
+                        } catch (err) {
+                            console.log(`ERROR: ${err}`);
+                        } finally {
+                            await redis.delAsync(connId);
                         }
-                    } catch (err) {
-                        console.log(`ERROR: ${err}`);
-                    } finally {
-                        await redis.delAsync(connId);
-                    }
-                }, 190000); // 3 minutos
+                    }, 190000); // 3 minutos
+                } else {
+                    console.log('NO ESPERES, NO TIENE DATOS EN REDIS');
+                }
+
             }
 
         } catch (err) {
