@@ -97,12 +97,15 @@ io.on('connection', async (client) => {
 
     })
     client.on('salidaLimitesEmpresa', async () => {
-        client.disconnect(true);
-        let data = await redis.getAsync(connId);
-        let registro = JSON.parse(data);
-
-
-        await redis.delAsync(registro.empleadoid);
+        console.log('SALIO DE LA EMPRESA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+        try{
+            client.disconnect(true);
+            let data = await redis.getAsync(connId);
+            let registro = JSON.parse(data);
+            await redis.delAsync(registro.empleadoid);
+        }catch(err){
+            console.log('ERROR: ', {err});
+        }
     });
 
     client.on('salidaPorRegistro', async () => {
