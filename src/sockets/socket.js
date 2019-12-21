@@ -87,7 +87,7 @@ io.on('connection', async(client) => {
             let temp = { socketid: connId, recdec: true };
 
             // Actualizamos la key con un timer....
-            await redis.setexAsync(`${registro.empleadoid}`, 90, JSON.stringify(temp));
+            await redis.setexAsync(`${registro.empleadoid}`, 60 * 4, JSON.stringify(temp));
 
         } catch (err) {
             console.log(err);
@@ -123,7 +123,7 @@ io.on('connection', async(client) => {
                 console.log('Transport error');
                 await redis.delAsync(connId);
             } else { // transport close, ping timeout // Cliente cierra app, Cliente se queda sin internet
-                console.log(`Esperando a ${registro.empleadoid} 1 min a que se reconecte... connId: ${connId}!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
+                console.log(`Esperando a ${registro.empleadoid} 3 min a que se reconecte... connId: ${connId}!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
                 setTimeout(async() => {
                     try {
                         // let data = await redis.getAsync(key);
@@ -168,7 +168,7 @@ io.on('connection', async(client) => {
                     } finally {
                         await redis.delAsync(connId);
                     }
-                }, 60000);
+                }, 190000); // 3 minutos
             }
 
         } catch (err) {
