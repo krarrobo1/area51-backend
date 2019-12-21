@@ -99,12 +99,14 @@ io.on('connection', async (client) => {
     client.on('salidaLimitesEmpresa', async () => {
         console.log('SALIO DE LA EMPRESA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         try{
-            client.disconnect(true);
+            
             let data = await redis.getAsync(connId);
             let registro = JSON.parse(data);
             //await redis.delAsync(registro.empleadoid); sera de eliminarlo aca?
 
             await redis.setexAsync(`${registro.empleadoid}`, 60 * 4, JSON.stringify(temp));
+
+            client.disconnect(true);
         }catch(err){
             console.log('ERROR: ', {err});
         }
