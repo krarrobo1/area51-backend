@@ -45,7 +45,7 @@ io.on('connection', async (client) => {
     });
 
     // Se desencadena cuando el cliente se reconecta desde su bucle
-    client.on('isReconnected', (data) =>{
+    client.on('isReconnected', async(data) =>{
         console.log('RECONECTADO AUTOMATICAMENTE...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
         try {
             let objTemp = JSON.parse(data);
