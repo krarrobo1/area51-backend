@@ -9,29 +9,36 @@
 var r1 = Math.floor(Math.random() * 100);
 var r2 = Math.floor(Math.random() * 100);
 
-var socket = io('https://registrateapp.com.ec:7000');
+var socket = io('http://localhost:4000');
 
 
 socket.on('connect', function() {
     console.log('Conectado con el servidor');
-    socket.emit('data', { userid: r1, deviceid: r2, lat: 192.00, long: 192.00, inRange: true });
+    //socket.emit('data', { userid: r1, deviceid: r2, lat: 192.00, long: 192.00, inRange: true });
+});
+
+socket.on('valid', function(value) {
+    if (value == 'true') {
+        console.log('Empieza');
+    }
 });
 
 
 
-var connect = document.getElementById('conectar');
-var disconnect = document.getElementById('desconectar');
 var salir = document.getElementById('salir');
+var disconnect = document.getElementById('desconectar');
+var send = document.getElementById('send');
 
-salir.addEventListener('click', function(){
-    socket.emit('salida');
+send.addEventListener('click', function() {
+    socket.emit('isValid', '{ "empleadoid": 1, "dispositivoid": 3, "latitud": 38.099, "longitud": 19.223, "enRango": true }');
 });
 
 
-connect.addEventListener('click', function() {
-    socket.connect();
+salir.addEventListener('click', function(id) {
+    // socket.connect();
+    socket.emit('salidaLimitesEmpresa');
 });
 
 disconnect.addEventListener('click', function() {
-    socket.disconnect();
+    socket.emit('salidaPorRegistro');
 });

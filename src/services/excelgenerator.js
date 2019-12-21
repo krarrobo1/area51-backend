@@ -201,12 +201,12 @@ function getDailyTotal(entradas, salidas) {
         let total = '';
         for (let i = 0; i < entradas.length; i++) {
             let entrada = new Date(`${mockDate} ${entradas[i]}`),
-            salida = new Date(`${mockDate} ${salidas[i]}`);
+                salida = new Date(`${mockDate} ${salidas[i]}`);
             let result = dt.differenceInMilliseconds(salida, entrada);
             let utcDate = new Date(result);
             let totalTemp = `${utcDate.getUTCHours()}:${utcDate.getUTCMinutes()}:${utcDate.getUTCSeconds()}`;
-            if(total === '') total = totalTemp;
-            else{
+            if (total === '') total = totalTemp;
+            else {
                 let lastTotal = new Date(`${mockDate} ${total}`);
                 let sum = dt.addMilliseconds(lastTotal, result);
                 let newTotal = sum.toLocaleTimeString();
@@ -220,10 +220,26 @@ function getDailyTotal(entradas, salidas) {
 }
 
 function getMonthlyTotal(totales) {
-    let total = 0;
+    let total = '';
+    const mockDate = '01/01/2020';
     for (let i = 0; i < totales.length; i++) {
         const temp = totales[i];
-        total += temp;
+        let ms = new Date(`${mockDate} ${temp}`);
+
+        console.log(ms.getUTCMilliseconds());
+
+
+        if (total === '') {
+            total = temp;
+        } else {
+            let lastTotal = new Date(`${mockDate} ${total}`);
+            let sum = dt.addMilliseconds(lastTotal, ms);
+            console.log(sum);
+            let newTotal = sum.toLocaleTimeString();
+            total = newTotal;
+        }
+
+        //let dateTemp = new Date(`${mockDate} ${temp}`);
     }
     return total;
 }
