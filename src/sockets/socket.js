@@ -16,7 +16,9 @@ redis.on('connect', () => {
 io.on('connection', async(client) => {
     const connId = client.id;
     // reconeccion desconeccion
-    let recdes = false;
+
+
+
 
     console.log(`Nueva coneccion.. connId: ${connId}`);
     client.on('isValid', async(data) => {
@@ -177,6 +179,24 @@ io.on('connection', async(client) => {
 
     });
 });
+
+// TODO: Revisar...
+export async function cerrarSesion(empleadoid) {
+    let active = io.sockets.sockets;
+    for (const key in active) {
+        let info = await redis.getAsync(`${key}`);
+        if (info) {
+            let { id } = JSON.parse(info);
+            if (id === empleadoid) {
+                active[key].disconnect();
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
 
 async function registrarSalida(data) {
     if (data) {
