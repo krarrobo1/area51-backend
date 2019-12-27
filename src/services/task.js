@@ -3,13 +3,18 @@ import Asistencia from '../models/Asistencia';
 import * as dt from 'date-fns';
 import { es } from 'date-fns/locale';
 
+import io from '../index';
+
+
+
 import redis from './redis-client';
-import { cerrarSesion } from '../sockets/socket'
+
 
 export async function marcarSalidas() {
     let now = dt.format(Date.now(), 'HH:mm:ss', { locale: es });
 
     console.log('Registrando salidas...', now);
+
     // Encuentra todos aquellos empleados que tienen horario hasta ahora ...
     try {
         let temps = await Temp.findAll({
@@ -18,11 +23,31 @@ export async function marcarSalidas() {
             }
         });
 
+
         if (temps.length !== 0) {
             temps.forEach(async(temp) => {
                 let { id, empleadoid, dispositivoid, latitud, longitud } = temp;
                 let eventoid = 2;
                 let objTemp = { empleadoid, dispositivoid, latitud, longitud, eventoid };
+
+
+                let active = io.sockets.sockets;
+                // console.log({ active });
+                // TODO: Revisar...
+                let cache = await redis.getAsync(`${empleadoid}`);
+
+                let { socketid } = JSON.parse(cache);
+
+                // console.log(socketid);
+
+                let sesion = active[socketid];
+
+                // console.log({ sesion })
+                if (sesion) {
+                    console.log('Haciendo desconexion por CRONTASK');
+                    sesion.disconnect();
+                }
+
 
 
                 // Obtener sesiones activas de redis con el id del usuario

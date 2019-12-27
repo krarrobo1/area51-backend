@@ -17,6 +17,10 @@ socket.on('connect', function() {
     //socket.emit('data', { userid: r1, deviceid: r2, lat: 192.00, long: 192.00, inRange: true });
 });
 
+socket.on('disconnect', function() {
+    console.log('Desconectado del server');
+});
+
 socket.on('valid', function(value) {
     if (value == 'true') {
         console.log('Empieza');
@@ -30,7 +34,7 @@ var disconnect = document.getElementById('desconectar');
 var send = document.getElementById('send');
 
 send.addEventListener('click', function() {
-    socket.emit('isValid', '{ "empleadoid": 1, "dispositivoid": 3, "latitud": 38.099, "longitud": 19.223, "enRango": true }');
+    socket.emit('isValid', '{ "empleadoid": 2, "dispositivoid": 5, "latitud": 38.099, "longitud": 19.223, "enRango": true }');
 });
 
 
