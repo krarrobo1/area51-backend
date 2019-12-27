@@ -139,7 +139,7 @@ io.on('connection', async(client) => {
                                 let { socketid, recdec } = JSON.parse(keyActual);
 
                                 if (connId === socketid && recdec === false) {
-                                    registrarSalida(registro.empleadoid);
+                                    registrarSalida(registro);
                                 }
 
 
