@@ -38,6 +38,8 @@ export async function marcarSalidas() {
 
                 if (cache) {
                     console.log('CRON.......Redis Session', JSON.parse(cache));
+                } else {
+                    console.log('CRON........No se encontro Session');
                 }
 
 
