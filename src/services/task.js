@@ -36,9 +36,13 @@ export async function marcarSalidas() {
                 // TODO: Revisar...
                 let cache = await redis.getAsync(`${empleadoid}`);
 
+                if (cache) {
+                    console.log('CRON.......Redis Session', JSON.parse(cache));
+                }
+
+
                 let { socketid } = JSON.parse(cache);
 
-                // console.log(socketid);
 
                 let sesion = active[socketid];
 
