@@ -6,6 +6,8 @@ import redis from '../services/redis-client';
 import Asistencia from '../models/Asistencia';
 import Temp from '../models/Temp';
 
+import { obtenerUltimoEvento } from '../controllers/asistencia.controller';
+
 
 
 redis.on('connect', () => {
@@ -183,31 +185,35 @@ io.on('connection', async(client) => {
 
 async function registrarSalida(data) {
     if (data) {
-        console.log('Registrando salida de :', { data });
-        let { latitud, longitud, empleadoid, dispositivoid } = data;
+
         try {
-            let salida = await Asistencia.create({
-                dispositivoid,
-                empleadoid,
-                hora: new Date,
-                latitud,
-                longitud,
-                eventoid: 2
-            }, {
-                fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
-            });
 
-            await Temp.destroy({
-                where: {
-                    empleadoid
-                }
-            });
+            let { latitud, longitud, empleadoid, dispositivoid } = data;
+            let event = await obtenerUltimoEvento(empleadoid);
 
-            console.log('Salida registrada satisfactoriamente...');
-            // console.log({
-            //     ok: true,
-            //     data: salida
-            // });
+            if (event === 1) {
+                console.log('Registrando salida de :', { data });
+                let salida = await Asistencia.create({
+                    dispositivoid,
+                    empleadoid,
+                    hora: new Date,
+                    latitud,
+                    longitud,
+                    eventoid: 2
+                }, {
+                    fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
+                });
+
+                await Temp.destroy({
+                    where: {
+                        empleadoid
+                    }
+                });
+
+                console.log('Salida registrada satisfactoriamente...');
+
+            }
+
         } catch (err) {
             console.log(`ERROR: ${err.message}`);
         }

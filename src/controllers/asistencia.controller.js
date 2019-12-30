@@ -60,19 +60,11 @@ export async function registrarAsistencia(req, res, next) {
         if (!enhorario) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
 
 
-        // Busca el evento de su ultima asistencia
-        let ultimoRegistro = await sequelize.query(`SELECT eventoid FROM ASISTENCIAS 
-        WHERE EMPLEADOID = ${empleadoid}
-        order by hora desc 
-        limit 1;`, { type: QueryTypes.SELECT });
 
 
 
-        let event = 1;
-        if (ultimoRegistro.length !== 0) {
-            let { eventoid } = ultimoRegistro[0];
-            if (eventoid === 1) event = 2;
-        }
+
+        let event = await obtenerUltimoEvento(empleadoid);
 
 
         // Guarda una Salida pendiente.
@@ -117,19 +109,11 @@ export async function registrarAsistenciaWeb(req, res, next) {
         if (!enhorario) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
 
 
-        // Busca el evento de su ultima asistencia
-        let ultimoRegistro = await sequelize.query(`SELECT eventoid FROM ASISTENCIAS 
-        WHERE EMPLEADOID = ${empleado.id}
-        order by hora desc 
-        limit 1;`, { type: QueryTypes.SELECT });
 
 
-        let event = 1;
-        if (ultimoRegistro.length !== 0) {
-            let { eventoid } = ultimoRegistro[0];
-            console.log(eventoid);
-            if (eventoid === 1) event = 2;
-        }
+
+        let event = await obtenerUltimoEvento(empleado.id);
+
 
         console.log(event);
 
@@ -371,4 +355,21 @@ async function crearSalidaPendiente(event, obj) {
         });
         console.log('Salida pendiente eliminada');
     }
+}
+
+export async function obtenerUltimoEvento(empleadoid) {
+    let ultimoRegistro = await sequelize.query(`SELECT eventoid FROM ASISTENCIAS 
+    WHERE EMPLEADOID = ${empleadoid}
+    order by hora desc 
+    limit 1;`, { type: QueryTypes.SELECT });
+
+
+
+    let event = 1;
+    if (ultimoRegistro.length !== 0) {
+        let { eventoid } = ultimoRegistro[0];
+        if (eventoid === 1) event = 2;
+    }
+
+    return event;
 }
