@@ -30,7 +30,7 @@ console.log(appDir);
 
 // Middlewares
 app.use(cors());
-//app.use(morgan('dev'));
+app.use(morgan('dev'));
 app.use(json());
 
 app.use('/api/empresa', empresaRoutes);

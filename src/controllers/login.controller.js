@@ -49,7 +49,7 @@ export async function LogIn(req, res, next) {
         }
 
         let tkndata = { id: data.id, nombres: data.nombres, apellidos: data.apellidos, rol: data.role.nombre, email: data.email };
-        const token = JWT.sign(tkndata, seed, { expiresIn: '12h' });
+        const token = JWT.sign(tkndata, seed, { expiresIn: '365d' });
 
         return res.json({
             ok: true,
