@@ -30,7 +30,7 @@ console.log(appDir);
 
 // Middlewares
 app.use(cors());
-app.use(morgan('dev'));
+//app.use(morgan('dev'));
 app.use(json());
 
 app.use('/api/empresa', empresaRoutes);
@@ -60,7 +60,7 @@ app.use(function(err, req, res, next) {
     if (name === 'SequelizeDatabaseError') {
         return res.status(500).json({ ok: false, err: { message: `Database Error: ${message}` } });
     } else {
-        return res.status(500).json({ ok: false , err: {message}});
+        return res.status(500).json({ ok: false, err: { message } });
     }
 
 
