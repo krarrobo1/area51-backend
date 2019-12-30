@@ -135,6 +135,7 @@ io.on('connection', async(client) => {
                 if (nodata === false) {
                     console.log(`Esperando a  3 min a que se reconecte... connId: ${connId}!!!!!!!!!!!!!!!!!!!!!!!!!!!!`);
                     setTimeout(async() => {
+                        console.log('TIMEOUT........!!!!');
                         try {
                             if (registro) {
                                 let keyActual = await redis.getAsync(`${registro.empleadoid}`);
@@ -142,6 +143,7 @@ io.on('connection', async(client) => {
                                 let { socketid, recdec } = JSON.parse(keyActual);
 
                                 if (connId === socketid && recdec === false) {
+                                    console.log('Registrando salida.......!!!');
                                     registrarSalida(registro);
                                 }
 
@@ -191,6 +193,7 @@ async function registrarSalida(data) {
 
             let { latitud, longitud, empleadoid, dispositivoid } = data;
             let event = await obtenerUltimoEvento(empleadoid);
+            console.log({ event });
 
             if (event === 1) {
                 console.log('Registrando salida de :', { data });
