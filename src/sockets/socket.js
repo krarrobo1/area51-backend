@@ -195,7 +195,7 @@ async function registrarSalida(data) {
             let event = await obtenerUltimoEvento(empleadoid);
             console.log({ event });
 
-            if (event === 1) {
+            if (event === 2) {
                 console.log('Registrando salida de :', { data });
                 let salida = await Asistencia.create({
                     dispositivoid,
