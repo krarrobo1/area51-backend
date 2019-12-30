@@ -36,11 +36,6 @@ export async function marcarSalidas() {
                 // TODO: Revisar...
                 let cache = await redis.getAsync(`${empleadoid}`);
 
-                if (cache) {
-                    console.log('CRON.......Redis Session', JSON.parse(cache));
-                } else {
-                    console.log('CRON........No se encontro Session');
-                }
 
 
                 let { socketid } = JSON.parse(cache);
@@ -48,7 +43,7 @@ export async function marcarSalidas() {
 
                 let sesion = active[socketid];
 
-                // console.log({ sesion })
+                console.log({ sesion: sesion })
                 if (sesion) {
                     console.log('Haciendo desconexion por CRONTASK');
                     sesion.disconnect();
