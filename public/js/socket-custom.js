@@ -44,5 +44,5 @@ salir.addEventListener('click', function(id) {
 });
 
 disconnect.addEventListener('click', function() {
-    socket.emit('salidaPorRegistro');
+    socket.disconnect();
 });
