@@ -34,13 +34,7 @@ export async function marcarSalidas() {
                 let active = io.sockets.sockets;
                 // console.log({ active });
                 // TODO: Revisar...
-                let cache = await redis.getAsync(`${empleadoid}`);
-
-
-
-                let { socketid } = JSON.parse(cache);
-
-
+                let socketid = await redis.getAsync(`${empleadoid}`);
                 let sesion = active[socketid];
 
                 console.log({ sesion: sesion })
@@ -49,25 +43,6 @@ export async function marcarSalidas() {
                     sesion.disconnect();
                 }
 
-
-
-                // Obtener sesiones activas de redis con el id del usuario
-
-                // let appClient = await redis.getAsync(`${id}`);
-
-                // if (appClient !== null) {
-                //     // OP1 Cambia el id del socket para que no le registre la salida al finalizar la app.
-                //     let temp = { socketid: 'srvdisconnect', recdec: true };
-                //     await redis.setexAsync(`${registro.empleadoid}`, 90, JSON.stringify(temp));
-
-                //     // OP2 Busca la sesion del usuario con empleadoid y la termina...
-                //     let confirm = await cerrarSesion(empleadoid);
-                //     confirm ? console.log('Se cerro la sesion...') : console.log('No se encontro la sesion...');
-                // }
-
-
-
-                // Registra las salidas pendientes del cierre de horario laboral.
                 await crearAsistencia(objTemp);
                 // Elimina las salidas pendientes
                 await Temp.destroy({ where: { id } });

@@ -29,9 +29,6 @@ export async function LogIn(req, res, next) {
 
         let dispositivo = await Dispositivo.findOne({ where: { empleadoid: empleadoTemp.id, isweb: true } });
 
-        console.log('Dispositivo', JSON.stringify(dispositivo, null, 2));
-
-
 
         //     { model: Dispositivo, attributes: ['id'], where: { isweb: true } }
         if (!empleadoTemp) {
