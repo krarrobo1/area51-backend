@@ -1,8 +1,8 @@
 import Empleado from '../models/Empleado';
 import Empresa from '../models/Empresa';
-//import Cargo from '../models/Cargo';
-//import Periodo from '../models/Periodo';
-//import Dia from '../models/Dia';
+import Cargo from '../models/Cargo';
+import Periodo from '../models/Periodo';
+import Dia from '../models/Dia';
 import Rol from '../models/Rol';
 import Dispositivo from '../models/Dispositivo';
 
@@ -21,7 +21,9 @@ export async function LogIn(req, res, next) {
             },
             include: [
                 { model: Empresa, attributes: ['id', 'nombre', 'latitud', 'longitud', 'radio'] },
-                { model: Rol, attributes: ['nombre'] }
+                { model: Rol, attributes: ['nombre'] },
+                { model: Cargo, attributes: ['nombre'], include: { model: Periodo, attributes: ['horainicio', 'horafin'], include: { model: Dia, attributes: ['nombre'] } } }
+
             ]
         });
 
