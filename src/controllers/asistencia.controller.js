@@ -11,6 +11,7 @@ import Temp from '../models/Temp';
 
 
 import stream from 'stream';
+import { add, sub } from 'timelite/time'
 //import redis from '../services/redis-client';
 
 import { createReport } from '../services/excelgenerator';
@@ -57,6 +58,8 @@ export async function registrarAsistencia(req, res, next) {
 
         let { enhorario, horafin } = periodoActual;
 
+
+
         if (!enhorario) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
 
 
@@ -78,7 +81,8 @@ export async function registrarAsistencia(req, res, next) {
 
         // Crea una asistencia
         const asistencia = await crearAsistencia({ empleadoid, dispositivoid, latitud, longitud, eventoid: event });
-        return res.json({ ok: true, asistencia });
+        asistencia.dataValues.horafin = horafin;
+        return res.json({ ok: true, data: asistencia });
     } catch (err) {
         next(err);
     }
@@ -106,6 +110,8 @@ export async function registrarAsistenciaWeb(req, res, next) {
         // Comprueba que este dentro del periodo Laboral
         let periodoActual = comprobarPeriodoLaboral(periodoLaboral);
         let { enhorario, horafin } = periodoActual;
+
+
         if (!enhorario) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
 
 
@@ -197,21 +203,46 @@ export async function obtenerUltimasAsistenciasDelDia(req, res, next) {
     const { id } = req.params;
     let hoy = dt.format(Date.now(), 'dd/MM/yyyy');
 
-    console.log(hoy);
+    let entradas = [],
+        salidas = [],
+        total = null;
 
 
-    const QUERY = `SELECT ASIS.LATITUD, ASIS.LONGITUD, TO_CHAR(ASIS.HORA, 'dd/mm/yyyy HH24:MI:SS') formatedDate, asis.hora timest,DISP.NOMBRE dispositivo, EVENT.NOMBRE evento
-    FROM ASISTENCIAS ASIS, DISPOSITIVOS DISP, EVENTOS EVENT
+
+
+
+    const QUERY = `SELECT TO_CHAR(ASIS.HORA, 'HH24:MI:SS') hora, asis.hora fecha,EVENT.NOMBRE evento
+    FROM ASISTENCIAS ASIS, EVENTOS EVENT
     WHERE 
     ASIS.EMPLEADOID = ${id}
     AND TO_CHAR(ASIS.hora, 'dd/mm/yyyy') = '${hoy}'
     AND EVENT.ID = ASIS.EVENTOID
-    AND DISP.ID = ASIS.DISPOSITIVOID
-    ORDER BY timest
+    ORDER BY fecha
     `;
     try {
         let asistencias = await sequelize.query(QUERY, { type: QueryTypes.SELECT });
-        return res.json({ ok: true, data: asistencias });
+
+        asistencias.forEach(asistencia => { asistencia.evento === 'Entrada' ? entradas.push(asistencia) : salidas.push(asistencia) });
+
+        if (entradas.length === salidas.length) {
+            for (let i = 0; i < entradas.length; i++) {
+                const etemp = entradas[i];
+                const stemp = salidas[i];
+
+                let { hora: ehour } = etemp;
+                let { hora: shour } = stemp;
+
+                console.log({ ehour, shour });
+                let temp = sub([shour, ehour]).join(':');
+                total === null ? total = temp : total = add([temp, total]).join(':');
+            }
+        } else {
+
+        }
+        let last = asistencias[asistencias.length - 1];
+        last.horasLaboradas = total;
+
+        return res.json({ ok: true, data: last });
     } catch (err) {
         next(err);
     }
@@ -293,7 +324,7 @@ function comprobarPeriodoLaboral(periodoLaboral) {
             if (hgInicio < hActual && hFin > hActual) {
                 // Si entra 10 min antes de la hora de Inicio se marca a tiempo
                 response.enhorario = true;
-                response.horafin = hFin;
+                response.horafin = `${periodo.horafin}`;
                 break;
             }
         }
