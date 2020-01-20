@@ -56,18 +56,17 @@ export async function registrarAsistencia(req, res, next) {
         // Comprueba que este dentro de su periodo laboral
         let periodoActual = comprobarPeriodoLaboral(periodoLaboral);
 
-        let { enhorario, horafin } = periodoActual;
+        let { enhorario, horafin, horainicio } = periodoActual;
 
 
 
         if (!enhorario) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
+            // let event = await obtenerUltimoEvento(empleadoid);
+        let tiempo = await obtenerTiempoLaborado(empleadoid);
+        let event = 1;
+        let { data } = tiempo;
+        data.evento === 'Entrada' ? event = 2 : event = 1;
 
-
-
-
-
-
-        let event = await obtenerUltimoEvento(empleadoid);
 
 
         // Guarda una Salida pendiente.
@@ -81,7 +80,11 @@ export async function registrarAsistencia(req, res, next) {
 
         // Crea una asistencia
         const asistencia = await crearAsistencia({ empleadoid, dispositivoid, latitud, longitud, eventoid: event });
+
+        asistencia.dataValues.horainicio = horainicio;
         asistencia.dataValues.horafin = horafin;
+        asistencia.dataValues.tiempoLaborado = data.tiempoLaborado;
+
         return res.json({ ok: true, data: asistencia });
     } catch (err) {
         next(err);
@@ -203,13 +206,41 @@ export async function obtenerUltimasAsistenciasDelDia(req, res, next) {
     const { id } = req.params;
     let hoy = dt.format(Date.now(), 'dd/MM/yyyy');
 
+    console.log(hoy);
+
+
+    const QUERY = `SELECT ASIS.LATITUD, ASIS.LONGITUD, TO_CHAR(ASIS.HORA, 'dd/mm/yyyy HH24:MI:SS') formatedDate, asis.hora timest,DISP.NOMBRE dispositivo, EVENT.NOMBRE evento
+    FROM ASISTENCIAS ASIS, DISPOSITIVOS DISP, EVENTOS EVENT
+    WHERE 
+    ASIS.EMPLEADOID = ${id}
+    AND TO_CHAR(ASIS.hora, 'dd/mm/yyyy') = '${hoy}'
+    AND EVENT.ID = ASIS.EVENTOID
+    AND DISP.ID = ASIS.DISPOSITIVOID
+    ORDER BY timest
+    `;
+    try {
+        let asistencias = await sequelize.query(QUERY, { type: QueryTypes.SELECT });
+        return res.json({ ok: true, data: asistencias });
+    } catch (err) {
+        next(err);
+    }
+}
+
+export async function obtenerEstadoAsistencia(req, res, next) {
+    const { id } = req.params;
+    try {
+        let tiempoLaborado = await obtenerTiempoLaborado(id);
+        return res.json(tiempoLaborado);
+    } catch (err) {
+        next(err);
+    }
+}
+
+async function obtenerTiempoLaborado(id) {
     let entradas = [],
         salidas = [],
         total = null;
-
-
-
-
+    let hoy = dt.format(Date.now(), 'dd/MM/yyyy');
 
     const QUERY = `SELECT TO_CHAR(ASIS.HORA, 'HH24:MI:SS') hora, asis.hora fecha,EVENT.NOMBRE evento
     FROM ASISTENCIAS ASIS, EVENTOS EVENT
@@ -221,8 +252,13 @@ export async function obtenerUltimasAsistenciasDelDia(req, res, next) {
     `;
     try {
         let asistencias = await sequelize.query(QUERY, { type: QueryTypes.SELECT });
-
+        let ultimaAsistencia = asistencias[asistencias.length - 1];
+        if (!ultimaAsistencia) return { message: 'SinRegistros', data: { tiempoLaborado: "0:0:0" } };
         asistencias.forEach(asistencia => { asistencia.evento === 'Entrada' ? entradas.push(asistencia) : salidas.push(asistencia) });
+        if (ultimaAsistencia.evento === 'Entrada') {
+            let tiempoActual = new Date();
+            salidas.push({ hora: `${tiempoActual.toTimeString().split(' ')[0]}` });
+        }
 
         if (entradas.length === salidas.length) {
             for (let i = 0; i < entradas.length; i++) {
@@ -232,19 +268,13 @@ export async function obtenerUltimasAsistenciasDelDia(req, res, next) {
                 let { hora: ehour } = etemp;
                 let { hora: shour } = stemp;
 
-                console.log({ ehour, shour });
                 let temp = sub([shour, ehour]).join(':');
                 total === null ? total = temp : total = add([temp, total]).join(':');
             }
-        } else {
-
         }
-        let last = asistencias[asistencias.length - 1];
-        last.horasLaboradas = total;
-
-        return res.json({ ok: true, data: last });
+        return { data: { tiempoLaborado: total, evento: ultimaAsistencia.evento } }
     } catch (err) {
-        next(err);
+        throw err;
     }
 }
 
@@ -325,6 +355,7 @@ function comprobarPeriodoLaboral(periodoLaboral) {
                 // Si entra 10 min antes de la hora de Inicio se marca a tiempo
                 response.enhorario = true;
                 response.horafin = `${periodo.horafin}`;
+                response.horainicio = `${periodo.horainicio}`;
                 break;
             }
         }
