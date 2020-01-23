@@ -12,7 +12,7 @@ import Temp from '../models/Temp';
 
 import stream from 'stream';
 import { add, sub } from 'timelite/time'
-//import redis from '../services/redis-client';
+import redis from '../services/redis-client';
 
 import { createReport } from '../services/excelgenerator';
 import * as dt from 'date-fns';
@@ -66,6 +66,9 @@ export async function registrarAsistencia(req, res, next) {
         let event = 1;
         let { data } = tiempo;
         data.evento === 'Entrada' ? event = 2 : event = 1;
+
+        // if (event === 1) await redis.setexAsync(empleadoid, 60 * 20, 'true'); // Guarda el key en redis por 20 minutos
+
 
 
 
@@ -161,22 +164,23 @@ export async function registrarAsistenciaWeb(req, res, next) {
 
 
 
-export async function obtenerAsistencia(req, res, next) {
-    const { id } = req.params;
-    try {
-        const asistencias = await Asistencia.findAll({
-            attributes: ['id', 'hora', 'latitud', 'longitud'],
-            order: ['hora'],
-            where: {
-                dispositivoid: id
-            },
-            include: [
-                { model: Dispositivo, attributes: ['id', 'nombre', 'ip', 'mac', 'modelo'], include: [{ model: Empleado, attributes: ['id', 'nombres', 'apellidos', 'ci'] }] },
-                { model: Evento, attributes: ['nombre'] }
-            ]
-        });
+export async function obtenerAsistencias(req, res, next) {
+    const { id } = req.data;
+    const { date } = req.query;
+    console.log({ id, date });
 
-        return res.json({ ok: true, data: asistencias });
+    const QUERY = `SELECT ASIS.LATITUD, ASIS.LONGITUD, TO_CHAR(ASIS.HORA, 'dd/mm/yyyy HH24:MI:SS') formatedDate, asis.hora timest,DISP.NOMBRE dispositivo, EVENT.NOMBRE evento
+    FROM ASISTENCIAS ASIS, DISPOSITIVOS DISP, EVENTOS EVENT
+    WHERE 
+    ASIS.EMPLEADOID = ${id}
+    AND TO_CHAR(ASIS.hora, 'dd/mm/yyyy') = '${date}'
+    AND EVENT.ID = ASIS.EVENTOID
+    AND DISP.ID = ASIS.DISPOSITIVOID
+    ORDER BY timest
+    `;
+    try {
+        let data = await sequelize.query(QUERY, { type: QueryTypes.SELECT });
+        return res.json({ ok: true, data });
     } catch (err) {
         next(err);
     }
@@ -202,8 +206,11 @@ export async function obtenerAsistenciaEmpleadoId(req, res, next) {
     }
 }
 
-export async function obtenerUltimasAsistenciasDelDia(req, res, next) {
+export async function obtenerAsistenciasPorFecha(req, res, next) {
     const { id } = req.params;
+
+
+
     let hoy = dt.format(Date.now(), 'dd/MM/yyyy');
 
     console.log(hoy);
@@ -226,8 +233,8 @@ export async function obtenerUltimasAsistenciasDelDia(req, res, next) {
     }
 }
 
-export async function obtenerEstadoAsistencia(req, res, next) {
-    const { id } = req.params;
+export async function obtenerTiempoAsistencia(req, res, next) {
+    const { id } = req.data;
     try {
         let tiempoLaborado = await obtenerTiempoLaborado(id);
         return res.json(tiempoLaborado);

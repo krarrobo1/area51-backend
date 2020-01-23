@@ -152,8 +152,6 @@ export async function obtenerPermisosPorIdEmpresa(req, res, next) {
                 { model: Empleado, where: { empresaid }, attributes: ['id', 'nombres', 'apellidos', 'empresaid'] }
             ]
         });
-
-        //if (permisos.length === 0) return res.json({ ok: false, data: [] });
         return res.json({ ok: true, data: permisos })
 
     } catch (err) {
