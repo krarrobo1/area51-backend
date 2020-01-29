@@ -152,7 +152,9 @@ export async function eliminarDispositivo(req, res, next) {
                 id
             }
         });
-        return res.json({ ok: true, message: 'Dispositivo eliminado...' });
+
+        if (dispositivo === 0) return res.status(404).json({ ok: false, message: 'Dispositivo no encontrado' });
+        return res.json({ ok: true, message: 'Dispositivo eliminado satisfactoriamente' });
     } catch (err) {
         next(err);
     }

@@ -37,11 +37,11 @@ export async function registrarAsistencia(req, res, next) {
         });
 
         // Comprueba su equipo
-        if (!equipo) return res.status(404).json({ ok: false, message: 'EquipoNoEncontrado' });
+        if (!equipo) return res.status(404).json({ ok: false, message: 'Equipo no encontrado' });
         let { estado } = equipo;
 
         // Comprueba el estado del equipo
-        if (!estado) return res.status(401).json({ ok: false, message: `EquipoInactivo` });
+        if (!estado) return res.status(400).json({ ok: false, message: 'Equipo no activo para registrar asistencias', code: 1 });
         const empleado = await Empleado.findOne({
             attributes: ['id'],
             where: { id: empleadoid },
@@ -51,7 +51,7 @@ export async function registrarAsistencia(req, res, next) {
         let periodoLaboral = empleado.cargo.periodos;
 
         // Comprueba que tenga un periodo Laboral
-        if (periodoLaboral.length === 0) return res.status(404).json({ ok: false, err: { message: 'SinPeriodosLaborales' } });
+        if (periodoLaboral.length === 0) return res.status(404).json({ ok: false, message: 'El cargo no tiene periodos laborales' });
 
         // Comprueba que este dentro de su periodo laboral
         let periodoActual = comprobarPeriodoLaboral(periodoLaboral);
@@ -60,8 +60,8 @@ export async function registrarAsistencia(req, res, next) {
 
 
 
-        if (!enhorario) return res.status(400).json({ ok: false, err: { message: 'FueraDeHorario' } })
-            // let event = await obtenerUltimoEvento(empleadoid);
+        if (!enhorario) return res.status(400).json({ ok: false, message: 'El empleado se encuentra fuera de horario laboral', code: 2 });
+        // let event = await obtenerUltimoEvento(empleadoid);
         let tiempo = await obtenerTiempoLaborado(empleadoid);
         let event = 1;
         let { data } = tiempo;
@@ -73,13 +73,13 @@ export async function registrarAsistencia(req, res, next) {
 
 
         // Guarda una Salida pendiente.
-        await crearSalidaPendiente(event, {
-            horafin,
-            latitud,
-            longitud,
-            dispositivoid,
-            empleadoid
-        });
+        // await crearSalidaPendiente(event, {
+        //     horafin,
+        //     latitud,
+        //     longitud,
+        //     dispositivoid,
+        //     empleadoid
+        // });
 
         // Crea una asistencia
         const asistencia = await crearAsistencia({ empleadoid, dispositivoid, latitud, longitud, eventoid: event });
@@ -160,6 +160,28 @@ export async function registrarAsistenciaWeb(req, res, next) {
     } catch (err) {
         next(err);
     }
+}
+
+export async function sincronizarAsistencia(req, res, next) {
+    const { id } = req.data;
+    let event = await obtenerUltimoEvento(id);
+    console.log(event);
+    try {
+        let { dispositivoid, latitud, longitud, hora } = req.body;
+        const asistencia = await Asistencia.create({
+            dispositivoid,
+            empleadoid: id,
+            hora,
+            latitud,
+            longitud,
+            eventoid: event
+        }, {
+            fields: ['dispositivoid', 'empleadoid', 'hora', 'latitud', 'longitud', 'eventoid']
+        });
+        return res.json({ data: asistencia })
+    } catch (error) {
+        next(error);
+    };
 }
 
 

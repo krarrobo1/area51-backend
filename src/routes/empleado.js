@@ -7,7 +7,7 @@ const router = Router();
 // router.post('/', [verificarToken, verificarAdmin], crearEmpleado);
 
 
-router.post('/', [verificarToken, verificarSuperAdmin], crearEmpleado);
+router.post('/', crearEmpleado);
 router.post('/password', setPassword);
 router.post('/forgot', forgotPassword);
 router.get('/:id', [verificarToken, verificarAdmin], obtenerEmpleado);

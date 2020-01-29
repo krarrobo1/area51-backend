@@ -46,7 +46,9 @@ const devConfig = {
 const prodConfig = {
     dialect: 'postgres',
     dialectOptions: {
-        ssl: true
+        ssl: {
+            require: true
+        }
     },
     pool: {
         max: 20,
@@ -54,7 +56,8 @@ const prodConfig = {
         acquire: 30000,
         idle: 10000
     },
-    logging: false
+    logging: false,
+    ssl: true
 }
 
 

@@ -3,6 +3,9 @@ import { dburi, dbconfig } from '../config/config';
 
 export const sequelize = new Sequelize(dburi, dbconfig);
 
+// console.log('DBCONF!!!', ({ dbconf: sequelize }));
+
+
 sequelize
     .authenticate()
     .then(() => {

@@ -1,5 +1,5 @@
 import Cargo from '../models/Cargo';
-export async function crearCargo(req, res) {
+export async function crearCargo(req, res, next) {
     const { empresaid, nombre } = req.body;
     try {
         const nuevoCargo = await Cargo.create({
@@ -9,21 +9,14 @@ export async function crearCargo(req, res) {
             fields: ['empresaid', 'nombre']
         });
 
-        if (nuevoCargo) {
-            res.json({
-                message: 'Cargo creado correctamente',
-                data: nuevoCargo
-            });
-        }
+        return res.json({ message: 'Cargo creado correctamente', data: nuevoCargo });
+
     } catch (err) {
-        res.status(500).json({
-            ok: false,
-            err
-        });
+        next(err);
     }
 }
 
-export async function modificarCargo(req, res) {
+export async function modificarCargo(req, res, next) {
     const { id } = req.params;
     const { nombre } = req.body;
     try {
@@ -32,19 +25,15 @@ export async function modificarCargo(req, res) {
                 id
             }
         });
-        return res.json({
-            ok: true,
-            message: 'Cargo modificado'
-        })
+
+        if (cargo[0] === 0) return res.status(404).json({ ok: false, message: 'Cargo no encontrado' })
+        return res.json({ ok: true, message: 'Cargo modificado satisfactoriamente' })
     } catch (err) {
-        res.status(500).json({
-            ok: false,
-            err
-        });
+        next(err);
     }
 }
 
-export async function obtenerCargo(req, res) {
+export async function obtenerCargo(req, res, next) {
     const { id } = req.params;
     try {
         const cargo = await Cargo.findOne({
@@ -55,36 +44,27 @@ export async function obtenerCargo(req, res) {
         if (!cargo) return res.status(404).json({ ok: false, err: { message: `Cargo con id ${id} no encontrado...` } });
         return res.json({ ok: true, data: cargo });
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message }
-        });
+        next(err);
     }
 }
 
-export async function eliminarCargo(req, res) {
+export async function eliminarCargo(req, res, next) {
     const { id } = req.params;
     try {
-        await Cargo.destroy({
+        let deleted = await Cargo.destroy({
             where: {
                 id
             }
         });
 
-        res.json({
-            ok: true,
-            message: 'Cargo eliminado...'
-        });
+        if (deleted === 0) return res.status(404).json({ ok: false, message: 'Cargo no encontrado' });
+        return res.json({ ok: true, message: 'Cargo eliminado satisfactoriamente' });
     } catch (err) {
-        res.status(500).json({
-            ok: false,
-            err
-        });
+        next(err);
     }
 }
 
-export async function obtenerCargosPorEmpresaId(req, res) {
+export async function obtenerCargosPorEmpresaId(req, res, next) {
     const { empresaid } = req.params;
     try {
         const cargos = await Cargo.findAll({
@@ -92,14 +72,8 @@ export async function obtenerCargosPorEmpresaId(req, res) {
                 empresaid
             }
         });
-        res.json({
-            ok: true,
-            data: cargos
-        });
+        return res.json({ ok: true, data: cargos });
     } catch (err) {
-        res.status(500).json({
-            ok: false,
-            err
-        });
+        next(err);
     }
 }

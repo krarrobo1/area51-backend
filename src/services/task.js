@@ -3,7 +3,7 @@ import Asistencia from '../models/Asistencia';
 import * as dt from 'date-fns';
 import { es } from 'date-fns/locale';
 
-import io from '../index';
+// import io from '../index';
 
 
 
@@ -30,20 +30,20 @@ export async function marcarSalidas() {
                 let eventoid = 2;
                 let objTemp = { empleadoid, dispositivoid, latitud, longitud, eventoid };
 
-
-                let active = io.sockets.sockets;
+                // let active = io.sockets.sockets;
                 // console.log({ active });
                 // TODO: Revisar...
-                let socketid = await redis.getAsync(`${empleadoid}`);
-                let sesion = active[socketid];
+                // let socketid = await redis.getAsync(`${empleadoid}`);
+                // let sesion = active[socketid];
 
-                console.log({ sesion: sesion })
-                if (sesion) {
-                    console.log('Haciendo desconexion por CRONTASK');
-                    sesion.disconnect();
-                }
+                // console.log({ sesion: sesion })
+                // if (sesion) {
+                //     console.log('Haciendo desconexion por CRONTASK');
+                //     sesion.disconnect();
+                // }
 
                 await crearAsistencia(objTemp);
+
                 // Elimina las salidas pendientes
                 await Temp.destroy({ where: { id } });
 

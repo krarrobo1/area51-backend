@@ -23,11 +23,6 @@ export async function crearPermiso(req, res, next) {
         })
 
     } catch (err) {
-        /*const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message: message }
-        });*/
         next(err);
     }
 }
@@ -57,12 +52,13 @@ export async function modificarPermiso(req, res, next) {
 export async function eliminarPermiso(req, res, next) {
     const { id } = req.params;
     try {
-        await DetallePermiso.destroy({
+        let deleted = await DetallePermiso.destroy({
             where: {
                 id
             }
         });
-        return res.json({ ok: true, message: 'Permiso eliminado...' });
+        if (deleted === 0) return res.status(404).json({ ok: false, message: 'Permiso no encontrado' });
+        return res.json({ ok: true, message: 'Permiso eliminado satisfactoriamente' });
     } catch (err) {
         next(err);
     }

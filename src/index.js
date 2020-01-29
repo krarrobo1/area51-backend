@@ -3,7 +3,7 @@ require("@babel/polyfill");
 import app from './app';
 import { port, time } from './config/config';
 
-import http from 'http';
+
 import { marcarSalidas } from './services/task';
 // import { stillActive } from './services/pingTask';
 import cron from 'node-cron';
@@ -12,7 +12,7 @@ import cron from 'node-cron';
 
 
 
-let server = http.Server(app);
+// let server = http.Server(app);
 
 // Revisa cada 20 minutos si siguen activos
 //cron.schedule('*/20 * * * *', stillActive).start();
@@ -40,6 +40,6 @@ require('./sockets/socket');*/
 // });
 
 
-server.listen(port, () => {
+app.listen(port, () => {
     console.log(`Listening on ${port}`);
 });

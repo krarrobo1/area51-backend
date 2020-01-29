@@ -68,13 +68,11 @@ export async function eliminarEmpresa(req, res, next) {
                 id
             }
         });
-        if (empresa == 0) return res.status(404).json({ ok: false, err: { message: `Empresa con ID: ${id} no encontrada...` } })
+        if (empresa === 0) return res.status(404).json({ ok: false, message: 'Empresa no encontrada' })
         return res.json({
             ok: true,
-            message: 'Empresa eliminada...'
+            message: 'Empresa eliminada satisfactoriamente'
         })
-
-        //let empresa = await Empresa.update({})
     } catch (err) {
         next(err);
     }
@@ -89,17 +87,15 @@ export async function actualizarEmpresa(req, res, next) {
         if (latitud !== undefined && longitud !== undefined) {
             direccion = await getAddress(latitud, longitud);
         }
-        console.log(direccion);
-        await Empresa.update({ nombre, latitud, longitud, radio, estado, direccion }, {
+        let updated = await Empresa.update({ nombre, latitud, longitud, radio, estado, direccion }, {
             where: {
                 id
             }
         });
 
-        return res.json({
-            ok: true,
-            message: 'Empresa actualizada...'
-        });
+        if (updated[0] === 0) return res.status(404).json({ ok: false, message: 'Empresa no encontrada' });
+        return res.json({ ok: true, message: 'Empresa actualizada satisfactoriamente' });
+
     } catch (err) {
         next(err);
     }

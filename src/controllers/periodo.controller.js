@@ -27,10 +27,7 @@ export async function obtenerPeriodoPorIdCargo(req, res, next) {
                 cargoid: id
             }
         });
-        return res.json({
-            ok: true,
-            data: periodos
-        });
+        return res.json({ ok: true, data: periodos });
 
     } catch (err) {
         next(err);
@@ -48,6 +45,7 @@ export async function modificarPeriodo(req, res, next) {
             }
         });
 
+        if (periodo[0] === 0) return res.status(404).json({ ok: false, message: 'Periodo no encontrado' })
         return res.json({
             ok: true,
             message: 'Periodo modificado correctamente'
@@ -60,16 +58,13 @@ export async function modificarPeriodo(req, res, next) {
 export async function eliminarPeriodo(req, res, next) {
     const { id } = req.params;
     try {
-        await Periodo.destroy({
+        let deleted = await Periodo.destroy({
             where: {
                 id
             }
         });
-
-        return res.json({
-            ok: true,
-            message: 'Periodo eliminado'
-        })
+        if (deleted === 0) return res.status(404).json({ ok: false, message: 'Periodo no encontrado' });
+        return res.json({ ok: true, message: 'Periodo eliminado satisfactoriamente' });
     } catch (err) {
         next(err);
     }
@@ -83,17 +78,8 @@ export async function obtenerPeriodo(req, res, next) {
                 id
             }
         });
-
-        if (!periodo) {
-            res.status(404).json({
-                ok: false,
-                message: 'Periodo no encontrado'
-            });
-        }
-        return res.json({
-            ok: true,
-            data: periodo
-        });
+        if (!periodo) return res.status(404).json({ ok: false, message: 'Periodo no encontrado' });
+        return res.json({ ok: true, data: periodo });
     } catch (err) {
         next(err);
     }

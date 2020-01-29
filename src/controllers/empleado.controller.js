@@ -12,7 +12,6 @@ export async function crearEmpleado(req, res, next) {
     try {
         // Secret Key
         let passresetkey = shortid.generate();
-
         let nuevoEmpleado = await Empleado.create({
             nombres,
             apellidos,
@@ -42,7 +41,7 @@ export async function crearEmpleado(req, res, next) {
         }
 
         await sendEmail(message, res);
-        console.log(`Email sended ${email}...`);
+        console.log(`Email enviado a: ${email}`);
 
         if (rolid <= 2) {
             let nuevoDispositivo = await Dispositivo.create({
@@ -83,21 +82,17 @@ export async function forgotPassword(req, res, next) {
         if (!empleadoDB) return res.status(404).json({ ok: false, err: { message: 'EmpleadoNoEncontrado' } });
         let passresetkey = shortid.generate();
 
-
         await Empleado.update({ passresetkey }, {
             where: {
                 id: empleadoDB.id
             }
         });
 
-
-
         let message = {
             to: email,
             subject: `Registrate App | Reestablece tu contraseña`,
             html: `<div style="background-color: #f6f6f6ff; padding: 12px; font-family:font-family: Arial, Helvetica, sans-serif ''">
             <h3>Cambio de contraseña</h3>
-              <!--<img src=""></img> -->
                 <p style="text-align: justify;">Has solicitado un cambio de constraseña, ingresa al siguiente <a href="https://registrateapp.com.ec/login/configurar?key=${passresetkey} ">enlace </a> para escoger tu nueva constraseña.
                 </p>
                 <p>Si no deseas cambiar tu contraseña ignora este email y tu contraseña no cambiará.</p>
@@ -119,16 +114,16 @@ export async function setPassword(req, res, next) {
             },
             attributes: ['id', 'passresetkey']
         });
-        if (!empleadoDB) return res.status(404).json({ ok: false, err: { message: `EmpleadoNoEncontrado` } });
+        if (!empleadoDB) return res.status(404).json({ ok: false, err: { message: `No se pudo encontrar al usuario` } });
         let { id, passresetkey } = empleadoDB;
-
         let encrypted = await bcrypt.hash(password, 10);
         let updated = await Empleado.update({ password: encrypted, passresetkey: '' }, {
             where: {
                 id
             }
         });
-        return res.json({ ok: true, message: 'Password reestablecido' });
+        if (updated[0] === 0) return res.json({ ok: false, message: 'No se pudo reestablecer el Password' });
+        return res.json({ ok: true, message: 'Password reestablecido satisfactoriamente' });
 
     } catch (err) {
         next(err);
@@ -156,14 +151,13 @@ export async function obtenerEmpleadosPorEmpresa(req, res, next) {
                 { model: Rol }
             ]
         });
-        if (empleados.length === 0) return res.json({ ok: true, data: [] });
         return res.json({ ok: true, data: empleados });
     } catch (err) {
         next(err);
     }
 }
 
-export async function obtenerEmpleado(req, res) {
+export async function obtenerEmpleado(req, res, next) {
     const { id } = req.params;
     try {
         let empleado = await Empleado.findOne({
@@ -181,11 +175,7 @@ export async function obtenerEmpleado(req, res) {
         delete empleado.dataValues.password;
         return res.json({ ok: true, data: empleado });
     } catch (err) {
-        const message = err.errors[0].message;
-        return res.status(500).json({
-            ok: false,
-            err: { message }
-        });
+        next(err);
     }
 }
 
@@ -193,24 +183,15 @@ export async function modificarEmpleado(req, res, next) {
     const { nombres, apellidos, ci, email, cargoid } = req.body;
     const { id } = req.params;
     try {
-        await Empleado.update({ nombres, apellidos, ci, email, cargoid }, {
+        let updated = await Empleado.update({ nombres, apellidos, ci, email, cargoid }, {
             where: {
                 id
             }
         }, {
             fields: ['nombres', 'apellidos', 'ci', 'email', 'cargoid']
         });
-        return res.json({
-            ok: true,
-            data: {
-                id,
-                nombres,
-                apellidos,
-                ci,
-                email,
-                cargoid
-            }
-        });
+        if (updated[0] === 0) return res.status(404).json({ ok: false, message: 'Empleado no encontrado' });
+        return res.json({ ok: true, message: 'Empleado actualizado satisfactoriamente' });
     } catch (err) {
         next(err);
     }
@@ -219,15 +200,14 @@ export async function modificarEmpleado(req, res, next) {
 export async function eliminarEmpleado(req, res, next) {
     const { id } = req.params;
     try {
-        await Empleado.destroy({
+        let deleted = await Empleado.destroy({
             where: {
                 id
             }
         });
-        return res.json({
-            ok: true,
-            message: 'Empleado eliminado correctamente'
-        })
+        if (deleted === 0) return res.status(404).json({ ok: false, message: 'Empleado no encontrado' });
+        return res.json({ ok: true, message: 'Empleado eliminado satisfactoriamente' });
+
     } catch (err) {
         next(err);
     }
