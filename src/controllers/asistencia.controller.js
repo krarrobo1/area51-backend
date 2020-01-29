@@ -61,11 +61,11 @@ export async function registrarAsistencia(req, res, next) {
 
 
         if (!enhorario) return res.status(400).json({ ok: false, message: 'El empleado se encuentra fuera de horario laboral', code: 2 });
-        // let event = await obtenerUltimoEvento(empleadoid);
-        let tiempo = await obtenerTiempoLaborado(empleadoid);
-        let event = 1;
-        let { data } = tiempo;
-        data.evento === 'Entrada' ? event = 2 : event = 1;
+        let event = await obtenerUltimoEvento(empleadoid);
+        // let tiempo = await obtenerTiempoLaborado(empleadoid);
+        // let event = 1;
+        // let { data } = tiempo;
+        // data.evento === 'Entrada' ? event = 2 : event = 1;
 
         // if (event === 1) await redis.setexAsync(empleadoid, 60 * 20, 'true'); // Guarda el key en redis por 20 minutos
 
@@ -86,7 +86,7 @@ export async function registrarAsistencia(req, res, next) {
 
         asistencia.dataValues.horainicio = horainicio;
         asistencia.dataValues.horafin = horafin;
-        asistencia.dataValues.tiempoLaborado = data.tiempoLaborado;
+        // asistencia.dataValues.tiempoLaborado = data.tiempoLaborado;
 
         return res.json({ ok: true, data: asistencia });
     } catch (err) {
