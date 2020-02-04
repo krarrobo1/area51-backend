@@ -20,18 +20,12 @@ import dia from './routes/dia';
 const app = express();
 
 
-// Solo para prueba Socket.io
-let appDir = path.resolve(__dirname, '../public');
-
-
-app.use(express.static(`${appDir}`));
-
-console.log(appDir);
-
 // Middlewares
 app.use(cors());
+// Logger
 app.use(morgan('dev'));
 app.use(json());
+
 
 app.use('/api/empresa', empresaRoutes);
 app.use('/api/empleado', empleadoRoutes);
@@ -48,11 +42,7 @@ app.use('/api/dias', dia);
 
 app.use(function(err, req, res, next) {
     let { name, message } = err;
-
-    console.log(err);
-    /*console.log('name', err.name);
-    console.log('Error stack: ', err.stack);
-    console.log('message: ', err.message);*/
+    console.log(`Server Error: ${err}`);
     if (message === 'Validation error') {
         let stack = err.errors[0].message;
         return res.status(500).json({ ok: false, err: { message: `ErrorDeValidacion: ${stack}` } });
@@ -62,8 +52,6 @@ app.use(function(err, req, res, next) {
     } else {
         return res.status(500).json({ ok: false, err: { message } });
     }
-
-
 });
 
 export default app;

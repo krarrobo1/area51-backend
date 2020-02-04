@@ -3,12 +3,6 @@ import Asistencia from '../models/Asistencia';
 import * as dt from 'date-fns';
 import { es } from 'date-fns/locale';
 
-// import io from '../index';
-
-
-
-import redis from './redis-client';
-
 
 export async function marcarSalidas() {
     let now = dt.format(Date.now(), 'HH:mm:ss', { locale: es });

@@ -3,7 +3,7 @@ import { google_key } from '../config/config';
 
 
 
-async function getAddress(lat, lgn) {
+export async function getAddress(lat, lgn) {
     const endpoint = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lgn}&key=${google_key}`;
     try {
         let response = await axios.get(endpoint, { Accept: 'application/json', 'Content-Type': 'application/json' });
@@ -13,5 +13,3 @@ async function getAddress(lat, lgn) {
         return err;
     }
 }
-
-module.exports = { getAddress };

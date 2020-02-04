@@ -17,7 +17,7 @@ const Dispositivo = sequelize.define('dispositivo', {
         allowNull: true
     },
     imei: {
-        type: STRING,
+        type: STRING
     },
     estado: {
         type: BOOLEAN

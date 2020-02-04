@@ -12,7 +12,7 @@ import Temp from '../models/Temp';
 
 import stream from 'stream';
 import { add, sub } from 'timelite/time'
-import redis from '../services/redis-client';
+
 
 import { createReport } from '../services/excelgenerator';
 import * as dt from 'date-fns';

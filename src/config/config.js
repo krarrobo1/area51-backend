@@ -1,5 +1,5 @@
 export const port = process.env.PORT || 4000;
-export const time = process.env.CRON || '*/1 * * * *';
+export const time = process.env.CRON || '*/15 * * * *';
 
 export const env = process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
 
