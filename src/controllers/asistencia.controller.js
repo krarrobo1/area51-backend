@@ -281,14 +281,21 @@ async function obtenerTiempoLaborado(id) {
     `;
     try {
         let asistencias = await sequelize.query(QUERY, { type: QueryTypes.SELECT });
-        console.log(`Asistencias de hoy: ${asistencias.length}`, { asistencias });
         let ultimaAsistencia = asistencias[asistencias.length - 1];
         if (!ultimaAsistencia) return { message: 'SinRegistros', data: { tiempoLaborado: "0:0:0" } };
+
+        // Si el primer registro es una salida no se toma en cuenta en el conteo.
+        if (asistencias[0].evento === 'Salida') asistencias.shift();
+
+        // Agrupamos entradas y salidas
         asistencias.forEach(asistencia => { asistencia.evento === 'Entrada' ? entradas.push(asistencia) : salidas.push(asistencia) });
+
+        // Si el ultimo registro es una entrada lo sustraemos con la hora actual.
         if (ultimaAsistencia.evento === 'Entrada') {
             let tiempoActual = new Date();
             salidas.push({ hora: `${tiempoActual.toTimeString().split(' ')[0]}` });
         }
+
 
         if (entradas.length === salidas.length) {
             console.log('CONTANDO HORAS!!!!!!!!!!');
