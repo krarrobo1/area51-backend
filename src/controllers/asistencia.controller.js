@@ -299,7 +299,7 @@ async function obtenerTiempoLaborado(id) {
 
         if (entradas.length === salidas.length) {
             console.log('CONTANDO HORAS!!!!!!!!!!');
-            console.log({ entradas, salidas });
+            //console.log({ entradas, salidas });
             for (let i = 0; i < entradas.length; i++) {
                 const etemp = entradas[i];
                 const stemp = salidas[i];
@@ -309,6 +309,7 @@ async function obtenerTiempoLaborado(id) {
 
                 let temp = sub([shour, ehour]).join(':');
                 total === null ? total = temp : total = add([temp, total]).join(':');
+                console.log({ total });
             }
         }
         return { data: { tiempoLaborado: total, evento: ultimaAsistencia.evento } }
