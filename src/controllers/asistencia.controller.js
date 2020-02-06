@@ -290,6 +290,8 @@ async function obtenerTiempoLaborado(id) {
         }
 
         if (entradas.length === salidas.length) {
+            console.log('CONTANDO HORAS!!!!!!!!!!');
+            console.log({ entradas, salidas });
             for (let i = 0; i < entradas.length; i++) {
                 const etemp = entradas[i];
                 const stemp = salidas[i];
