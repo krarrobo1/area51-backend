@@ -307,9 +307,10 @@ async function obtenerTiempoLaborado(id) {
                 let { hora: ehour } = etemp;
                 let { hora: shour } = stemp;
 
+
                 let temp = sub([shour, ehour]).join(':');
                 total === null ? total = temp : total = add([temp, total]).join(':');
-                console.log({ total });
+                console.log({ ehour, shour, total });
             }
         }
         return { data: { tiempoLaborado: total, evento: ultimaAsistencia.evento } }
