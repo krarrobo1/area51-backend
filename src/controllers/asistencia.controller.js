@@ -281,7 +281,7 @@ async function obtenerTiempoLaborado(id) {
     `;
     try {
         let asistencias = await sequelize.query(QUERY, { type: QueryTypes.SELECT });
-        console.log('Asistencias de hoy: ', { asistencias });
+        console.log(`Asistencias de hoy: ${asistencias.length}`, { asistencias });
         let ultimaAsistencia = asistencias[asistencias.length - 1];
         if (!ultimaAsistencia) return { message: 'SinRegistros', data: { tiempoLaborado: "0:0:0" } };
         asistencias.forEach(asistencia => { asistencia.evento === 'Entrada' ? entradas.push(asistencia) : salidas.push(asistencia) });
