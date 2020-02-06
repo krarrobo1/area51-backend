@@ -309,6 +309,7 @@ async function obtenerTiempoLaborado(id) {
 
 
                 let temp = sub([shour, ehour]).join(':');
+                console.log('Temp: ', { temp });
                 total === null ? total = temp : total = add([temp, total]).join(':');
                 console.log({ ehour, shour, total });
             }
