@@ -11,7 +11,7 @@ import Temp from '../models/Temp';
 
 
 import stream from 'stream';
-import { add, sub } from 'timelite/time'
+import { subDateTime, addTime } from '../services/timecalculator';
 
 
 import { createReport } from '../services/excelgenerator';
@@ -271,7 +271,7 @@ async function obtenerTiempoLaborado(id) {
         total = null;
     let hoy = dt.format(Date.now(), 'dd/MM/yyyy');
 
-    const QUERY = `SELECT TO_CHAR(ASIS.HORA, 'HH24:MI:SS') hora, asis.hora fecha,EVENT.NOMBRE evento
+    const QUERY = `SELECT TO_CHAR(ASIS.HORA, 'dd/mm/yyyy HH24:MI:SS') hora, asis.hora fecha,EVENT.NOMBRE evento
     FROM ASISTENCIAS ASIS, EVENTOS EVENT
     WHERE 
     ASIS.EMPLEADOID = ${id}
@@ -293,7 +293,7 @@ async function obtenerTiempoLaborado(id) {
         // Si el ultimo registro es una entrada lo sustraemos con la hora actual.
         if (ultimaAsistencia.evento === 'Entrada') {
             let tiempoActual = new Date();
-            salidas.push({ hora: `${tiempoActual.toTimeString().split(' ')[0]}` });
+            salidas.push({ hora: `${hoy} ${tiempoActual.toTimeString().split(' ')[0]}` });
         }
 
 
@@ -307,10 +307,9 @@ async function obtenerTiempoLaborado(id) {
                 let { hora: ehour } = etemp;
                 let { hora: shour } = stemp;
 
+                let temp = subDateTime(new Date(ehour), new Date(shour));
 
-                let temp = sub([shour, ehour]).join(':');
-                console.log('Temp: ', { temp });
-                total === null ? total = temp : total = add([temp, total]).join(':');
+                total === null ? total = temp : total = addTime(temp, total);
                 console.log({ ehour, shour, total });
             }
         }
@@ -342,6 +341,7 @@ export async function descargarReporteAsistencias(req, res, next) {
                 ORDER BY TIMEST`;
 
         let registros = await sequelize.query(q2, { type: QueryTypes.SELECT });
+        console.log(registros);
         let buffer = await createReport(registros, employee[0]);
         if (!buffer) return res.json({ ok: true, message: 'Sin registros para generar reporte' });
 
