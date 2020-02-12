@@ -84,7 +84,6 @@ import { sequelize } from '../database/database';
 export async function registrarDispositivo(req, res, next) {
     const { id: empleadoid } = req.data;
     const { imei, nombre, modelo } = req.body;
-    const data = req.body;
     try {
         let result = await sequelize.transaction(async(t) => {
             // Verifica si el imei ya esta registrado en DB
@@ -93,7 +92,7 @@ export async function registrarDispositivo(req, res, next) {
             if (existente) {
                 // Verifica si el imei le pertenece al empleado
                 if (existente.empleadoid === empleadoid) {
-                    await Dispositivo.update(data, { where: { id: existente.id } });
+                    await Dispositivo.update({nombre, modelo}, { where: { id: existente.id } });
                     return { id: existente.id, nombre, modelo, imei, empleadoid, estado: estadoTemp };
                 }
                 estadoTemp = false;
