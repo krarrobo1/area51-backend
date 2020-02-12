@@ -197,8 +197,8 @@ function writeRow(ws, row, i, registry, empresa) {
 function getDailyTotal(entradas, salidas) {
     let total = '';
     const mockDate = '01/01/2020';
-    (entradas.length > salidas.length) ? entradas.shift() : salidas.pop();
-    console.log('CONTEO!!!! \n',{entradas, salidas});   
+    if(entradas.length > salidas.length) entradas.shift();
+    else if (salidas.lengh > entradas.lenght) salidas.pop();  
     for (let i = 0; i < entradas.length; i++) {
         let totalTemp = subDateTime(new Date(`${mockDate} ${salidas[i]}`), new Date(`${mockDate} ${entradas[i]}`));
         (total === '') ? total = totalTemp : total = addTime(total, totalTemp);
