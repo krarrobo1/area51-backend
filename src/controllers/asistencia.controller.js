@@ -265,6 +265,7 @@ export async function obtenerTiempoAsistencia(req, res, next) {
     }
 }
 
+// TODO: Chequear caso Doble Entrada | Salida.
 async function obtenerTiempoLaborado(id) {
     let entradas = [],
         salidas = [],
@@ -281,38 +282,47 @@ async function obtenerTiempoLaborado(id) {
     `;
     try {
         let asistencias = await sequelize.query(QUERY, { type: QueryTypes.SELECT });
+        if (asistencias.length === 0) return { message: 'SinRegistros', data: { tiempoLaborado: "00:00:00" } };
+
         let ultimaAsistencia = asistencias[asistencias.length - 1];
-        if (!ultimaAsistencia) return { message: 'SinRegistros', data: { tiempoLaborado: "0:0:0" } };
 
         // Si el primer registro es una salida no se toma en cuenta en el conteo.
         if (asistencias[0].evento === 'Salida') asistencias.shift();
 
         // Agrupamos entradas y salidas
-        asistencias.forEach(asistencia => { asistencia.evento === 'Entrada' ? entradas.push(asistencia) : salidas.push(asistencia) });
+        // asistencias.forEach(asistencia => { asistencia.evento === 'Entrada' ? entradas.push(asistencia) : salidas.push(asistencia) });
 
         // Si el ultimo registro es una entrada lo sustraemos con la hora actual.
         if (ultimaAsistencia.evento === 'Entrada') {
             let tiempoActual = new Date();
-            salidas.push({ hora: `${hoy} ${tiempoActual.toTimeString().split(' ')[0]}` });
+            asistencias.push({hora: `${hoy} ${tiempoActual.toTimeString().split(' ')[0]}`,evento: 'Salida'});
+            // salidas.push({ hora: `${hoy} ${tiempoActual.toTimeString().split(' ')[0]}` });
         }
-
-
-        if (entradas.length === salidas.length) {
-            console.log('CONTANDO HORAS!!!!!!!!!!');
-            //console.log({ entradas, salidas });
-            for (let i = 0; i < entradas.length; i++) {
-                const etemp = entradas[i];
-                const stemp = salidas[i];
-
-                let { hora: ehour } = etemp;
-                let { hora: shour } = stemp;
-
-                let temp = subDateTime(new Date(ehour), new Date(shour));
-
-                total === null ? total = temp : total = addTime(temp, total);
-                console.log({ ehour, shour, total });
-            }
+        let temp = null;
+        for (let i = 0; i < asistencias.length; i++) {
+            let {hora, evento} = asistencias[i];
+            if(temp === null) temp = {hora, evento};
+            else{
+                if(temp.evento !== 'Entrada') break;
+                let sum = subDateTime(new Date(temp.hora),new Date(hora));
+                total === null ? total = sum : total = addTime(sum, total);
+                temp = null;
+            } 
         }
+        // if (entradas.length === salidas.length) {
+        //     for (let i = 0; i < entradas.length; i++) {
+        //         const etemp = entradas[i];
+        //         const stemp = salidas[i];
+
+        //         let { hora: ehour } = etemp;
+        //         let { hora: shour } = stemp;
+
+        //         let temp = subDateTime(new Date(ehour), new Date(shour));
+
+        //         total === null ? total = temp : total = addTime(temp, total);
+        //         // console.log({ ehour, shour, total });
+        //     }
+        // }
         return { data: { tiempoLaborado: total, evento: ultimaAsistencia.evento } }
     } catch (err) {
         throw err;
@@ -329,7 +339,7 @@ export async function descargarReporteAsistencias(req, res, next) {
         and emp.empresaid = empr.id`;
         let employee = await sequelize.query(q1, { type: QueryTypes.SELECT });
 
-        if (employee.length === 0) return res.status(404).json({ ok: false, message: 'UsuarioNoEncontrado' });
+        if (employee.length === 0) return res.status(404).json({ ok: false, message: 'Usuario no encontrado' });
 
         const q2 = `
         SELECT ASIS.HORA TIMEST, TO_CHAR(ASIS.HORA, 'HH24:MI:SS') hora, TO_CHAR(ASIS.HORA, 'dd/mm/yyyy')fecha,DISP.NOMBRE dispositivo, EVENT.NOMBRE evento
@@ -341,7 +351,6 @@ export async function descargarReporteAsistencias(req, res, next) {
                 ORDER BY TIMEST`;
 
         let registros = await sequelize.query(q2, { type: QueryTypes.SELECT });
-        console.log(registros);
         let buffer = await createReport(registros, employee[0]);
         if (!buffer) return res.json({ ok: true, message: 'Sin registros para generar reporte' });
 

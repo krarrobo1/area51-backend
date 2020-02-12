@@ -9,7 +9,7 @@ router.get('/empresa/:empresaid', [verificarToken, verificarAdmin], obtenerPermi
 router.post('/', verificarToken, crearPermiso);
 router.post('/all', [verificarToken, verificarAdmin], crearPermisoGeneral);
 router.put('/:id', [verificarToken, verificarAdmin], modificarPermiso);
-router.delete('/:id', [verificarToken, verificarAdmin], eliminarPermiso);
+router.delete('/:id', verificarToken, eliminarPermiso);
 
 
 export default router;

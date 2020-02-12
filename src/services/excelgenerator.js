@@ -1,6 +1,5 @@
 import * as dt from 'date-fns';
-
-import { add, sub } from 'timelite/time'
+import { addTime, subDateTime } from './timecalculator';
 import { es } from 'date-fns/locale';
 
 import ExcelJS from 'exceljs';
@@ -196,50 +195,21 @@ function writeRow(ws, row, i, registry, empresa) {
 }
 
 function getDailyTotal(entradas, salidas) {
-    let total = 0;
-    if (entradas.length === salidas.length) {
-        const mockDate = '01/01/2020';
-        let total = '';
-        for (let i = 0; i < entradas.length; i++) {
-            /*let entrada = new Date(`${mockDate} ${entradas[i]}`),
-                salida = new Date(`${mockDate} ${salidas[i]}`);*/
-
-            console.log({ entrada: `${entradas[i]}`, salida: `${salidas[i]}`, resta: `${sub([`${salidas[i]}`, `${entradas[i]}`])}` });
-            let resta = sub([`${salidas[i]}`, `${entradas[i]}`]);
-            let totalTemp = `${resta[0]}:${resta[1]}:${resta[2]}`;
-            if(total === '') total = totalTemp;
-            /*let result = dt.differenceInMilliseconds(salida, entrada);
-            let utcDate = new Date(result);
-            let totalTemp = `${utcDate.getUTCHours()}:${utcDate.getUTCMinutes()}:${utcDate.getUTCSeconds()}`;
-            if (total === '') total = totalTemp;*/
-            else {
-
-                let suma = add([total, totalTemp]);
-
-                total = `${suma[0]}:${suma[1]}:${suma[2]}`;
-                // let lastTotal = new Date(`${mockDate} ${total}`);
-                // let sum = dt.addMilliseconds(lastTotal, result);
-                // let newTotal = sum.toLocaleTimeString().split(' ')[0];
-                // total = newTotal;
-            }
-        }
-        return total;
-    } else {
-        return 0;
+    let total = '';
+    const mockDate = '01/01/2020';
+    (entradas.length > salidas.length) ? entradas.shift() : salidas.pop();    
+    for (let i = 0; i < entradas.length; i++) {
+        let totalTemp = subDateTime(new Date(`${mockDate} ${salidas[i]}`), new Date(`${mockDate} ${entradas[i]}`));
+        (total === '') ? total = totalTemp : total = addTime(total, totalTemp);
     }
+    return total;
 }
 
 function getMonthlyTotal(totales) {
     let total = '';
-    const mockDate = '01/01/2020';
     for (let i = 0; i < totales.length; i++) {
-        let temp = totales[i].split(' ')[0];
-        if (total === '') {
-            total = temp;
-        } else {
-            let lastTotal = add([total, temp]);
-            total = `${lastTotal[0]}:${lastTotal[1]}:${lastTotal[2]}`
-        }
+        let temp = totales[i];
+        (total === '') ? total = temp : total = addTime([total, temp]);
     }
     return total;
 }

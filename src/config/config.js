@@ -3,7 +3,7 @@ export const time = process.env.CRON || '*/15 * * * *';
 
 export const env = process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
 
-export const dburi = process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgres://postgres:@localhost:5432/nueva';
+export const dburi = process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgres://postgres:1234@localhost:5432/nueva';
 export const seed = process.env.SEED = process.env.SEED || '19wrqk12n3f876653deyuop';
 
 export const google_key = process.env.GOOGLE_KEY;
