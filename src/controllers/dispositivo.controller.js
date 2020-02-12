@@ -94,7 +94,7 @@ export async function registrarDispositivo(req, res, next) {
                 // Verifica si el imei le pertenece al empleado
                 if (existente.empleadoid === empleadoid) {
                     await Dispositivo.update(data, { where: { id: existente.id } });
-                    return { nombre, modelo, imei, empleadoid, estado: estadoTemp };
+                    return { id: existente.id, nombre, modelo, imei, empleadoid, estado: estadoTemp };
                 }
                 estadoTemp = false;
             }
