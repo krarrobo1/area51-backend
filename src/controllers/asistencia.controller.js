@@ -304,7 +304,8 @@ async function obtenerTiempoLaborado(id) {
             //console.log({asis:asistencias[i]});
             let {evento, fecha} = asistencias[i];
             if(temp === null) temp = {evento, fecha};
-            else{      
+            else{
+                //if(temp.evento === 'Entrada') continue;      
                 let sum = subDateTime(temp.fecha,fecha);
                 total === null ? total = sum : total = addTime(sum, total);
                 temp = null;
