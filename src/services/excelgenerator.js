@@ -199,9 +199,13 @@ function getDailyTotal(entradas, salidas) {
     const mockDate = '01/01/2020';
     if(entradas.length > salidas.length) entradas.shift();
     else if (salidas.lengh > entradas.lenght) salidas.pop();  
-    for (let i = 0; i < entradas.length; i++) {
+    for (let i = 0; i < entradas.length; i++) { 
         let totalTemp = subDateTime(new Date(`${mockDate} ${salidas[i]}`), new Date(`${mockDate} ${entradas[i]}`));
+        console.log({totalTemp});
+        
         (total === '') ? total = totalTemp : total = addTime(total, totalTemp);
+        console.log({total});
+        
     }
     return total;
 }
@@ -210,7 +214,7 @@ function getMonthlyTotal(totales) {
     let total = '';
     for (let i = 0; i < totales.length; i++) {
         let temp = totales[i];
-        (total === '') ? total = temp : total = addTime([total, temp]);
+        (total === '') ? total = temp : total = addTime(total, temp);
     }
     return total;
 }
