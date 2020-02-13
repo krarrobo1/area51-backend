@@ -282,6 +282,8 @@ async function obtenerTiempoLaborado(id) {
     `;
     try {
         let asistencias = await sequelize.query(QUERY, { type: QueryTypes.SELECT });
+    
+        
         if (asistencias.length === 0) return { message: 'SinRegistros', data: { tiempoLaborado: "00:00:00" } };
 
         let ultimaAsistencia = asistencias[asistencias.length - 1];
@@ -294,21 +296,22 @@ async function obtenerTiempoLaborado(id) {
 
         // Si el ultimo registro es una entrada lo sustraemos con la hora actual.
         if (ultimaAsistencia.evento === 'Entrada') {
-            let tiempoActual = new Date();
-            asistencias.push({hora: `${hoy} ${tiempoActual.toTimeString().split(' ')[0]}`,evento: 'Salida'});
+            asistencias.push({evento: 'Salida', fecha: new Date});
             // salidas.push({ hora: `${hoy} ${tiempoActual.toTimeString().split(' ')[0]}` });
         }
         let temp = null;
         for (let i = 0; i < asistencias.length; i++) {
-            let {hora, evento} = asistencias[i];
-            if(temp === null) temp = {hora, evento};
-            else{
-                if(temp.evento !== 'Entrada') break;
-                let sum = subDateTime(new Date(temp.hora),new Date(hora));
+            //console.log({asis:asistencias[i]});
+            let {evento, fecha} = asistencias[i];
+            if(temp === null) temp = {evento, fecha};
+            else{      
+                let sum = subDateTime(temp.fecha,fecha);
                 total === null ? total = sum : total = addTime(sum, total);
                 temp = null;
             } 
         }
+        //console.log({total});
+        
         // if (entradas.length === salidas.length) {
         //     for (let i = 0; i < entradas.length; i++) {
         //         const etemp = entradas[i];
