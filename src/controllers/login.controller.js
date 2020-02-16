@@ -27,18 +27,18 @@ export async function LogIn(req, res, next) {
             ]
         });
 
-        if (!empleadoTemp) return res.status(404).json({ ok: false, message: 'UsuarioNoEncontrado' });
+        if (!empleadoTemp) return res.status(404).json({ ok: false, message: 'Email o contraseña incorrectos' });
 
         let dispositivo = await Dispositivo.findOne({ where: { empleadoid: empleadoTemp.id, isweb: true } });
 
 
         //     { model: Dispositivo, attributes: ['id'], where: { isweb: true } }
         if (!empleadoTemp) {
-            return res.status('401').json({ ok: false, message: 'Email o password incorrectos' });
+            return res.status('401').json({ ok: false, message: 'Email o contraseña incorrectos' });
         }
         let flag = await bcrypt.compare(String(password), empleadoTemp.password);
         if (!flag) {
-            return res.status('401').json({ ok: false, message: 'Email o password incorrectos' });
+            return res.status('401').json({ ok: false, message: 'Email o contraseña incorrectos' });
         }
         let data = empleadoTemp.dataValues;
         delete data.password;

@@ -197,15 +197,14 @@ function writeRow(ws, row, i, registry, empresa) {
 function getDailyTotal(entradas, salidas) {
     let total = '';
     const mockDate = '01/01/2020';
-    if(entradas.length > salidas.length) entradas.shift();
-    else if (salidas.lengh > entradas.lenght) salidas.pop();  
-    for (let i = 0; i < entradas.length; i++) { 
+
+    if (entradas.length > salidas.length) entradas.pop();
+    else if (salidas.length > entradas.length) salidas.shift();
+
+    console.log({ entradas, salidas })
+    for (let i = 0; i < entradas.length; i++) {
         let totalTemp = subDateTime(new Date(`${mockDate} ${salidas[i]}`), new Date(`${mockDate} ${entradas[i]}`));
-        console.log({totalTemp});
-        
-        (total === '') ? total = totalTemp : total = addTime(total, totalTemp);
-        console.log({total});
-        
+        (total === '') ? total = totalTemp: total = addTime(total, totalTemp);
     }
     return total;
 }
@@ -214,7 +213,7 @@ function getMonthlyTotal(totales) {
     let total = '';
     for (let i = 0; i < totales.length; i++) {
         let temp = totales[i];
-        (total === '') ? total = temp : total = addTime(total, temp);
+        (total === '') ? total = temp: total = addTime(total, temp);
     }
     return total;
 }

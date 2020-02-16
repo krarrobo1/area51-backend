@@ -282,51 +282,27 @@ async function obtenerTiempoLaborado(id) {
     `;
     try {
         let asistencias = await sequelize.query(QUERY, { type: QueryTypes.SELECT });
-    
-        
-        if (asistencias.length === 0) return { message: 'SinRegistros', data: { tiempoLaborado: "00:00:00" } };
-
-        let ultimaAsistencia = asistencias[asistencias.length - 1];
 
         // Si el primer registro es una salida no se toma en cuenta en el conteo.
         if (asistencias[0].evento === 'Salida') asistencias.shift();
 
-        // Agrupamos entradas y salidas
-        // asistencias.forEach(asistencia => { asistencia.evento === 'Entrada' ? entradas.push(asistencia) : salidas.push(asistencia) });
+        if (asistencias.length === 0) return { data: { tiempoLaborado: "00:00:00" } };
 
-        // Si el ultimo registro es una entrada lo sustraemos con la hora actual.
+        let ultimaAsistencia = asistencias[asistencias.length - 1];
+
         if (ultimaAsistencia.evento === 'Entrada') {
-            asistencias.push({evento: 'Salida', fecha: new Date});
-            // salidas.push({ hora: `${hoy} ${tiempoActual.toTimeString().split(' ')[0]}` });
+            asistencias.push({ evento: 'Salida', fecha: new Date });
         }
         let temp = null;
         for (let i = 0; i < asistencias.length; i++) {
-            //console.log({asis:asistencias[i]});
-            let {evento, fecha} = asistencias[i];
-            if(temp === null) temp = {evento, fecha};
-            else{
-                //if(temp.evento === 'Entrada') continue;      
-                let sum = subDateTime(temp.fecha,fecha);
+            let { evento, fecha } = asistencias[i];
+            if (temp === null) temp = { evento, fecha };
+            else {
+                let sum = subDateTime(temp.fecha, fecha);
                 total === null ? total = sum : total = addTime(sum, total);
                 temp = null;
-            } 
+            }
         }
-        //console.log({total});
-        
-        // if (entradas.length === salidas.length) {
-        //     for (let i = 0; i < entradas.length; i++) {
-        //         const etemp = entradas[i];
-        //         const stemp = salidas[i];
-
-        //         let { hora: ehour } = etemp;
-        //         let { hora: shour } = stemp;
-
-        //         let temp = subDateTime(new Date(ehour), new Date(shour));
-
-        //         total === null ? total = temp : total = addTime(temp, total);
-        //         // console.log({ ehour, shour, total });
-        //     }
-        // }
         return { data: { tiempoLaborado: total, evento: ultimaAsistencia.evento } }
     } catch (err) {
         throw err;
