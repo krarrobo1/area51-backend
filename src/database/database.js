@@ -1,6 +1,5 @@
 import Sequelize from 'sequelize';
 import { dbenv } from '../config/config';
-console.log("DB!!!",dbenv);
 export const sequelize = new Sequelize(dbenv.db, dbenv.config);
 
 sequelize.authenticate()
