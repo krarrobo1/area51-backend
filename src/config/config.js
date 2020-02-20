@@ -45,32 +45,32 @@ const development = {
 };
 
 
-// const production = {
-//     db: {
-//         database: process.env.DB_NAME,
-//         username: process.env.DB_USER,
-//         password: process.env.DB_PASSWORD,
-//     },
-//     config: {
-//         dialect: 'postgres',
-//         dialectOptions:{
-//             ssl: true
-//         },
-//         ssl: true,
-//         host: process.env.DB_HOST,
-//         port: process.env.DB_PORT
-//     }
-// }
 const production = {
+    db: {
+        database: process.env.DB_NAME,
+        username: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+    },
+    config: {
         dialect: 'postgres',
-        dialectOptions: {
-            ssl: {
-                require: true
-            }
+        dialectOptions:{
+            ssl: true
         },
-        logging: false,
-        ssl: true
+        ssl: true,
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT
+    }
 }
+// const production = {
+//         dialect: 'postgres',
+//         dialectOptions: {
+//             ssl: {
+//                 require: true
+//             }
+//         },
+//         logging: false,
+//         ssl: true
+// }
 
 
 const devTransporter = {

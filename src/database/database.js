@@ -3,7 +3,9 @@ import { dburi,dbenv } from '../config/config';
 
 console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',JSON.stringify(dbenv, null, 2));
 
-export const sequelize = new Sequelize(dburi, dbenv);
+//export const sequelize = new Sequelize(dburi, dbenv);
+let {username, password, database} = dbenv.db;
+export const sequelize = new Sequelize(database,username,password,dbenv.config)
 
 
 sequelize.authenticate()
