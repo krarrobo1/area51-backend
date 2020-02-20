@@ -1,9 +1,9 @@
 import Sequelize from 'sequelize';
-import { dbenv } from '../config/config';
+import { dburi,dbenv } from '../config/config';
 
 console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',JSON.stringify(dbenv, null, 2));
 
-export const sequelize = new Sequelize(dbenv.db, dbenv.config);
+export const sequelize = new Sequelize(dburi, dbenv);
 
 
 sequelize.authenticate()
