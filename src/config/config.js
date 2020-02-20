@@ -35,6 +35,7 @@ if (env !== 'dev') {
 
 
 const development = {
+    dialect,
     pool: {
         max: 5,
         min: 0,

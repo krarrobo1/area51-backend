@@ -1,6 +1,10 @@
 import Sequelize from 'sequelize';
 import { dbenv } from '../config/config';
+
+console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',JSON.stringify(dbenv, null, 2));
+
 export const sequelize = new Sequelize(dbenv.db, dbenv.config);
+
 
 sequelize.authenticate()
     .then(() => {
