@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
-import { dburi, dbconfig } from '../config/config';
+import { dbenv } from '../config/config';
 
-export const sequelize = new Sequelize(dburi, dbconfig);
+export const sequelize = new Sequelize(dbenv.db, dbenv.config);
 
 sequelize.authenticate()
     .then(() => {
