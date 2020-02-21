@@ -13,7 +13,6 @@ export async function sendEmail(mail, res) {
     };
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`Email sended to ${to}`);
     } catch (err) {
         throw err
     }

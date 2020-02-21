@@ -5,7 +5,7 @@ import Cargo from '../models/Cargo';
 import Rol from '../models/Rol';
 import bcrypt from 'bcrypt';
 import shortid from 'shortid';
-import { sendEmail } from '../services/smtp';
+import { sendEmail } from '../libs/smtp';
 
 export async function crearEmpleado(req, res, next) {
     const { nombres, apellidos, ci, email, empresaid, cargoid, rolid } = req.body;
@@ -120,7 +120,7 @@ export async function setPassword(req, res, next) {
                 id
             }
         });
-        if (updated[0] === 0) return res.json({ ok: false,err:{ message: 'No se pudo reestablecer el Password'} });
+        if (updated[0] === 0) return res.json({ ok: false, err: { message: 'No se pudo reestablecer el Password' } });
         return res.json({ ok: true, message: 'Password reestablecido satisfactoriamente' });
 
     } catch (err) {
@@ -139,7 +139,7 @@ export async function obtenerEmpleadosPorEmpresa(req, res, next) {
                 id
             }
         });
-        if (!empresa) return res.status(404).json({ ok: false, err:{message: 'Empresa no encontrada'} });
+        if (!empresa) return res.status(404).json({ ok: false, err: { message: 'Empresa no encontrada' } });
         let empleados = await Empleado.findAll({
             where: { empresaid: id },
             attributes: ['id', 'nombres', 'apellidos', 'email', 'ci'],
@@ -169,7 +169,7 @@ export async function obtenerEmpleado(req, res, next) {
                 { model: Rol }
             ]
         });
-        if (!empleado) return res.status(404).json({ ok: false, err:{message: 'Usuario no encontrado'} });
+        if (!empleado) return res.status(404).json({ ok: false, err: { message: 'Usuario no encontrado' } });
         delete empleado.dataValues.password;
         return res.json({ ok: true, data: empleado });
     } catch (err) {
@@ -188,7 +188,7 @@ export async function modificarEmpleado(req, res, next) {
         }, {
             fields: ['nombres', 'apellidos', 'ci', 'email', 'cargoid']
         });
-        if (updated[0] === 0) return res.status(404).json({ ok: false, err: {message: 'Usuario no encontrado'} });
+        if (updated[0] === 0) return res.status(404).json({ ok: false, err: { message: 'Usuario no encontrado' } });
         return res.json({ ok: true, message: 'Empleado actualizado satisfactoriamente' });
     } catch (err) {
         next(err);
@@ -203,7 +203,7 @@ export async function eliminarEmpleado(req, res, next) {
                 id
             }
         });
-        if (deleted === 0) return res.status(404).json({ ok: false, err:{message: 'Empleado no encontrado'} });
+        if (deleted === 0) return res.status(404).json({ ok: false, err: { message: 'Empleado no encontrado' } });
         return res.json({ ok: true, message: 'Empleado eliminado satisfactoriamente' });
 
     } catch (err) {

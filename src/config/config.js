@@ -1,31 +1,20 @@
+import { google } from 'googleapis';
+
 export const port = process.env.PORT || 4000;
 export const time = process.env.CRON || '*/15 * * * *';
-
 export const env = process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
-
 export const dburi = process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgres://postgres:1234@localhost:5432/nueva';
 export const seed = process.env.SEED = process.env.SEED || '19wrqk12n3f876653deyuop';
-
 export const google_key = process.env.GOOGLE_KEY;
 
-import { google } from 'googleapis';
+
 const OAuth2 = google.auth.OAuth2;
-
-/*let gmailConfig = {
-    userid: process.env.USER_ID,
-    secret: process.env.G_SECRET,
-    refresh_token: process.env.R_TOKEN,
-}*/
-
 const oauth2Client = new OAuth2(
     process.env.USER_ID,
     process.env.G_SECRET,
     "https://developers.google.com/oauthplayground"
 );
-
-
 let accessToken;
-
 if (env !== 'dev') {
     oauth2Client.setCredentials({
         refresh_token: process.env.R_TOKEN
@@ -35,42 +24,49 @@ if (env !== 'dev') {
 
 
 const development = {
-    dialect: 'postgres',
-    pool: {
-        max: 5,
-        min: 0,
-        acquire: 30000,
-        idle: 10000
+    db: {
+        database: 'nueva',
+        username: 'postgres',
+        password: '',
+    },
+    config: {
+        dialect: 'postgres',
+        pool: {
+            max: 5,
+            min: 0,
+            acquire: 30000,
+            idle: 10000
+        }
     }
 };
 
 
 const production = {
-    db: {
-        database: process.env.DB_NAME,
-        username: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-    },
-    config: {
-        dialect: 'postgres',
-        dialectOptions:{
-            ssl: true
+        db: {
+            database: process.env.DB_NAME,
+            username: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
         },
-        ssl: true,
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT
+        config: {
+            dialect: 'postgres',
+            dialectOptions: {
+                ssl: true
+            },
+            ssl: true,
+            host: process.env.DB_HOST,
+            port: process.env.DB_PORT
+        }
     }
-}
-// const production = {
-//         dialect: 'postgres',
-//         dialectOptions: {
-//             ssl: {
-//                 require: true
-//             }
-//         },
-//         logging: false,
-//         ssl: true
-// }
+    // const production = {
+    //         dialect: 'postgres',
+    //         dialectOptions: {
+    //             ssl: {
+    //                 require: true
+    //             }
+    //         },
+    //         logging: false,
+    //         ssl: true
+    // }
 
 
 const devTransporter = {

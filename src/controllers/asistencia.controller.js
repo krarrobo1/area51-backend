@@ -11,10 +11,10 @@ import Temp from '../models/Temp';
 
 
 import stream from 'stream';
-import { subDateTime, addTime } from '../services/timecalculator';
+import { subDateTime, addTime } from '../libs/timecalculator';
 
 
-import { createReport } from '../services/excelgenerator';
+import { createReport } from '../libs/excelgenerator';
 import * as dt from 'date-fns';
 import { es } from 'date-fns/locale';
 import { sequelize } from '../database/database';

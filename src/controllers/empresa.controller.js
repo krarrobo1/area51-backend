@@ -1,5 +1,5 @@
 import Empresa from '../models/Empresa';
-import { getAddress } from '../services/geo';
+import { getAddress } from '../libs/geo';
 
 export async function crearEmpresa(req, res, next) {
     const { nombre, latitud, longitud, radio } = req.body;

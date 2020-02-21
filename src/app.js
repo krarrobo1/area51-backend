@@ -1,7 +1,8 @@
 import express, { json } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
-import path from 'path';
+import helmet from 'helmet';
+import { errorHandler } from './libs/error-handler';
 //Routes
 import empresaRoutes from './routes/empresa';
 import empleadoRoutes from './routes/empleado';
@@ -22,6 +23,7 @@ const app = express();
 
 // Middlewares
 app.use(cors());
+app.use(helmet());
 // Logger
 app.use(morgan('dev'));
 app.use(json());
@@ -40,18 +42,6 @@ app.use('/api/permiso', permiso);
 app.use('/api/utils', utils);
 app.use('/api/dias', dia);
 
-app.use(function(err, req, res, next) {
-    let { name, message } = err;
-    console.log(`Server Error: ${err}`);
-    if (message === 'Validation error') {
-        let stack = err.errors[0].message;
-        return res.status(500).json({ ok: false, err: { message: `ErrorDeValidacion: ${stack}` } });
-    }
-    if (name === 'SequelizeDatabaseError') {
-        return res.status(500).json({ ok: false, err: { message: `Database Error: ${message}` } });
-    } else {
-        return res.status(500).json({ ok: false, err: { message } });
-    }
-});
+app.use(errorHandler);
 
 export default app;
